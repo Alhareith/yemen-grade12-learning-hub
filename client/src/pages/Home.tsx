@@ -1,18 +1,25 @@
 /**
- * Design note — دفتر الوصول: every material exposes only two large, named choices: the official book and one reviewed Telegram channel.
+ * Design note — دفتر الوصول: science and language subjects are rich, grouped catalogs; Islamic subjects intentionally preserve one official-book action.
  */
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Atom,
+  BookMarked,
   BookOpenCheck,
   BookOpenText,
   ChevronLeft,
   Compass,
   Dna,
   ExternalLink,
+  FileQuestion,
+  FileText,
   FlaskConical,
+  HeartHandshake,
   Languages,
   MessageCircle,
+  PlayCircle,
+  Quote,
+  Scale,
   ScrollText,
   SearchCheck,
   Send,
@@ -21,7 +28,7 @@ import {
   Type,
   type LucideIcon,
 } from "lucide-react";
-import { simpleMaterials, type SimpleMaterial } from "@/data/simpleCatalog";
+import { examChannels, materials, resourceCategories, type MaterialCatalog, type ResourceCard } from "@/data/richCatalog";
 
 const LOGO_URL = "/manus-storage/yemen_learning_logo_d4c14700.png";
 const HERO_URL = "/manus-storage/yemen_learning_hero_2c99a99c.jpg";
@@ -29,116 +36,78 @@ const SUBJECTS_URL = "/manus-storage/yemen_learning_subjects_2e6313c9.jpg";
 const DEVELOPER_NAME = "الحارث الداهية";
 
 const icons: Record<string, LucideIcon> = {
-  رياضيات: Sigma,
-  فيزياء: Atom,
-  كيمياء: FlaskConical,
-  أحياء: Dna,
-  "لغة إنجليزية": Languages,
-  "نحو وصرف": Type,
-  "أدب ونصوص وبلاغة": BookOpenText,
-  قراءة: SearchCheck,
-  "قرآن كريم": ScrollText,
-  "سيرة نبوية": Compass,
+  رياضيات: Sigma, فيزياء: Atom, كيمياء: FlaskConical, أحياء: Dna, "لغة إنجليزية": Languages,
+  "نحو وصرف": Type, "أدب ونصوص وبلاغة": BookOpenText, قراءة: BookMarked, "قرآن كريم": ScrollText,
+  "حديث وتهذيب": Quote, إيمان: HeartHandshake, فقه: Scale, "سيرة نبوية": Compass,
 };
 
-export default function Home() {
-  const [selected, setSelected] = useState<SimpleMaterial>(simpleMaterials[0]);
-  const ActiveIcon = icons[selected.id] ?? BookOpenText;
+const categoryIcons: Record<string, LucideIcon> = {
+  books: BookOpenCheck, youtube: PlayCircle, telegram: Send, tests: FileQuestion, reviews: FileText,
+};
 
-  const chooseMaterial = (material: SimpleMaterial) => {
-    setSelected(material);
-    requestAnimationFrame(() => document.querySelector("#material-detail")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+function sourceButtonText(source: ResourceCard) {
+  if (source.category === "telegram") return `Telegram · ${source.handle ?? source.title}`;
+  if (source.category === "youtube") return "افتح الشرح على YouTube";
+  if (source.category === "tests") return "افتح النماذج والاختبارات";
+  if (source.category === "books") return "افتح الكتاب الرسمي";
+  return "افتح المصدر";
+}
+
+export default function Home() {
+  const [selectedId, setSelectedId] = useState("رياضيات");
+  const [filter, setFilter] = useState("books");
+  const selected = materials.find((material) => material.id === selectedId) ?? materials[0];
+  const SubjectIcon = icons[selected.icon] ?? BookOpenText;
+  const visibleSources = useMemo(() => selected.bookOnly || filter === "all" ? selected.sources : selected.sources.filter((source) => source.category === filter), [filter, selected]);
+  const groupedSources = useMemo(() => resourceCategories.slice(1).map((category) => ({ ...category, sources: visibleSources.filter((source) => source.category === category.id) })).filter((group) => group.sources.length > 0), [visibleSources]);
+
+  const chooseMaterial = (material: MaterialCatalog) => {
+    setSelectedId(material.id);
+    setFilter("books");
+    requestAnimationFrame(() => document.querySelector("#catalog")?.scrollIntoView({ behavior: "smooth", block: "start" }));
   };
 
   return (
     <div dir="rtl" className="min-h-screen overflow-x-hidden bg-[#fbf8f0] text-[#17354a]">
       <header className="sticky top-0 z-50 border-b border-[#d9e7e3] bg-[#fbf8f0]/95 backdrop-blur-xl">
-        <div className="mx-auto flex h-[78px] max-w-6xl items-center justify-between px-4 sm:px-6">
-          <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-3 text-right" aria-label="العودة إلى بداية الدليل">
-            <img src={LOGO_URL} alt="رمز دليل الثالث الثانوي" className="h-12 w-12 object-contain" />
-            <span><strong className="block font-kufi text-[15px] text-[#175A7A]">دليل الثالث</strong><span className="mt-0.5 block text-[12px] font-bold text-[#71868f]">علمي · اليمن</span></span>
-          </button>
-          <a href="#materials" className="header-action">المواد</a>
+        <div className="mx-auto flex h-[78px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-3 text-right" aria-label="العودة إلى بداية الدليل"><img src={LOGO_URL} alt="رمز دليل الثالث الثانوي" className="h-12 w-12 object-contain" /><span><strong className="block font-kufi text-[15px] text-[#175A7A]">دليل الثالث</strong><span className="mt-0.5 block text-[12px] font-bold text-[#71868f]">علمي · اليمن</span></span></button>
+          <div className="hidden items-center gap-5 text-sm font-bold text-[#617982] md:flex"><a href="#materials">المواد</a><a href="#exams">الاختبارات</a></div>
+          <a href="#materials" className="header-action">اختر مادة</a>
         </div>
       </header>
 
       <main>
-        <section className="hero-shell mx-auto max-w-6xl px-4 pt-6 sm:px-6 sm:pt-10">
-          <div className="hero-paper relative overflow-hidden">
-            <img src={HERO_URL} alt="دفتر ومصادر تعليمية" className="hero-image" />
-            <div className="hero-shade" />
-            <div className="relative z-10 max-w-2xl px-5 py-10 sm:px-10 sm:py-16">
-              <span className="eyebrow"><Sparkles className="h-4 w-4" />دليل مصادر منظّم للثالث الثانوي</span>
-              <h1 className="hero-title mt-5">افتح <span>الكتاب الرسمي</span><br />وادخل قناة المادة مباشرة.</h1>
-              <p className="mt-5 max-w-xl text-[16px] font-medium leading-8 text-[#5c747d] sm:text-lg">لكل مادة خياران واضحان فقط: كتاب المنهج من البوابة الرسمية، وقناة Telegram تم التحقق من تخصصها.</p>
-              <div className="hero-steps mt-7" aria-label="مسار الاستخدام">
-                <span><b>١</b>اختر المادة</span><i /> <span><b>٢</b>افتح الكتاب</span><i /> <span><b>٣</b>ادخل القناة</span>
-              </div>
-              <a href="#materials" className="hero-cta mt-8">ابدأ باختيار المادة <ChevronLeft className="h-5 w-5" /></a>
-            </div>
+        <section className="mx-auto max-w-7xl px-4 pt-6 sm:px-6 sm:pt-10 lg:px-8">
+          <div className="hero-paper relative overflow-hidden"><img src={HERO_URL} alt="دفتر ومصادر تعليمية" className="hero-image" /><div className="hero-shade" />
+            <div className="relative z-10 max-w-2xl px-5 py-10 sm:px-10 sm:py-16"><span className="eyebrow"><Sparkles className="h-4 w-4" />مرجع مصادر الثالث الثانوي العلمي</span><h1 className="hero-title mt-5">كل ما تحتاجه للمادة،<span> في مكان منظم وواضح.</span></h1><p className="mt-5 max-w-xl text-[16px] font-medium leading-8 text-[#5c747d] sm:text-lg">مصادر الكتب، الشروحات، YouTube، مواقع التدريب، وقنوات Telegram الموثوقة للمواد العلمية والإنجليزية. أمّا التربية الإسلامية والقرآن فتبقى على الكتاب الرسمي فقط.</p><div className="hero-steps mt-7"><span><b>١</b>اختر المادة</span><i /><span><b>٢</b>اختر نوع المصدر</span><i /><span><b>٣</b>افتح ما تحتاجه</span></div><a href="#materials" className="hero-cta mt-8">تصفح المصادر <ChevronLeft className="h-5 w-5" /></a></div>
           </div>
         </section>
 
-        <section id="materials" className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="section-intro">
-            <span className="section-kicker">خطوة ١</span>
-            <div><h2>اختر المادة التي تريد مراجعتها</h2><p>اضغط على بطاقة المادة، ثم ستظهر لك خياراتها في قسم واحد واضح أسفلها.</p></div>
-          </div>
-          <div className="materials-grid mt-7">
-            {simpleMaterials.map((material, index) => {
-              const Icon = icons[material.id] ?? BookOpenText;
-              const isActive = selected.id === material.id;
-              return (
-                <button key={material.id} onClick={() => chooseMaterial(material)} className={`material-card ${index === 0 ? "material-featured" : ""} ${isActive ? "material-active" : ""}`}>
-                  <span className="material-icon"><Icon className="h-6 w-6" strokeWidth={1.8} /></span>
-                  <span className="material-name">{material.title}</span>
-                  <span className="material-prompt">افتح خيارات المادة <ChevronLeft className="h-4 w-4" /></span>
-                </button>
-              );
-            })}
-          </div>
+        <section id="materials" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="section-intro"><span className="section-kicker">اختر المادة</span><div><h2>المواد منظمة حسب احتياجك</h2><p>المواد العلمية والإنجليزية تحتوي كل المصادر. المواد الإسلامية والقرآن تعرض الكتاب الرسمي فقط.</p></div></div>
+          <div className="materials-grid mt-7">{materials.map((material, index) => { const Icon = icons[material.icon] ?? BookOpenText; const isActive = selected.id === material.id; return <button key={material.id} onClick={() => chooseMaterial(material)} className={`material-card ${index === 0 ? "material-featured" : ""} ${isActive ? "material-active" : ""}`}><span className="material-icon"><Icon className="h-6 w-6" strokeWidth={1.8} /></span><span className="material-name">{material.title}</span><span className="material-prompt">{material.bookOnly ? "الكتاب الرسمي فقط" : `${material.sources.length} مصادر منظمة`} <ChevronLeft className="h-4 w-4" /></span></button>; })}</div>
         </section>
 
-        <section id="material-detail" className="detail-band px-4 py-14 sm:px-6">
-          <div className="mx-auto max-w-6xl">
-            <div className="detail-heading">
-              <span className="active-subject-icon"><ActiveIcon className="h-8 w-8" /></span>
-              <div><span className="section-kicker text-[#bde9dc]">خطوة ٢</span><h2>مصادر {selected.title}</h2><p>اختر الخيار الذي تحتاجه الآن. لا يوجد ما يشتتك هنا.</p></div>
-            </div>
-            <div className="source-choice-grid mt-8">
-              <article className="source-choice book-choice">
-                <div className="choice-top"><span className="choice-index">١</span><span className="choice-label"><BookOpenCheck className="h-5 w-5" />الكتاب الرسمي</span></div>
-                <h3>{selected.book.title}</h3>
-                <p>المصدر: {selected.book.platform === "PDF" ? "بوابة التعليم الإلكتروني اليمنية" : selected.book.platform}</p>
-                <a href={selected.book.url} target="_blank" rel="noreferrer" className="choice-button book-button">افتح الكتاب الرسمي <ExternalLink className="h-5 w-5" /></a>
-              </article>
+        <section id="catalog" className="catalog-band px-4 py-14 sm:px-6 lg:px-8"><div className="mx-auto max-w-7xl">
+          <div className="catalog-heading"><span className="active-subject-icon"><SubjectIcon className="h-8 w-8" /></span><div><span className="section-kicker text-[#bde9dc]">مصادر المادة</span><h2>{selected.title}</h2><p>{selected.bookOnly ? "هذه المادة تعرض من الكتاب الرسمي فقط، كما طلبت." : "اختر نوع المصدر، ثم افتح البطاقة المناسبة. اسم قناة Telegram ظاهر داخل كل زر."}</p></div></div>
+          {!selected.bookOnly && <div className="filter-row mt-8" role="tablist" aria-label="تصنيف مصادر المادة">{resourceCategories.map((category) => { const count = category.id === "all" ? selected.sources.length : selected.sources.filter((source) => source.category === category.id).length; if (category.id !== "all" && count === 0) return null; return <button key={category.id} onClick={() => setFilter(category.id)} className={`filter-chip ${filter === category.id ? "filter-active" : ""}`} role="tab" aria-selected={filter === category.id}>{category.label}<span>{count}</span></button>; })}</div>}
+          <div className={`catalog-groups mt-8 ${selected.bookOnly ? "book-only-layout" : ""}`}>{groupedSources.map((group) => { const GroupIcon = categoryIcons[group.id] ?? FileText; return <section key={group.id} className="catalog-group"><div className="group-heading"><span><GroupIcon className="h-5 w-5" /></span><h3>{group.label}</h3><small>{group.sources.length} مصدر</small></div><div className="source-grid">{group.sources.map((source) => <ResourceTile key={source.id} source={source} />)}</div></section>; })}</div>
+        </div></section>
 
-              <article className="source-choice telegram-choice">
-                <div className="choice-top"><span className="choice-index">٢</span><span className="choice-label"><Send className="h-5 w-5" />قناة Telegram</span></div>
-                <h3>{selected.telegram.name}</h3>
-                <p><strong>{selected.telegram.handle}</strong> · {selected.telegram.kind}</p>
-                <div className="telegram-note"><MessageCircle className="h-4 w-4" />{selected.telegram.detail}</div>
-                <a href={selected.telegram.url} target="_blank" rel="noreferrer" className="choice-button telegram-button">ادخل قناة Telegram <ExternalLink className="h-5 w-5" /></a>
-              </article>
-            </div>
-            <div className="review-note mt-5"><SearchCheck className="h-5 w-5" /><span>تم اختيار القناة بعد فحص الاسم والوصف وتخصص المحتوى. تظهر القنوات العامة الرسمية بوسم واضح.</span></div>
-          </div>
-        </section>
+        <section id="exams" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8"><div className="exam-intro"><div><span className="section-kicker">قسم عام</span><h2>النماذج والاختبارات للثالث الثانوي</h2><p>قنوات مختارة تساعدك في النماذج الوزارية والمراجعة والاختبارات.</p></div><FileQuestion className="hidden h-16 w-16 text-[#d1774e] sm:block" /></div><div className="exam-grid mt-7">{examChannels.map((channel) => <article key={channel.url} className="exam-card"><span className="exam-badge">{channel.badge}</span><h3>{channel.title}</h3><p><strong>{channel.handle}</strong> · {channel.detail}</p><a href={channel.url} target="_blank" rel="noreferrer" className="exam-button">Telegram · {channel.handle}<ExternalLink className="h-4 w-4" /></a></article>)}</div></section>
 
-        <section className="mx-auto grid max-w-6xl gap-7 px-4 py-14 sm:px-6 md:grid-cols-[1fr_330px] md:items-center">
-          <div><span className="section-kicker">كيف تستخدم الدليل؟</span><h2 className="how-title mt-3">كل مادة في مكانها، وكل قرار واضح أمامك.</h2><div className="how-list mt-7"><p><b>أولًا:</b> ابدأ بالكتاب الرسمي؛ فهو مرجعك الأساسي للمقرر.</p><p><b>ثانيًا:</b> ادخل القناة الظاهرة بالاسم عندما تحتاج شرحًا أو مراجعة أو نماذج.</p><p><b>ثالثًا:</b> عُد إلى الدليل وانتقل لمادة أخرى دون البحث في قنوات مشتتة.</p></div></div>
-          <img src={SUBJECTS_URL} alt="رموز مواد علمية" className="how-image" />
-        </section>
+        <section className="mx-auto grid max-w-7xl gap-7 px-4 pb-14 sm:px-6 md:grid-cols-[1fr_330px] md:items-center lg:px-8"><div><span className="section-kicker">كيف تستخدم الدليل؟</span><h2 className="how-title mt-3">لا تحتاج إلى حفظ أسماء القنوات؛ اختر المادة ونوع المصدر فقط.</h2><div className="how-list mt-7"><p><b>الكتب:</b> مرجعك الأول ومن البوابة الرسمية.</p><p><b>الشرح وYouTube:</b> افتحه عندما تحتاج تبسيط درس أو متابعة قائمة كاملة.</p><p><b>Telegram والاختبارات:</b> الاسم والمعرّف ظاهران أمامك لتعرف بالضبط إلى أين ستنتقل.</p></div></div><img src={SUBJECTS_URL} alt="رموز مواد علمية" className="how-image" /></section>
       </main>
 
-      <footer className="footer-shell px-4 py-9 sm:px-6">
-        <div className="mx-auto flex max-w-6xl flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-right">
-          <div className="flex items-center justify-center gap-3 sm:justify-start"><img src={LOGO_URL} alt="" className="h-11 w-11" /><span><strong className="block font-kufi text-sm text-[#175A7A]">دليل الثالث الثانوي اليمني</strong><span className="block pt-1 text-xs font-medium text-[#6d838b]">المصادر الخارجية ملك لأصحابها وتفتح في منصة المصدر.</span></span></div>
-          <p className="developer-credit">تصميم وتطوير <strong>{DEVELOPER_NAME}</strong></p>
-        </div>
-      </footer>
-
-      <nav className="mobile-nav md:hidden" aria-label="تنقل سريع"><a href="#materials">المواد</a><a href="#material-detail">مصادر {selected.title}</a></nav>
+      <footer className="footer-shell px-4 py-9 sm:px-6 lg:px-8"><div className="mx-auto flex max-w-7xl flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-right"><div className="flex items-center justify-center gap-3 sm:justify-start"><img src={LOGO_URL} alt="" className="h-11 w-11" /><span><strong className="block font-kufi text-sm text-[#175A7A]">دليل الثالث الثانوي اليمني</strong><span className="block pt-1 text-xs font-medium text-[#6d838b]">الكتب والمصادر الخارجية تفتح في منصاتها الأصلية.</span></span></div><p className="developer-credit">تصميم وتطوير <strong>{DEVELOPER_NAME}</strong></p></div></footer>
+      <nav className="mobile-nav md:hidden" aria-label="تنقل سريع"><a href="#materials">المواد</a><a href="#catalog">مصادر {selected.title}</a><a href="#exams">الاختبارات</a></nav>
     </div>
   );
+}
+
+function ResourceTile({ source }: { source: ResourceCard }) {
+  const Icon = categoryIcons[source.category] ?? FileText;
+  const buttonText = sourceButtonText(source);
+  return <article className={`resource-tile resource-${source.category}`}><div className="resource-top"><span className="resource-badge"><Icon className="h-3.5 w-3.5" />{source.badge}</span>{source.handle && <span className="telegram-handle">{source.handle}</span>}</div><h4>{source.title}</h4><p>{source.detail || source.platform}</p><a href={source.url} target="_blank" rel="noreferrer" className="resource-button">{buttonText}<ExternalLink className="h-4 w-4" /></a></article>;
 }
