@@ -1,0 +1,637 @@
+{
+  "checkedAt": "2026-08-27T14:08:18.715Z",
+  "rules": {
+    "keep": "كل استجابة 2xx أو 3xx أو 401 أو 403 أو 405، وكذلك الاستجابات غير الحاسمة.",
+    "remove": "فقط الاستجابة 404 أو 410 التي تثبت أن الرابط معطل أو أزيل."
+  },
+  "total": 104,
+  "reachable": [
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/al_eiman_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/al_eiman_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/al_hadith_fikh_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/al_hadith_fikh_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/al_sira_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/al_sira_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/biology_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/biology_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/biology_actions_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/biology_actions_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/chemistry_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/chemistry_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/chemistry_actions_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/chemistry_actions_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/english_pubils_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/english_pubils_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/english_work_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/english_work_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/exercise_mathe_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/exercise_mathe_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/fikh_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/fikh_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/holy_quran_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/holy_quran_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/mathematic_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/mathematic_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/nahw_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/nahw_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/nosos_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/nosos_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/physical_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/physical_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/physical_actions_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/physical_actions_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/adel/android_1/book_12/reading_12th.pdf",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/adel/android_1/book_12/reading_12th.pdf",
+      "method": "HEAD"
+    },
+    {
+      "url": "http://e-learning-moe.edu.ye/ClassTwelve.php",
+      "status": 200,
+      "finalUrl": "http://e-learning-moe.edu.ye/ClassTwelve.php",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://alharethprofilo.netlify.app/",
+      "status": 200,
+      "finalUrl": "https://alharethprofilo.netlify.app/",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLScbt1qtRYR-hKTMC8lttbiy_60SMIdsgZHI_CQXf8bUQBPh5w/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLScbt1qtRYR-hKTMC8lttbiy_60SMIdsgZHI_CQXf8bUQBPh5w/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLScMols2lbTOVx8Ru-R1TwaWUTDEliqw--q1FBbYehLoRedadQ/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLScMols2lbTOVx8Ru-R1TwaWUTDEliqw--q1FBbYehLoRedadQ/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLScNCh_MQU72pV_8l4kOZmqLLp9T7WfoB3v2vPQSmRkvdavQwQ/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLScNCh_MQU72pV_8l4kOZmqLLp9T7WfoB3v2vPQSmRkvdavQwQ/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSdfnTXw1sz-3Yls-DRFoIRpV_S9fNle2CcSMnEaNSHOm0h8-A/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdfnTXw1sz-3Yls-DRFoIRpV_S9fNle2CcSMnEaNSHOm0h8-A/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSekZZ16Rf4x1z3A77JZWHBRp69G_1U3ikC2pWoI5p1eWVqH3A/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSekZZ16Rf4x1z3A77JZWHBRp69G_1U3ikC2pWoI5p1eWVqH3A/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSeLXTyaVBwjztYR5oQZ2wJAEHXCRAp_e34nGRgJ_c53mrGoaA/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSeLXTyaVBwjztYR5oQZ2wJAEHXCRAp_e34nGRgJ_c53mrGoaA/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSep9cfmdKxssZDlvMiy4eLN4fgQwlvXeC1kd-KWJuwJ_ObaHg/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSep9cfmdKxssZDlvMiy4eLN4fgQwlvXeC1kd-KWJuwJ_ObaHg/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://docs.google.com/forms/d/e/1FAIpQLSewUh09lEC7SCz5os-5mtU2SnVW1Jk1D3hqfpCiqxX1VpYLRw/viewform?usp=sf_link",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSewUh09lEC7SCz5os-5mtU2SnVW1Jk1D3hqfpCiqxX1VpYLRw/viewform?usp=sf_link",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://drive.google.com/drive/folders/1lS_GIk2lJD-1XwM1YCwDztzssaK3Pbkk",
+      "status": 200,
+      "finalUrl": "https://drive.google.com/drive/folders/1lS_GIk2lJD-1XwM1YCwDztzssaK3Pbkk",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://drive.google.com/file/d/1WuaZNnuuMO_bhu7dlvsKAdaG2oLL1J31/view?usp=sharing",
+      "status": 200,
+      "finalUrl": "https://drive.google.com/file/d/1WuaZNnuuMO_bhu7dlvsKAdaG2oLL1J31/view?usp=sharing",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/8xciSH2DMvHa3KDHA",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSe3ETmzyzBPzoLZk6H9zpu25BUZ3GTJtovrAz8RemgPq3Nbjw/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/BT5vmi2npvZ5WDX87",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfYjUErGprvq9ZRrc7cgrA5mj0tXlbbhmL3J8WGhsREN3b6Rg/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/E5RhgtDU5B3SBFtd9",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfF94CjNiIs4Pcji4Wo3J80g2fbSVdDkf4QUhvE44h7SoIYDw/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/eAynR8rkdortcGSZ9",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLScf2kfDRR4zHdsSWMre1_tHwPi0KN0z0BZ4qIb6V1gxXPTzkA/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/hsAZ48Ff2UkRBwsPA",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSeub8YI99jVNN6JjgYoFw8ekpCEexEXTl0jjThUhjigrzDKIQ/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/JE4o8ebozf728gfS7",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfuvNA1rGj23fqApwWn1Iti217vXVolu1mNArw1liL_SLjyHA/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/jQm3vm7A3jKDMCrT9",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSe03yKrdeslThFyxQ4b4wDnMnCcz3lHvmSqTmLDB5mKNJpTCw/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/Lmqy4BhM8m3EpWgm7",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfSqcvaniHxekysZ0SKDO7VRwZhtMSofMn6DnyemOkU5X0hqQ/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/LojGiYdU7ehsUjm49",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdhZIc-stqrbvmOSzYgqbJBAv3OTY2e0TyWZWR5dx7RKGwf6w/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/MUCU4YMQxzc2sJPo9",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdQp8Y8_ufIKWGX3JTxubWdYnNo6djvd2rG9oPcCUAP2GrnHA/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/nZRtUkLm4cH9Vfxa7",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdapd49f_1AZW-q-m2cbPDk4GfdLzcIMbTr_o29ZjnNVbiorg/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/Q49YjZbtGkgygDsV8",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSfszh8S-2EUf7mWtPUaOSTw4Wx8lPW9TWNp3FN09OlVzUIonw/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/QX7oNLaNvJxetxg7A",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLScZ4FsJ_DH93dESODSVhIq8ZYDfZEm4sbHZccrJZwtfTw3MgA/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/vveFG1wcb5ATRQya6",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSeB4kRDisFHlBurbi8iKgARuFhKXKdYJaehCMDHGYhjehjA3Q/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/w1Lhhvn5sXzyKsjWA",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLScNUFusyCL7MVVVpeNZSWqHzklIBn1UI11tHQ0srnRjpZ3T1Q/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/ZGRU1m4MJ8i9gQog7",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSdcKRwIP0bdLQaS4-dPOXCW15Yc-VOhH-d-h0tATEX45vsYuQ/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://forms.gle/zuh68veq3JgBBBw4A",
+      "status": 200,
+      "finalUrl": "https://docs.google.com/forms/d/e/1FAIpQLSf7ANfqh4Kdspli8Nut785NZiASoYji6-V4TOmf5U6FOHH9Lg/viewform?usp=send_form",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://github.com/Alhareith",
+      "status": 200,
+      "finalUrl": "https://github.com/Alhareith",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://huggingface.co/Alhareth7790",
+      "status": 200,
+      "finalUrl": "https://huggingface.co/Alhareth7790",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://m.lisanarb.com/2023/04/pdf_233.html",
+      "status": 200,
+      "finalUrl": "https://m.lisanarb.com/2023/04/pdf_233.html",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://meoh.gov.ye/services/high-school-exam-forms/",
+      "status": 200,
+      "finalUrl": "https://meoh.gov.ye/services/high-school-exam-forms/",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://meyon.com.ye/a/yaman.elearin.edu/videos?s=1",
+      "status": 200,
+      "finalUrl": "https://meyon.com.ye/a/yaman.elearin.edu/videos?s=1",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://sahl.io/ye/book/675/ثالث-ثانوي/الادب-والنصوص-والنقد",
+      "status": 200,
+      "finalUrl": "https://sahl.io/ye/book/675/%D8%AB%D8%A7%D9%84%D8%AB-%D8%AB%D8%A7%D9%86%D9%88%D9%8A/%D8%A7%D9%84%D8%A7%D8%AF%D8%A8-%D9%88%D8%A7%D9%84%D9%86%D8%B5%D9%88%D8%B5-%D9%88%D8%A7%D9%84%D9%86%D9%82%D8%AF",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/abeerhydaar",
+      "status": 200,
+      "finalUrl": "https://t.me/abeerhydaar",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/AlnasserinEnglish12thGrade",
+      "status": 200,
+      "finalUrl": "https://t.me/AlnasserinEnglish12thGrade",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/Biologyfor12th",
+      "status": 200,
+      "finalUrl": "https://t.me/Biologyfor12th",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/Books_Yemen_new",
+      "status": 200,
+      "finalUrl": "https://t.me/Books_Yemen_new",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/ChemistryYemen",
+      "status": 200,
+      "finalUrl": "https://t.me/ChemistryYemen",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/devhareth",
+      "status": 200,
+      "finalUrl": "https://t.me/devhareth",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/exam3mathYemen",
+      "status": 200,
+      "finalUrl": "https://t.me/exam3mathYemen",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/exam3takamolmathYemen",
+      "status": 200,
+      "finalUrl": "https://t.me/exam3takamolmathYemen",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/kholastfekr",
+      "status": 200,
+      "finalUrl": "https://t.me/kholastfekr",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/mathyemenibb2022",
+      "status": 200,
+      "finalUrl": "https://t.me/mathyemenibb2022",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/nahgalawael",
+      "status": 200,
+      "finalUrl": "https://t.me/nahgalawael",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/physics_ibb2022",
+      "status": 200,
+      "finalUrl": "https://t.me/physics_ibb2022",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/physicsVideos_ibb2022",
+      "status": 200,
+      "finalUrl": "https://t.me/physicsVideos_ibb2022",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/Reveal12000",
+      "status": 200,
+      "finalUrl": "https://t.me/Reveal12000",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/thirdgroupye",
+      "status": 200,
+      "finalUrl": "https://t.me/thirdgroupye",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/yeducation2",
+      "status": 200,
+      "finalUrl": "https://t.me/yeducation2",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/YemenEducationC",
+      "status": 200,
+      "finalUrl": "https://t.me/YemenEducationC",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://t.me/Yemenmath",
+      "status": 200,
+      "finalUrl": "https://t.me/Yemenmath",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.alktab24.com/books/%D9%83%D8%AA%D8%A7%D8%A8-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B5%D9%81-%D8%A7%D9%84%D8%AB%D8%A7%D9%84%D8%AB-%D8%A7%D9%84%D8%AB%D8%A7%D9%86%D9%88%D9%8A-%D8%A7%D9%84-2/",
+      "status": 200,
+      "finalUrl": "https://www.alktab24.com/books/%D9%83%D8%AA%D8%A7%D8%A8-%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6%D9%8A%D8%A7%D8%AA-%D8%A7%D9%84%D8%B5%D9%81-%D8%A7%D9%84%D8%AB%D8%A7%D9%84%D8%AB-%D8%A7%D9%84%D8%AB%D8%A7%D9%86%D9%88%D9%8A-%D8%A7%D9%84-2/",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.e-najah.net/QBTHSSMath/",
+      "status": 200,
+      "finalUrl": "https://www.e-najah.net/QBTHSSMath/",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.facebook.com/alharth.aldahyt/",
+      "status": 200,
+      "finalUrl": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Falharth.aldahyt%2F",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.yemenbooks.com/2017/07/Book-Math-Exsrsise-Third-Secondary-Yemen.html",
+      "status": 200,
+      "finalUrl": "https://www.yemenbooks.com/2017/07/Book-Math-Exsrsise-Third-Secondary-Yemen.html",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.yemenbooks.com/2017/07/Book-Math-Third-Secondary-Yemen.html",
+      "status": 200,
+      "finalUrl": "https://www.yemenbooks.com/2017/07/Book-Math-Third-Secondary-Yemen.html",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/@-mathematicsyemen5134",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/@-mathematicsyemen5134",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/@-yemenischool5780",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/@-yemenischool5780",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/@Riathiat_atmatah_math",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/@Riathiat_atmatah_math",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/channel/UCgQXF1GXFkjoB6f5Ms8BGgQ",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/channel/UCgQXF1GXFkjoB6f5Ms8BGgQ",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/channel/UCrx0GbS_uoJMRTrTE4WOkFw/playlists",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/channel/UCrx0GbS_uoJMRTrTE4WOkFw/playlists",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PL7vxjmJ2XTN1nvdzi0hZGBTRxHwMZqjdq",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PL7vxjmJ2XTN1nvdzi0hZGBTRxHwMZqjdq",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PLC1boXvmEGWXF66sdOuQgzftuivQH6g3m",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PLC1boXvmEGWXF66sdOuQgzftuivQH6g3m",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PLD-q7i0kPHhAGMSb044nvfgs0WpMA_6vP",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PLD-q7i0kPHhAGMSb044nvfgs0WpMA_6vP",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PLD-q7i0kPHhDKvQr57tajbtNCRzrdaKd8",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PLD-q7i0kPHhDKvQr57tajbtNCRzrdaKd8",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PLDyfyc2u-gxEfYp97rzoclJuWAKPCCjsW",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PLDyfyc2u-gxEfYp97rzoclJuWAKPCCjsW",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PLiLqqc43AoR2TFs-DNOV8veKSwETnglvz",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PLiLqqc43AoR2TFs-DNOV8veKSwETnglvz",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PLiLqqc43AoR3lQJ1YiLjFq4PRD95lO_rY",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PLiLqqc43AoR3lQJ1YiLjFq4PRD95lO_rY",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/playlist?list=PLJzLYByPsG2DHUe_K1i36zuq5pfgaqyr3",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/playlist?list=PLJzLYByPsG2DHUe_K1i36zuq5pfgaqyr3",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=30FHFSFdANw",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=30FHFSFdANw",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=dSNuyljpnXw",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=dSNuyljpnXw",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=EKskdfhdDqg",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=EKskdfhdDqg",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Et8angnzo5c",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=Et8angnzo5c",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=JyaZah_v6_c",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=JyaZah_v6_c",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=K05SQORR2Ws",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=K05SQORR2Ws",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=qoeWJp6VBM",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=qoeWJp6VBM",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=Tw6B0uBELjE",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=Tw6B0uBELjE",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.youtube.com/watch?v=W8atUbNHu9o",
+      "status": 200,
+      "finalUrl": "https://www.youtube.com/watch?v=W8atUbNHu9o",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://yemenedu.com/?sdm_process_download=1&download_id=172",
+      "status": 200,
+      "finalUrl": "https://drive.usercontent.google.com/download?id=1A4C4YuMwtt-bjDLFiJDt3lPR9xzb61Ta&export=download",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://yemenedu.com/math-algebra-3sec-exam-2025/",
+      "status": 200,
+      "finalUrl": "https://yemenedu.com/math-algebra-3sec-exam-2025/",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://yemenedu.com/math-calculus-3sec-exam-2025/",
+      "status": 200,
+      "finalUrl": "https://yemenedu.com/math-calculus-3sec-exam-2025/",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://yemenmanhaj.com/books/القراءة-للصف-الثالث-الثانوي/",
+      "status": 200,
+      "finalUrl": "https://yemenmanhaj.com/books/%D8%A7%D9%84%D9%82%D8%B1%D8%A7%D8%A1%D8%A9-%D9%84%D9%84%D8%B5%D9%81-%D8%A7%D9%84%D8%AB%D8%A7%D9%84%D8%AB-%D8%A7%D9%84%D8%AB%D8%A7%D9%86%D9%88%D9%8A/",
+      "method": "HEAD"
+    }
+  ],
+  "confirmedDead": [],
+  "uncertain": [
+    {
+      "url": "https://drive.google.com/uc?export=download&id=1WuaZNnuuMO_bhu7dlvsKAdaG2oLL1J31",
+      "status": 503,
+      "finalUrl": "https://drive.usercontent.google.com/download?id=1WuaZNnuuMO_bhu7dlvsKAdaG2oLL1J31&export=download",
+      "method": "HEAD"
+    },
+    {
+      "url": "https://www.linkedin.com/in/%D8%A7%D9%84%D8%AD%D8%A7%D8%B1%D8%AB-%D8%A7%D9%84%D8%AF%D8%A7%D9%87%D9%8A%D8%A9-95b4a831a",
+      "status": 999,
+      "finalUrl": "https://www.linkedin.com/in/%D8%A7%D9%84%D8%AD%D8%A7%D8%B1%D8%AB-%D8%A7%D9%84%D8%AF%D8%A7%D9%87%D9%8A%D8%A9-95b4a831a",
+      "method": "GET"
+    }
+  ]
+}

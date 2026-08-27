@@ -4,6 +4,7 @@
 import { useMemo, useState } from "react";
 import {
   Atom,
+  BookOpen,
   BookMarked,
   BookOpenCheck,
   BookOpenText,
@@ -34,6 +35,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { examChannels, materials, resourceCategories, type MaterialCatalog, type ResourceCard } from "@/data/richCatalog";
+import { unitExpansions, type UnitLink } from "@/data/unitExpansions";
 
 const LOGO_URL = "/manus-storage/yemen_learning_logo_d4c14700.png";
 const HERO_URL = "/manus-storage/yemen_learning_hero_2c99a99c.jpg";
@@ -76,6 +78,7 @@ export default function Home() {
   const SubjectIcon = icons[selected.icon] ?? BookOpenText;
   const visibleSources = useMemo(() => selected.bookOnly || filter === "all" ? selected.sources : selected.sources.filter((source) => source.category === filter), [filter, selected]);
   const groupedSources = useMemo(() => resourceCategories.slice(1).map((category) => ({ ...category, sources: visibleSources.filter((source) => source.category === category.id) })).filter((group) => group.sources.length > 0), [visibleSources]);
+  const selectedUnits = useMemo(() => unitExpansions.filter((unit) => unit.subjectId === selected.id), [selected.id]);
   const routeStage = filter === "books" ? "books" : filter === "youtube" ? "explain" : "practice";
 
   const chooseMaterial = (material: MaterialCatalog) => {
@@ -114,6 +117,8 @@ export default function Home() {
           <div className={`catalog-groups mt-8 ${selected.bookOnly ? "book-only-layout" : ""}`}>{groupedSources.map((group) => { const GroupIcon = categoryIcons[group.id] ?? FileText; return <section key={group.id} className="catalog-group"><div className="group-heading"><span><GroupIcon className="h-5 w-5" /></span><h3>{group.label}</h3><small>{group.sources.length} مصدر</small></div><div className="source-grid">{group.sources.map((source) => <ResourceTile key={source.id} source={source} />)}</div></section>; })}</div>
         </div></section>
 
+        {selectedUnits.length > 0 && <section id="units" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"><div className="section-intro"><span className="section-kicker">توسع حسب الوحدة</span><div><h2>اختر الوحدة التي تريد تقويتها</h2><p>مصادر قصيرة منتقاة للمحطات الأكثر أهمية في {selected.title}. افتح الوحدة ثم اختر المصدر المناسب.</p></div></div><div className="units-list mt-7">{selectedUnits.map((unit, index) => <details key={unit.title} className="unit-disclosure" open={index === 0}><summary><span className="unit-index">{index + 1}</span><span><b>{unit.label}</b><strong>{unit.title}</strong><small>{unit.note}</small></span><ChevronLeft className="unit-chevron h-5 w-5" /></summary><div className="unit-links">{unit.links.map((link) => <UnitLinkCard key={`${unit.title}-${link.title}`} link={link} />)}</div></details>)}</div></section>}
+
         <section id="exams" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8"><div className="exam-intro"><div><span className="section-kicker">قسم عام</span><h2>النماذج والاختبارات للثالث الثانوي</h2><p>قنوات مختارة تساعدك في النماذج الوزارية والمراجعة والاختبارات.</p></div><FileQuestion className="hidden h-16 w-16 text-[#d1774e] sm:block" /></div><div className="exam-grid mt-7">{examChannels.map((channel) => <article key={channel.url} className="exam-card"><span className="exam-badge">{channel.badge}</span><h3>{channel.title}</h3><p><strong>{channel.handle}</strong> · {channel.detail}</p><a href={channel.url} target="_blank" rel="noreferrer" className="exam-button">Telegram · {channel.handle}<ExternalLink className="h-4 w-4" /></a></article>)}</div></section>
 
         <section className="mx-auto grid max-w-7xl gap-7 px-4 pb-14 sm:px-6 md:grid-cols-[1fr_330px] md:items-center lg:px-8"><div><span className="section-kicker">كيف تستخدم الدليل؟</span><h2 className="how-title mt-3">لا تحتاج إلى حفظ أسماء القنوات؛ اختر المادة ونوع المصدر فقط.</h2><div className="how-list mt-7"><p><b>الكتب:</b> مرجعك الأول ومن البوابة الرسمية.</p><p><b>الشرح وYouTube:</b> افتحه عندما تحتاج تبسيط درس أو متابعة قائمة كاملة.</p><p><b>Telegram والاختبارات:</b> الاسم والمعرّف ظاهران أمامك لتعرف بالضبط إلى أين ستنتقل.</p></div></div><img src={SUBJECTS_URL} alt="رموز مواد علمية" className="how-image" loading="lazy" decoding="async" /></section>
@@ -151,4 +156,9 @@ function ResourceTile({ source }: { source: ResourceCard }) {
   const Icon = categoryIcons[source.category] ?? FileText;
   const buttonText = sourceButtonText(source);
   return <article className={`resource-tile resource-${source.category}`}><div className="resource-top"><span className="resource-badge"><Icon className="h-3.5 w-3.5" />{source.badge}</span>{source.handle && <span className="telegram-handle">{source.handle}</span>}</div><h4>{source.title}</h4><p>{source.detail || source.platform}</p><a href={source.url} target="_blank" rel="noreferrer" className="resource-button">{buttonText}<ExternalLink className="h-4 w-4" /></a></article>;
+}
+
+function UnitLinkCard({ link }: { link: UnitLink }) {
+  const Icon = link.kind === "قناة Telegram" ? Send : link.kind === "اختبارات" ? FileQuestion : link.kind === "إثرائي بالعربية" ? BookOpen : PlayCircle;
+  return <a href={link.url} target="_blank" rel="noreferrer" className={`unit-link-card ${link.kind === "قناة Telegram" ? "unit-telegram" : ""}`}><span className="unit-link-icon"><Icon className="h-5 w-5" /></span><span className="unit-link-copy"><small>{link.kind}</small><strong>{link.title}</strong><em>{link.handle ? `${link.handle} · ` : ""}{link.description}</em></span><ExternalLink className="h-4 w-4 shrink-0 text-[#6d8790]" /></a>;
 }
