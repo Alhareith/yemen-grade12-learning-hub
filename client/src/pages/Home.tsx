@@ -11,11 +11,16 @@ import {
   Compass,
   Dna,
   ExternalLink,
+  Facebook,
   FileQuestion,
   FileText,
   FlaskConical,
+  Github,
+  Globe2,
   HeartHandshake,
   Languages,
+  Linkedin,
+  Mail,
   MessageCircle,
   PlayCircle,
   Quote,
@@ -34,6 +39,16 @@ const LOGO_URL = "/manus-storage/yemen_learning_logo_d4c14700.png";
 const HERO_URL = "/manus-storage/yemen_learning_hero_2c99a99c.jpg";
 const SUBJECTS_URL = "/manus-storage/yemen_learning_subjects_2e6313c9.jpg";
 const DEVELOPER_NAME = "الحارث الداهية";
+
+const socialLinks = [
+  { label: "GitHub", href: "https://github.com/Alhareith", icon: Github, tone: "social-github" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/in/%D8%A7%D9%84%D8%AD%D8%A7%D8%B1%D8%AB-%D8%A7%D9%84%D8%AF%D8%A7%D9%87%D9%8A%D8%A9-95b4a831a", icon: Linkedin, tone: "social-linkedin" },
+  { label: "Hugging Face", href: "https://huggingface.co/Alhareth7790", icon: Sparkles, tone: "social-huggingface" },
+  { label: "Telegram", href: "https://t.me/devhareth", icon: Send, tone: "social-telegram" },
+  { label: "Facebook", href: "https://www.facebook.com/alharth.aldahyt/", icon: Facebook, tone: "social-facebook" },
+  { label: "البريد الإلكتروني", href: "mailto:alhareithaldahia@gmail.com", icon: Mail, tone: "social-email" },
+  { label: "الملف الشخصي", href: "https://alharethprofilo.netlify.app/", icon: Globe2, tone: "social-portfolio" },
+];
 
 const icons: Record<string, LucideIcon> = {
   رياضيات: Sigma, فيزياء: Atom, كيمياء: FlaskConical, أحياء: Dna, "لغة إنجليزية": Languages,
@@ -72,7 +87,7 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-[#d9e7e3] bg-[#fbf8f0]/95 backdrop-blur-xl">
         <div className="mx-auto flex h-[78px] max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-3 text-right" aria-label="العودة إلى بداية الدليل"><img src={LOGO_URL} alt="رمز دليل الثالث الثانوي" className="h-12 w-12 object-contain" /><span><strong className="block font-kufi text-[15px] text-[#175A7A]">دليل الثالث</strong><span className="mt-0.5 block text-[12px] font-bold text-[#71868f]">علمي · اليمن</span></span></button>
-          <div className="hidden items-center gap-5 text-sm font-bold text-[#617982] md:flex"><a href="#materials">المواد</a><a href="#exams">الاختبارات</a></div>
+          <div className="hidden items-center gap-5 text-sm font-bold text-[#617982] md:flex"><a href="#materials">المواد</a><a href="#exams">الاختبارات</a><a href="#about">من نحن</a></div>
           <a href="#materials" className="header-action">اختر مادة</a>
         </div>
       </header>
@@ -100,8 +115,26 @@ export default function Home() {
         <section className="mx-auto grid max-w-7xl gap-7 px-4 pb-14 sm:px-6 md:grid-cols-[1fr_330px] md:items-center lg:px-8"><div><span className="section-kicker">كيف تستخدم الدليل؟</span><h2 className="how-title mt-3">لا تحتاج إلى حفظ أسماء القنوات؛ اختر المادة ونوع المصدر فقط.</h2><div className="how-list mt-7"><p><b>الكتب:</b> مرجعك الأول ومن البوابة الرسمية.</p><p><b>الشرح وYouTube:</b> افتحه عندما تحتاج تبسيط درس أو متابعة قائمة كاملة.</p><p><b>Telegram والاختبارات:</b> الاسم والمعرّف ظاهران أمامك لتعرف بالضبط إلى أين ستنتقل.</p></div></div><img src={SUBJECTS_URL} alt="رموز مواد علمية" className="how-image" /></section>
       </main>
 
-      <footer className="footer-shell px-4 py-9 sm:px-6 lg:px-8"><div className="mx-auto flex max-w-7xl flex-col gap-5 text-center sm:flex-row sm:items-center sm:justify-between sm:text-right"><div className="flex items-center justify-center gap-3 sm:justify-start"><img src={LOGO_URL} alt="" className="h-11 w-11" /><span><strong className="block font-kufi text-sm text-[#175A7A]">دليل الثالث الثانوي اليمني</strong><span className="block pt-1 text-xs font-medium text-[#6d838b]">الكتب والمصادر الخارجية تفتح في منصاتها الأصلية.</span></span></div><p className="developer-credit">تصميم وتطوير <strong>{DEVELOPER_NAME}</strong></p></div></footer>
-      <nav className="mobile-nav md:hidden" aria-label="تنقل سريع"><a href="#materials">المواد</a><a href="#catalog">مصادر {selected.title}</a><a href="#exams">الاختبارات</a></nav>
+      <footer id="about" className="about-footer px-4 py-12 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl">
+          <div className="about-grid">
+            <section className="about-copy">
+              <div className="footer-brandline"><img src={LOGO_URL} alt="رمز دليل الثالث الثانوي" className="h-12 w-12" /><span><strong>دليل الثالث الثانوي اليمني</strong><small>مصادر منظمة للثالث الثانوي العلمي</small></span></div>
+              <span className="about-kicker">من نحن</span>
+              <h2>دليل بسيط، لطريق دراسي أوضح.</h2>
+              <p>هذا الموقع يجمع مصادر التعلم الأساسية للثالث الثانوي العلمي في اليمن في واجهة مرتبة تساعد الطالب على الوصول إلى الكتاب، الشرح، الاختبارات، وقنوات Telegram دون البحث في قوائم مشتتة.</p>
+              <p className="developer-line">تصميم وتطوير <strong>{DEVELOPER_NAME}</strong><span>طالب تقنية معلومات · هندسة البرمجيات والذكاء الاصطناعي</span></p>
+              <a href="#materials" className="about-quick-link">استعرض المواد التعليمية <ChevronLeft className="h-4 w-4" /></a>
+            </section>
+            <section className="connect-panel" aria-label="روابط التواصل">
+              <div className="connect-title"><MessageCircle className="h-5 w-5" /><div><span>تواصل مع المطوّر</span><p>روابط الحسابات الرسمية</p></div></div>
+              <div className="social-list">{socialLinks.map((social) => { const Icon = social.icon; const isEmail = social.href.startsWith("mailto:"); return <a key={social.label} href={social.href} target={isEmail ? undefined : "_blank"} rel={isEmail ? undefined : "noreferrer"} className={`social-card ${social.tone}`}><Icon className="h-4 w-4" /><span>{social.label}</span><ExternalLink className="mr-auto h-3.5 w-3.5 opacity-60" /></a>; })}</div>
+            </section>
+          </div>
+          <div className="footer-bottomline"><span>الكتب والمصادر الخارجية تفتح في منصاتها الأصلية.</span><span>دليل الثالث الثانوي اليمني · القسم العلمي</span></div>
+        </div>
+      </footer>
+      <nav className="mobile-nav md:hidden" aria-label="تنقل سريع"><a href="#materials">المواد</a><a href="#catalog">المصادر</a><a href="#exams">الاختبارات</a><a href="#about">من نحن</a></nav>
     </div>
   );
 }
