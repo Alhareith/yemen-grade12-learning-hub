@@ -3,8 +3,9 @@ name: Validate student experience
 on:
   push:
     branches:
-      - feature/v2-student-experience
-      - fix/mobile-sections-prompts-footer
+      - "feature/**"
+      - "fix/**"
+      - "refine/**"
   workflow_dispatch:
 
 permissions:
