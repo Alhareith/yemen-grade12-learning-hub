@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Clipboard, Sparkles } from "lucide-react";
+import { ArrowRight, Check, Clipboard, ChevronLeft, Sparkles } from "lucide-react";
 import {
   getRecommendedPrompts,
   promptSituationGroups,
@@ -52,14 +52,19 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
     setSelectedPrompt(prompt);
     setInput("");
     setCopied(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const closePrompt = () => {
+    setSelectedPrompt(null);
+    setCopied(false);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const copyPrompt = async () => {
     if (!generatedPrompt) return;
     try {
       await navigator.clipboard.writeText(generatedPrompt);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2200);
     } catch {
       const textarea = document.createElement("textarea");
       textarea.value = generatedPrompt;
@@ -69,158 +74,178 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
       textarea.select();
       document.execCommand("copy");
       document.body.removeChild(textarea);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2200);
     }
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2200);
   };
 
-  return (
-    <section id="prompts" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
-      <div className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,.06)] sm:p-8 lg:p-10">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 rounded-full bg-violet-50 px-3 py-1.5 text-xs font-extrabold text-violet-700">
-              <Sparkles className="h-4 w-4" />
-              مساعد البرومبتات
-            </span>
-            <h2 className="mt-4 font-kufi text-2xl leading-relaxed text-slate-950 sm:text-3xl">
-              ما وضعك الآن في {subject}؟
-            </h2>
-            <p className="mt-2 text-sm font-medium leading-7 text-slate-500 sm:text-base">
-              لا تحتاج أن تعرف كيف تكتب برومبت. اختر مشكلتك، ثم انسخ توجيهًا مصممًا ليجعل الذكاء الاصطناعي يعلّمك بدل أن يحل عنك.
-            </p>
-          </div>
-          <div className="rounded-2xl bg-slate-50 px-4 py-3 text-xs font-bold leading-6 text-slate-500">
-            لا توجد دردشة داخل الموقع · البرومبت يُنسخ لاستخدامه في الأداة التي تفضّلها
-          </div>
-        </div>
+  if (selectedPrompt) {
+    return (
+      <div className="mx-auto w-full max-w-4xl px-4 pb-28 pt-4 sm:px-6 md:pb-10">
+        <button
+          type="button"
+          onClick={closePrompt}
+          className="mb-4 inline-flex min-h-11 items-center gap-2 rounded-xl bg-white px-3 text-sm font-extrabold text-slate-700 shadow-sm ring-1 ring-slate-200"
+        >
+          <ArrowRight className="h-4 w-4" />
+          الرجوع إلى البرومبتات
+        </button>
 
-        <div className="mt-7 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-          {promptSituationGroups.map((group) => {
-            const active = group.id === situation;
-            return (
-              <button
-                key={group.id}
-                type="button"
-                onClick={() => chooseSituation(group.id)}
-                className={`min-h-[92px] rounded-2xl border p-4 text-right transition-all ${active ? "border-violet-500 bg-violet-50 shadow-[0_10px_30px_rgba(109,40,217,.08)]" : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"}`}
-              >
-                <strong className={`block text-sm ${active ? "text-violet-800" : "text-slate-900"}`}>{group.title}</strong>
-                <span className="mt-1.5 block text-xs font-medium leading-5 text-slate-500">{group.description}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className={`mt-7 grid gap-3 ${units.length > 0 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
-          {units.length > 0 && (
-            <label className="block">
-              <span className="mb-2 block text-xs font-extrabold text-slate-600">الوحدة أو المحور — اختياري</span>
-              <select
-                value={unit}
-                onChange={(event) => setUnit(event.target.value)}
-                className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-              >
-                <option value="">اختر الوحدة إذا كانت مرتبطة بسؤالك</option>
-                {units.map((item) => <option key={item} value={item}>{item}</option>)}
-              </select>
-            </label>
-          )}
-          <label className="block">
-            <span className="mb-2 block text-xs font-extrabold text-slate-600">اسم الدرس أو الفكرة — اختياري</span>
-            <input
-              value={lesson}
-              onChange={(event) => setLesson(event.target.value)}
-              placeholder="مثال: مشتقة الدالة، الأكسدة والاختزال…"
-              className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition placeholder:font-medium placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-            />
-          </label>
-        </div>
-
-        <div className="mt-8">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div>
-              <span className="text-xs font-extrabold text-violet-700">الأنسب لحالتك</span>
-              <h3 className="mt-1 text-lg font-black text-slate-950">اختر نوع المساعدة</h3>
-            </div>
-            <span className="text-xs font-bold text-slate-400">{prompts.length} خيارات مرتبة</span>
-          </div>
-
-          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {prompts.map((prompt) => {
-              const active = selectedPrompt?.id === prompt.id;
-              return (
-                <button
-                  key={prompt.id}
-                  type="button"
-                  onClick={() => choosePrompt(prompt)}
-                  className={`group rounded-2xl border p-4 text-right transition-all ${active ? "border-slate-900 bg-slate-950 text-white shadow-[0_16px_35px_rgba(15,23,42,.16)]" : "border-slate-200 bg-white hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_12px_30px_rgba(15,23,42,.06)]"}`}
-                >
-                  <span className={`text-[10px] font-extrabold ${active ? "text-violet-300" : "text-violet-700"}`}>مرحلة {stageLabel(prompt.stage)}</span>
-                  <strong className="mt-2 block text-sm font-black">{prompt.title}</strong>
-                  <span className={`mt-2 block text-xs font-medium leading-6 ${active ? "text-slate-300" : "text-slate-500"}`}>{prompt.shortDescription}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {selectedPrompt && (
-          <div className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-slate-50">
-            <div className="grid gap-0 lg:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)]">
-              <div className="border-b border-slate-200 p-5 lg:border-b-0 lg:border-l lg:p-6">
-                <span className="text-xs font-extrabold text-violet-700">خصّصه قبل النسخ</span>
-                <h3 className="mt-2 text-xl font-black text-slate-950">{selectedPrompt.title}</h3>
+        <article className="overflow-hidden rounded-[26px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,.06)]">
+          <div className="border-b border-slate-100 p-5 sm:p-7">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <span className="text-[11px] font-extrabold text-violet-700">{stageLabel(selectedPrompt.stage)} · {subject}</span>
+                <h2 className="mt-2 text-xl font-black leading-8 text-slate-950 sm:text-2xl">{selectedPrompt.title}</h2>
                 <p className="mt-2 text-sm font-medium leading-7 text-slate-500">{selectedPrompt.shortDescription}</p>
-
-                {selectedPrompt.inputLabel && (
-                  <label className="mt-5 block">
-                    <span className="mb-2 block text-xs font-extrabold text-slate-700">{selectedPrompt.inputLabel}</span>
-                    <textarea
-                      value={input}
-                      onChange={(event) => setInput(event.target.value)}
-                      placeholder={selectedPrompt.inputPlaceholder}
-                      rows={7}
-                      className="w-full resize-y rounded-2xl border border-slate-200 bg-white p-3 text-sm font-medium leading-7 text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-                    />
-                  </label>
-                )}
               </div>
-
-              <div className="flex min-h-[300px] flex-col p-5 lg:p-6">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <span className="text-xs font-extrabold text-slate-500">البرومبت الجاهز</span>
-                    <p className="mt-1 text-xs font-medium text-slate-400">يمكنك نسخه كما هو أو إضافة تفاصيلك أولًا.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={copyPrompt}
-                    className={`inline-flex min-h-11 items-center gap-2 rounded-xl px-4 text-sm font-extrabold transition ${copied ? "bg-emerald-600 text-white" : "bg-slate-950 text-white hover:bg-slate-800"}`}
-                  >
-                    {copied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}
-                    {copied ? "تم النسخ" : "نسخ البرومبت"}
-                  </button>
-                </div>
-                <pre className="mt-4 flex-1 whitespace-pre-wrap rounded-2xl border border-slate-200 bg-white p-4 text-right font-sans text-[13px] font-medium leading-7 text-slate-700">{generatedPrompt}</pre>
-              </div>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-700">
+                <Sparkles className="h-5 w-5" />
+              </span>
             </div>
           </div>
-        )}
+
+          <div className="space-y-5 p-5 sm:p-7">
+            <div className={`grid gap-3 ${units.length > 0 ? "sm:grid-cols-2" : "grid-cols-1"}`}>
+              {units.length > 0 && (
+                <label className="block">
+                  <span className="mb-2 block text-xs font-extrabold text-slate-700">الوحدة — اختياري</span>
+                  <select
+                    value={unit}
+                    onChange={(event) => setUnit(event.target.value)}
+                    className="min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-800 outline-none focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                  >
+                    <option value="">بدون تحديد وحدة</option>
+                    {units.map((item) => <option key={item} value={item}>{item}</option>)}
+                  </select>
+                </label>
+              )}
+
+              <label className="block">
+                <span className="mb-2 block text-xs font-extrabold text-slate-700">اسم الدرس أو الفكرة — اختياري</span>
+                <input
+                  value={lesson}
+                  onChange={(event) => setLesson(event.target.value)}
+                  placeholder="مثال: الاشتقاق، قانون أوم، الوراثة…"
+                  className="min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-800 outline-none placeholder:font-medium placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                />
+              </label>
+            </div>
+
+            {selectedPrompt.inputLabel && (
+              <label className="block">
+                <span className="mb-2 block text-xs font-extrabold text-slate-700">{selectedPrompt.inputLabel}</span>
+                <textarea
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder={selectedPrompt.inputPlaceholder}
+                  rows={6}
+                  className="w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-medium leading-7 text-slate-800 outline-none placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                />
+              </label>
+            )}
+
+            <div>
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-extrabold text-slate-700">البرومبت الجاهز</span>
+                <span className="text-[10px] font-bold text-slate-400">يتحدّث مباشرة ويكمل الرد دون انتظار</span>
+              </div>
+              <pre className="max-h-[52vh] overflow-y-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-950 p-4 text-right font-sans text-[13px] font-medium leading-7 text-slate-100 sm:p-5">{generatedPrompt}</pre>
+            </div>
+
+            <button
+              type="button"
+              onClick={copyPrompt}
+              className={`hidden min-h-13 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-extrabold text-white transition md:flex ${copied ? "bg-emerald-600" : "bg-violet-700 hover:bg-violet-800"}`}
+            >
+              {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
+              {copied ? "تم نسخ البرومبت" : "نسخ البرومبت"}
+            </button>
+          </div>
+        </article>
+
+        <div className="fixed inset-x-0 bottom-[74px] z-40 border-t border-slate-200 bg-white/95 p-3 backdrop-blur-xl md:hidden">
+          <button
+            type="button"
+            onClick={copyPrompt}
+            className={`mx-auto flex min-h-13 w-full max-w-4xl items-center justify-center gap-2 rounded-2xl px-5 text-sm font-extrabold text-white ${copied ? "bg-emerald-600" : "bg-violet-700"}`}
+          >
+            {copied ? <Check className="h-5 w-5" /> : <Clipboard className="h-5 w-5" />}
+            {copied ? "تم النسخ" : "نسخ البرومبت"}
+          </button>
+        </div>
       </div>
-    </section>
+    );
+  }
+
+  return (
+    <div className="mx-auto w-full max-w-5xl px-4 pb-24 pt-4 sm:px-6 md:pb-10">
+      <div className="mb-5">
+        <span className="inline-flex items-center gap-2 text-xs font-extrabold text-violet-700">
+          <Sparkles className="h-4 w-4" />
+          البرومبتات الجاهزة
+        </span>
+        <h1 className="mt-2 text-2xl font-black leading-9 text-slate-950">كيف تريد أن يساعدك الذكاء الاصطناعي في {subject}؟</h1>
+        <p className="mt-2 text-sm font-medium leading-7 text-slate-500">اختر حالتك أولًا. عند الضغط على أي برومبت سيفتح وحده في شاشة واضحة، ثم تستطيع تخصيصه ونسخه.</p>
+      </div>
+
+      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-4" role="tablist" aria-label="حالة الطالب">
+        {promptSituationGroups.map((group) => {
+          const active = group.id === situation;
+          return (
+            <button
+              key={group.id}
+              type="button"
+              onClick={() => chooseSituation(group.id)}
+              className={`min-h-[70px] w-[156px] shrink-0 rounded-2xl border p-3 text-right sm:w-auto ${active ? "border-violet-500 bg-violet-50" : "border-slate-200 bg-white"}`}
+              role="tab"
+              aria-selected={active}
+            >
+              <strong className={`block text-xs font-black ${active ? "text-violet-800" : "text-slate-900"}`}>{group.title}</strong>
+              <span className="mt-1 block text-[10px] font-medium leading-5 text-slate-500">{group.description}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white">
+        <div className="border-b border-slate-100 px-4 py-3">
+          <span className="text-xs font-extrabold text-slate-500">الأنسب لحالتك · {prompts.length} خيارات</span>
+        </div>
+        <div className="divide-y divide-slate-100">
+          {prompts.map((prompt) => (
+            <button
+              key={prompt.id}
+              type="button"
+              onClick={() => choosePrompt(prompt)}
+              className="flex w-full items-center gap-3 p-4 text-right transition hover:bg-slate-50 active:bg-slate-100 sm:p-5"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-700">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="text-[10px] font-extrabold text-violet-700">{stageLabel(prompt.stage)}</span>
+                <strong className="mt-0.5 block text-sm font-black text-slate-950">{prompt.title}</strong>
+                <span className="mt-1 block text-xs font-medium leading-6 text-slate-500">{prompt.shortDescription}</span>
+              </span>
+              <ChevronLeft className="h-5 w-5 shrink-0 text-slate-300" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
 function stageLabel(stage: StudyPrompt["stage"]) {
   const labels: Record<StudyPrompt["stage"], string> = {
-    diagnose: "التشخيص",
-    learn: "الفهم",
-    apply: "التطبيق",
-    correct: "التصحيح",
-    retain: "التثبيت",
-    master: "الإتقان",
-    exam: "الاختبار",
+    diagnose: "تشخيص",
+    learn: "فهم",
+    apply: "تطبيق",
+    correct: "تصحيح",
+    retain: "تثبيت",
+    master: "إتقان",
+    exam: "اختبار",
   };
   return labels[stage];
 }
