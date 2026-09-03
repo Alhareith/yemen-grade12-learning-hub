@@ -15,7 +15,7 @@ type PromptLibraryProps = {
 export default function PromptLibrary({ subject, units = [] }: PromptLibraryProps) {
   const [situation, setSituation] = useState<PromptSituation>("lost");
   const [selectedPrompt, setSelectedPrompt] = useState<StudyPrompt | null>(null);
-  const [unit, setUnit] = useState(units[0] ?? "");
+  const [unit, setUnit] = useState("");
   const [lesson, setLesson] = useState("");
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
@@ -23,11 +23,11 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
   useEffect(() => {
     setSituation("lost");
     setSelectedPrompt(null);
-    setUnit(units[0] ?? "");
+    setUnit("");
     setLesson("");
     setInput("");
     setCopied(false);
-  }, [subject, units]);
+  }, [subject]);
 
   const prompts = useMemo(
     () => getRecommendedPrompts(subject, situation),
@@ -75,7 +75,7 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
   };
 
   return (
-    <section id="prompts" className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+    <section id="prompts" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
       <div className="rounded-[30px] border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,.06)] sm:p-8 lg:p-10">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
@@ -115,13 +115,13 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
         <div className={`mt-7 grid gap-3 ${units.length > 0 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
           {units.length > 0 && (
             <label className="block">
-              <span className="mb-2 block text-xs font-extrabold text-slate-600">الوحدة أو المحور</span>
+              <span className="mb-2 block text-xs font-extrabold text-slate-600">الوحدة أو المحور — اختياري</span>
               <select
                 value={unit}
                 onChange={(event) => setUnit(event.target.value)}
                 className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
               >
-                <option value="">بدون تحديد وحدة</option>
+                <option value="">اختر الوحدة إذا كانت مرتبطة بسؤالك</option>
                 {units.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
             </label>
