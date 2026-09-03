@@ -1,0 +1,62 @@
+:root {
+  --background: #f7f7fb;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --primary: #6d28d9;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f0ff;
+  --secondary-foreground: #4c1d95;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --border: #e2e8f0;
+  --ring: #7c3aed;
+}
+
+html {
+  background: #f7f7fb;
+}
+
+body {
+  background: #f7f7fb;
+  color: #0f172a;
+  font-family: "IBM Plex Sans Arabic", "Noto Sans Arabic", sans-serif;
+}
+
+.font-sans,
+.font-kufi {
+  font-family: "IBM Plex Sans Arabic", "Noto Sans Arabic", sans-serif;
+}
+
+.font-kufi {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+::selection {
+  background: #ddd6fe;
+  color: #2e1065;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
