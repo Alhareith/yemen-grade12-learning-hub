@@ -1,11 +1,11 @@
 /**
- * V2 app shell — student-first learning experience.
+ * V3 app shell — separated mobile-first sections.
  */
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import HomeV2 from "./pages/HomeV2";
+import HomeV3 from "./pages/HomeV3";
 import "./v2.css";
 
 export default function App() {
@@ -13,7 +13,7 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <HomeV2 />
+          <HomeV3 />
           <Toaster position="top-center" richColors />
         </TooltipProvider>
       </ThemeProvider>
