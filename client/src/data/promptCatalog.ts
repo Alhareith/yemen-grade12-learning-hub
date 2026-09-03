@@ -16,6 +16,8 @@ export type StudyPrompt = {
   stage: PromptStage;
   situations: PromptSituation[];
   priority: 1 | 2 | 3;
+  families?: SubjectFamily[];
+  subjects?: string[];
   inputLabel?: string;
   inputPlaceholder?: string;
   build: (context: PromptContext) => string;
@@ -131,6 +133,7 @@ export const selfStudyPrompts: StudyPrompt[] = [
     stage: "apply",
     situations: ["stuck", "check-mastery"],
     priority: 1,
+    families: ["quantitative", "science", "language"],
     inputLabel: "ضع السؤال الذي حيّرك",
     inputPlaceholder: "الصق المسألة أو السؤال هنا…",
     build: (context) => buildPrompt(context, `هذا السؤال حيّرني في اختيار الطريقة: ${context.input || "[ضع السؤال هنا]"}.\nلا تحله الآن. استخرج الإشارات الموجودة في السؤال التي يجب أن تلفت انتباهي، ثم ضع لي قائمة قصيرة بالخيارات المحتملة وعلّمني كيف أستبعد غير المناسب منها. اسألني في النهاية أن أختار القاعدة/القانون/الطريقة بنفسي وأبرر اختياري، ثم قيّم اختياري قبل بدء الحل.`),
@@ -142,6 +145,7 @@ export const selfStudyPrompts: StudyPrompt[] = [
     stage: "apply",
     situations: ["stuck"],
     priority: 1,
+    families: ["quantitative", "science", "language"],
     inputLabel: "السؤال وآخر خطوة وصلت لها",
     inputPlaceholder: "ضع السؤال ثم ما فعلته حتى الآن…",
     build: (context) => buildPrompt(context, `أنا أحاول بنفسي في: ${context.input || "[ضع السؤال ومحاولتك]"}.\nلا تكشف الحل النهائي. استخدم سُلّم تلميحات: التلميح الأول مجرد توجيه لما يجب أن ألاحظه؛ إذا طلبت المزيد أعطني تلميحًا أوضح؛ ولا تصل إلى خطوة شبه محلولة إلا بعد أن أفشل في المحاولة. بعد كل تلميح توقف وانتظر محاولتي.`),
@@ -153,6 +157,7 @@ export const selfStudyPrompts: StudyPrompt[] = [
     stage: "correct",
     situations: ["wrong-answer", "stuck"],
     priority: 1,
+    families: ["quantitative", "science", "language"],
     inputLabel: "السؤال ومحاولتك كاملة",
     inputPlaceholder: "الصق السؤال ثم الحل الذي كتبته…",
     build: (context) => buildPrompt(context, `راجع محاولتي بالترتيب: ${context.input || "[ضع السؤال ومحاولتك هنا]"}.\nحدد أول موضع فقط خرج فيه التفكير أو الحساب أو القاعدة عن المسار الصحيح. لا تكمل البحث عن بقية الأخطاء الآن. أخبرني ما الذي كان صحيحًا قبل هذه النقطة، وما نوع الخطأ، ولماذا حدث، ثم اطلب مني تصحيح الخطوة بنفسي. بعد تصحيحي تابع من حيث توقفنا.`),
@@ -226,24 +231,119 @@ export const selfStudyPrompts: StudyPrompt[] = [
     inputPlaceholder: "اختياري: اكتب النقاط التي تقلقك…",
     build: (context) => buildPrompt(context, `أريد مراجعة فعالة قبل الاختبار${context.input ? `، وأكثر ما يقلقني: ${context.input}` : ""}. لا تبدأ بملخص شامل. ابدأ بـ5 أسئلة تشخيص سريعة، سؤالًا واحدًا في كل مرة، ثم ركز المراجعة على ما أخطئ فيه فقط. استخدم الاسترجاع والتطبيق أكثر من الشرح. اختم بثلاث نقاط أخيرة أراجعها، وثلاثة أنواع أسئلة يجب أن أكون قادرًا على حلها أو الإجابة عنها.`),
   },
+
+  // Prompts below are intentionally subject-specific. They surface only where their learning pattern is useful.
+  {
+    id: "math-read-problem",
+    title: "فكّك لي المسألة قبل الحل",
+    shortDescription: "رياضيات: يحوّل نص المسألة إلى معطيات ومطلوب وإشارات لاختيار الفكرة.",
+    stage: "apply",
+    situations: ["stuck", "wrong-answer", "check-mastery"],
+    priority: 1,
+    subjects: ["رياضيات"],
+    inputLabel: "ضع المسألة",
+    inputPlaceholder: "الصق المسألة الرياضية هنا…",
+    build: (context) => buildPrompt(context, `حلّل هذه المسألة الرياضية دون حلها: ${context.input || "[ضع المسألة هنا]"}.\nرتّب لي: 1) المعطيات، 2) المطلوب، 3) الكلمات أو الرموز التي تعطيني إشارة للفكرة أو القاعدة، 4) ما الذي يجب أن أقرره قبل إجراء أي حساب. بعد ذلك اسألني أنا عن القاعدة التي سأختارها ولماذا. لا تبدأ الحل حتى أجيب.`),
+  },
+  {
+    id: "physics-law-units",
+    title: "ساعدني أختار القانون والوحدات",
+    shortDescription: "فيزياء: يربط المعطيات بالقانون ويتأكد من الوحدات قبل التعويض.",
+    stage: "apply",
+    situations: ["stuck", "wrong-answer", "check-mastery"],
+    priority: 1,
+    subjects: ["فيزياء"],
+    inputLabel: "ضع مسألة الفيزياء",
+    inputPlaceholder: "الصق المسألة مع الأرقام والوحدات…",
+    build: (context) => buildPrompt(context, `هذه مسألة فيزياء: ${context.input || "[ضع المسألة هنا]"}.\nلا تعوّض بالأرقام مباشرة. اجعلني أحدد الكميات المعطاة والمطلوبة مع رموزها ووحداتها، ثم اسألني أي علاقة فيزيائية تربط بينها. إذا كانت هناك وحدة تحتاج تحويلًا، اجعلني أكتشف ذلك قبل الحساب. بعد أن أختار القانون، قيّم اختياري وسبب صحته أو خطئه ثم نبدأ خطوة واحدة فقط.`),
+  },
+  {
+    id: "chemistry-reaction-story",
+    title: "فسّر لي ماذا يحدث في التفاعل",
+    shortDescription: "كيمياء: يحوّل الرموز والمعادلة إلى معنى وسبب ثم يعود للصياغة الكيميائية.",
+    stage: "learn",
+    situations: ["did-not-understand", "stuck", "check-mastery"],
+    priority: 1,
+    subjects: ["كيمياء"],
+    inputLabel: "ضع التفاعل أو الفكرة",
+    inputPlaceholder: "الصق المعادلة أو اكتب اسم التفاعل…",
+    build: (context) => buildPrompt(context, `أريد فهم ما يحدث فعليًا في: ${context.input || "[ضع التفاعل أو الفكرة]"}.\nابدأ بوصف لفظي بسيط: من المواد الداخلة؟ ما الذي يتغير؟ وما الناتج أو الفكرة الأساسية؟ ثم اربط كل جزء بالرمز أو المعادلة الكيميائية. إذا كانت هناك أكسدة/اختزال أو انتقال أو موازنة، وضّح السبب الذي يجعلني أتعرف عليها. بعد ذلك أعطني حالة قصيرة جديدة واجعلني أفسرها أنا.`),
+  },
+  {
+    id: "biology-process-map",
+    title: "رتّب لي العملية كقصة سببية",
+    shortDescription: "أحياء: يربط المراحل بما يسببها وما ينتج عنها بدل حفظ قائمة خطوات.",
+    stage: "learn",
+    situations: ["did-not-understand", "remember", "check-mastery"],
+    priority: 1,
+    subjects: ["أحياء"],
+    inputLabel: "ضع العملية أو الموضوع",
+    inputPlaceholder: "اكتب اسم العملية الحيوية أو الجزء الذي تريد ربطه…",
+    build: (context) => buildPrompt(context, `أريد فهم هذه العملية الحيوية بدل حفظ مراحلها: ${context.input || "[اكتب العملية هنا]"}.\nرتّبها كعلاقات: ما الذي يبدأها؟ ماذا يحدث بعده ولماذا؟ ما نتيجة كل مرحلة؟ وما الذي سيتعطل لو اختفت مرحلة مهمة؟ لا تعطِني جدول حفظ أولًا. بعد الشرح أخفِ الترتيب واطلب مني إعادة بناء المراحل والعلاقات من الذاكرة.`),
+  },
+  {
+    id: "english-correct-retry",
+    title: "صحّح إنجليزيتي وخلّيني أعيدها",
+    shortDescription: "إنجليزي: يحدد نوع الخطأ وسببه ثم يعطيك فرصة التصحيح بنفسك.",
+    stage: "correct",
+    situations: ["wrong-answer", "stuck", "check-mastery"],
+    priority: 1,
+    subjects: ["لغة إنجليزية"],
+    inputLabel: "ضع الجملة أو إجابتك",
+    inputPlaceholder: "Paste your sentence or answer here…",
+    build: (context) => buildPrompt(context, `راجع هذه الجملة أو الإجابة الإنجليزية: ${context.input || "[ضع الجملة هنا]"}.\nلا تكتب النسخة الصحيحة كاملة مباشرة. حدّد نوع أول خطأ فقط: زمن، تركيب، كلمة، أداة، توافق، أو غير ذلك. اشرح سبب الخطأ بالعربية باختصار وأعطني إشارة للقاعدة، ثم اطلب مني إعادة كتابة الجملة. بعد محاولتي صحح ما تبقى وقدم مثالًا جديدًا قصيرًا يختبر نفس القاعدة.`),
+  },
+  {
+    id: "arabic-grammar-analysis",
+    title: "خلّيني أكتشف الإعراب خطوة خطوة",
+    shortDescription: "نحو وصرف: يبدأ بوظيفة الكلمة والعلاقات قبل إعطاء علامة الإعراب.",
+    stage: "apply",
+    situations: ["stuck", "wrong-answer", "check-mastery"],
+    priority: 1,
+    subjects: ["نحو وصرف"],
+    inputLabel: "ضع الجملة أو الكلمة المطلوبة",
+    inputPlaceholder: "اكتب الجملة وحدد الكلمة التي تريد تحليلها…",
+    build: (context) => buildPrompt(context, `أريد تحليل هذه الجملة نحويًا/صرفيًا: ${context.input || "[ضع الجملة والكلمة المطلوبة]"}.\nلا تعطِ الإعراب النهائي مباشرة. اسألني أولًا عن موقع الكلمة وعلاقتها بما قبلها وما بعدها، ثم ساعدني في تحديد العامل أو القاعدة، وبعدها العلامة وسببها. إذا أخطأت فصحح أول قرار خاطئ فقط. في النهاية أعطني جملة مشابهة لأطبق القاعدة وحدي.`),
+  },
+  {
+    id: "text-understand-evidence",
+    title: "ساعدني أفهم النص وأستدل منه",
+    shortDescription: "للنصوص والمواد الشرعية: يبني الفهم من النص الذي يقدمه الطالب دون اختراع ألفاظ.",
+    stage: "learn",
+    situations: ["did-not-understand", "remember", "check-mastery"],
+    priority: 1,
+    subjects: ["أدب ونصوص وبلاغة", "قراءة", "قرآن كريم", "حديث وتهذيب", "إيمان", "فقه", "سيرة نبوية"],
+    inputLabel: "ضع النص أو الفقرة من كتابك",
+    inputPlaceholder: "الصق الفقرة أو السؤال والنص المرتبط به…",
+    build: (context) => buildPrompt(context, `اعتمد فقط على النص الذي سأضعه هنا عندما يتعلق السؤال بألفاظه: ${context.input || "[ضع النص أو الفقرة هنا]"}.\nساعدني أولًا على استخراج الفكرة الأساسية والعلاقات أو الحجج أو الأحكام الموجودة فيه بحسب طبيعة المادة. لا تقتبس عبارة لم أضعها أمامك وكأنها من الكتاب. بعد الفهم اسألني سؤالًا يجعلني أستدل بجزء من النص أو أشرح المعنى بكلماتي، ثم قيّم دقة استدلالي.`),
+  },
 ];
 
 export function getSubjectFamily(subjectId: string): SubjectFamily {
   return subjectFamilyById[subjectId] ?? "textual";
 }
 
-export function getPromptsForSituation(situation: PromptSituation) {
+function appliesToSubject(prompt: StudyPrompt, subjectId: string) {
+  const family = getSubjectFamily(subjectId);
+  if (prompt.subjects && !prompt.subjects.includes(subjectId)) return false;
+  if (prompt.families && !prompt.families.includes(family)) return false;
+  return true;
+}
+
+export function getPromptsForSituation(subjectId: string, situation: PromptSituation) {
   return selfStudyPrompts
-    .filter((prompt) => prompt.situations.includes(situation))
+    .filter((prompt) => prompt.situations.includes(situation) && appliesToSubject(prompt, subjectId))
     .sort((a, b) => a.priority - b.priority);
 }
 
-export function getPromptsForSubject(_subjectId: string) {
-  return selfStudyPrompts;
+export function getPromptsForSubject(subjectId: string) {
+  return selfStudyPrompts.filter((prompt) => appliesToSubject(prompt, subjectId));
 }
 
 export function getRecommendedPrompts(subjectId: string, situation?: PromptSituation) {
-  const source = situation ? getPromptsForSituation(situation) : selfStudyPrompts;
+  const source = situation
+    ? getPromptsForSituation(subjectId, situation)
+    : getPromptsForSubject(subjectId);
   const family = getSubjectFamily(subjectId);
   const preferredIds: Record<SubjectFamily, string[]> = {
     quantitative: ["diagnose-gap", "choose-method", "hint-ladder", "first-error", "graduated-practice", "mastery-check"],
@@ -252,5 +352,13 @@ export function getRecommendedPrompts(subjectId: string, situation?: PromptSitua
     textual: ["different-explanation", "teach-back", "active-recall", "misconception-contrast", "mastery-check", "rapid-review"],
   };
   const preferred = new Set(preferredIds[family]);
-  return [...source].sort((a, b) => Number(preferred.has(b.id)) - Number(preferred.has(a.id)) || a.priority - b.priority);
+  return [...source].sort((a, b) => {
+    const aSpecific = Number(a.subjects?.includes(subjectId) ?? false);
+    const bSpecific = Number(b.subjects?.includes(subjectId) ?? false);
+    if (aSpecific !== bSpecific) return bSpecific - aSpecific;
+    const aPreferred = Number(preferred.has(a.id));
+    const bPreferred = Number(preferred.has(b.id));
+    if (aPreferred !== bPreferred) return bPreferred - aPreferred;
+    return a.priority - b.priority;
+  });
 }
