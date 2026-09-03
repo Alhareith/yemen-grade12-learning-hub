@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Check, Clipboard, Sparkles } from "lucide-react";
 import {
   getRecommendedPrompts,
@@ -19,6 +19,15 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
   const [lesson, setLesson] = useState("");
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    setSituation("lost");
+    setSelectedPrompt(null);
+    setUnit(units[0] ?? "");
+    setLesson("");
+    setInput("");
+    setCopied(false);
+  }, [subject, units]);
 
   const prompts = useMemo(
     () => getRecommendedPrompts(subject, situation),
@@ -103,32 +112,30 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
           })}
         </div>
 
-        {(units.length > 0 || true) && (
-          <div className="mt-7 grid gap-3 md:grid-cols-2">
-            {units.length > 0 && (
-              <label className="block">
-                <span className="mb-2 block text-xs font-extrabold text-slate-600">الوحدة أو المحور</span>
-                <select
-                  value={unit}
-                  onChange={(event) => setUnit(event.target.value)}
-                  className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-                >
-                  <option value="">بدون تحديد وحدة</option>
-                  {units.map((item) => <option key={item} value={item}>{item}</option>)}
-                </select>
-              </label>
-            )}
+        <div className={`mt-7 grid gap-3 ${units.length > 0 ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+          {units.length > 0 && (
             <label className="block">
-              <span className="mb-2 block text-xs font-extrabold text-slate-600">اسم الدرس أو الفكرة — اختياري</span>
-              <input
-                value={lesson}
-                onChange={(event) => setLesson(event.target.value)}
-                placeholder="مثال: مشتقة الدالة، الأكسدة والاختزال…"
-                className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition placeholder:font-medium placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
-              />
+              <span className="mb-2 block text-xs font-extrabold text-slate-600">الوحدة أو المحور</span>
+              <select
+                value={unit}
+                onChange={(event) => setUnit(event.target.value)}
+                className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+              >
+                <option value="">بدون تحديد وحدة</option>
+                {units.map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
             </label>
-          </div>
-        )}
+          )}
+          <label className="block">
+            <span className="mb-2 block text-xs font-extrabold text-slate-600">اسم الدرس أو الفكرة — اختياري</span>
+            <input
+              value={lesson}
+              onChange={(event) => setLesson(event.target.value)}
+              placeholder="مثال: مشتقة الدالة، الأكسدة والاختزال…"
+              className="min-h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-800 outline-none transition placeholder:font-medium placeholder:text-slate-400 focus:border-violet-400 focus:ring-4 focus:ring-violet-100"
+            />
+          </label>
+        </div>
 
         <div className="mt-8">
           <div className="mb-3 flex items-center justify-between gap-3">
