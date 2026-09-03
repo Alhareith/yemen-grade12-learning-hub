@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Check, Clipboard, ChevronLeft, Sparkles } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  Clipboard,
+  ClipboardPaste,
+  ChevronLeft,
+  Eraser,
+  Sparkles,
+} from "lucide-react";
 import {
   getRecommendedPrompts,
   promptSituationGroups,
@@ -16,7 +24,6 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
   const [situation, setSituation] = useState<PromptSituation>("lost");
   const [selectedPrompt, setSelectedPrompt] = useState<StudyPrompt | null>(null);
   const [unit, setUnit] = useState("");
-  const [lesson, setLesson] = useState("");
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -24,7 +31,6 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
     setSituation("lost");
     setSelectedPrompt(null);
     setUnit("");
-    setLesson("");
     setInput("");
     setCopied(false);
   }, [subject]);
@@ -34,12 +40,21 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
     [subject, situation],
   );
 
-  const generatedPrompt = selectedPrompt?.build({
-    subject,
-    unit: unit || undefined,
-    lesson: lesson || undefined,
-    input: input || undefined,
-  }) ?? "";
+  const generatedPrompt = useMemo(() => {
+    if (!selectedPrompt) return "";
+
+    const basePrompt = selectedPrompt.build({
+      subject,
+      unit: unit || undefined,
+      input: input || undefined,
+    });
+
+    const extraContext = input && !selectedPrompt.inputLabel
+      ? `\n\nسياق إضافي من الطالب:\n${input}`
+      : "";
+
+    return `${basePrompt}${extraContext}\n\n${arabicOutputPolicy(subject)}`;
+  }, [input, selectedPrompt, subject, unit]);
 
   const chooseSituation = (next: PromptSituation) => {
     setSituation(next);
@@ -79,7 +94,20 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
     window.setTimeout(() => setCopied(false), 2200);
   };
 
+  const pasteFromClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text.trim()) setInput(text.trim());
+    } catch {
+      // Clipboard read can be blocked by browser permissions; manual paste remains available.
+    }
+  };
+
   if (selectedPrompt) {
+    const inputLabel = selectedPrompt.inputLabel ?? "تفاصيل تساعد على تخصيص البرومبت — اختياري";
+    const inputPlaceholder = selectedPrompt.inputPlaceholder
+      ?? "الصق السؤال أو الفقرة أو محاولتك كما هي، أو اكتب النقطة التي تريد التركيز عليها…";
+
     return (
       <div className="mx-auto w-full max-w-4xl px-4 pb-28 pt-4 sm:px-6 md:pb-10">
         <button
@@ -106,49 +134,64 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
           </div>
 
           <div className="space-y-5 p-5 sm:p-7">
-            <div className={`grid gap-3 ${units.length > 0 ? "sm:grid-cols-2" : "grid-cols-1"}`}>
-              {units.length > 0 && (
-                <label className="block">
-                  <span className="mb-2 block text-xs font-extrabold text-slate-700">الوحدة — اختياري</span>
-                  <select
-                    value={unit}
-                    onChange={(event) => setUnit(event.target.value)}
-                    className="min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-800 outline-none focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
-                  >
-                    <option value="">بدون تحديد وحدة</option>
-                    {units.map((item) => <option key={item} value={item}>{item}</option>)}
-                  </select>
-                </label>
-              )}
-
+            {units.length > 0 && (
               <label className="block">
-                <span className="mb-2 block text-xs font-extrabold text-slate-700">اسم الدرس أو الفكرة — اختياري</span>
-                <input
-                  value={lesson}
-                  onChange={(event) => setLesson(event.target.value)}
-                  placeholder="مثال: الاشتقاق، قانون أوم، الوراثة…"
-                  className="min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-800 outline-none placeholder:font-medium placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
-                />
-              </label>
-            </div>
-
-            {selectedPrompt.inputLabel && (
-              <label className="block">
-                <span className="mb-2 block text-xs font-extrabold text-slate-700">{selectedPrompt.inputLabel}</span>
-                <textarea
-                  value={input}
-                  onChange={(event) => setInput(event.target.value)}
-                  placeholder={selectedPrompt.inputPlaceholder}
-                  rows={6}
-                  className="w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-medium leading-7 text-slate-800 outline-none placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
-                />
+                <span className="mb-2 block text-xs font-extrabold text-slate-700">الوحدة أو المحور — اختياري</span>
+                <select
+                  value={unit}
+                  onChange={(event) => setUnit(event.target.value)}
+                  className="min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-800 outline-none focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
+                >
+                  <option value="">لا أعرف الوحدة / لا أحتاج تحديدها</option>
+                  {units.map((item) => <option key={item} value={item}>{item}</option>)}
+                </select>
               </label>
             )}
+
+            <div className="rounded-2xl border border-violet-100 bg-violet-50/60 p-3.5 text-xs font-medium leading-6 text-slate-600">
+              <strong className="text-violet-800">لا تحتاج كتابة اسم الدرس.</strong>{" "}
+              الصق السؤال أو النص أو محاولتك كما هي؛ البرومبت سيطلب من الأداة استنتاج الموضوع من المحتوى، وإذا لم يكن واضحًا فستذكر افتراضها بدل اختراع تفاصيل من المنهج.
+            </div>
+
+            <label className="block">
+              <span className="mb-2 flex items-center justify-between gap-3">
+                <span className="text-xs font-extrabold text-slate-700">{inputLabel}</span>
+                <span className="text-[10px] font-bold text-slate-400">كلما كان النص الأصلي أوضح كانت النتيجة أدق</span>
+              </span>
+              <textarea
+                value={input}
+                onChange={(event) => setInput(event.target.value)}
+                placeholder={inputPlaceholder}
+                rows={7}
+                className="w-full resize-y rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm font-medium leading-7 text-slate-800 outline-none placeholder:text-slate-400 focus:border-violet-400 focus:bg-white focus:ring-4 focus:ring-violet-100"
+              />
+            </label>
+
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={pasteFromClipboard}
+                className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-extrabold text-slate-700 transition hover:bg-slate-50"
+              >
+                <ClipboardPaste className="h-4 w-4" />
+                لصق من الحافظة
+              </button>
+              {input && (
+                <button
+                  type="button"
+                  onClick={() => setInput("")}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-xs font-extrabold text-slate-500 transition hover:bg-slate-50"
+                >
+                  <Eraser className="h-4 w-4" />
+                  مسح
+                </button>
+              )}
+            </div>
 
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
                 <span className="text-xs font-extrabold text-slate-700">البرومبت الجاهز</span>
-                <span className="text-[10px] font-bold text-slate-400">يتحدّث مباشرة ويكمل الرد دون انتظار</span>
+                <span className="text-[10px] font-bold text-slate-400">إجابة عربية منظمة · المعادلات في أسطر واضحة</span>
               </div>
               <pre className="max-h-[52vh] overflow-y-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-950 p-4 text-right font-sans text-[13px] font-medium leading-7 text-slate-100 sm:p-5">{generatedPrompt}</pre>
             </div>
@@ -186,7 +229,7 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
           البرومبتات الجاهزة
         </span>
         <h1 className="mt-2 text-2xl font-black leading-9 text-slate-950">كيف تريد أن يساعدك الذكاء الاصطناعي في {subject}؟</h1>
-        <p className="mt-2 text-sm font-medium leading-7 text-slate-500">اختر حالتك أولًا. عند الضغط على أي برومبت سيفتح وحده في شاشة واضحة، ثم تستطيع تخصيصه ونسخه.</p>
+        <p className="mt-2 text-sm font-medium leading-7 text-slate-500">اختر حالتك أولًا. البرومبت يفتح وحده، ويطلب من الأداة أن تشرح بالعربية وتعرض الرموز والمعادلات بطريقة واضحة للطالب.</p>
       </div>
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-4" role="tablist" aria-label="حالة الطالب">
@@ -235,6 +278,20 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
       </div>
     </div>
   );
+}
+
+function arabicOutputPolicy(subject: string) {
+  const subjectRule = subject === "رياضيات"
+    ? "في الرياضيات استخدم الرموز العربية الشائعة عندما تكون مناسبة مثل س، ص، ع، ن، م، وعرّف أي رمز غير واضح بالعربية."
+    : subject === "فيزياء"
+      ? "في الفيزياء حافظ على الرموز والوحدات العلمية القياسية مثل V وI وR وm/s عندما يلزم، لكن اكتب اسم كل كمية ومعنى كل رمز ووحدته بالعربية بجانب القانون."
+      : subject === "كيمياء"
+        ? "في الكيمياء لا تعرّب الصيغ الكيميائية القياسية مثل H₂O وNaCl؛ اعرضها كما هي ثم فسّر أسماء المواد والرموز والتفاعل بالعربية."
+        : subject === "لغة إنجليزية"
+          ? "في الإنجليزية أبقِ الكلمات والجمل الإنجليزية كما هي لأنها جزء من التعلم، لكن اجعل الشرح والقواعد والملاحظات والتصحيح بالعربية الواضحة."
+          : "استخدم العربية في الشرح والمصطلحات والعناوين، وعرّف أي رمز أو اختصار بلغة عربية بسيطة.";
+
+  return `معيار الإخراج والعرض:\n- اكتب الشرح والعناوين والخطوات بالعربية الواضحة المناسبة لطالب ثالث ثانوي.\n- استخدم الأرقام العربية ٠١٢٣٤٥٦٧٨٩ في النص وترقيم الخطوات عندما لا يسبب ذلك تشويشًا.\n- عند وجود معادلة أو قانون أو تعبير رمزي، ضعه في سطر مستقل وواضح. إذا كانت الأداة تدعم LaTeX/MathJax فاستخدم تنسيقًا رياضيًا مناسبًا مثل \\[ ... \\] حتى لا يختلط اتجاه RTL بترتيب الحدود.\n- لا تقلب ترتيب طرفي المعادلة بسبب اتجاه العربية، ولا تضع المعادلات الطويلة داخل فقرة عربية مزدحمة.\n- بعد كل قانون أو معادلة مهمة، اشرح الرموز والمتغيرات بالعربية في نقاط قصيرة.\n- استخدم المصطلحات العربية المعتمدة قدر الإمكان، وإذا كان هناك رمز أو مصطلح عالمي لا يصح تعريبه فاحتفظ به وفسّره بالعربية.\n- ${subjectRule}\n- اجعل الناتج مناسبًا للهاتف: فقرات قصيرة، عناوين واضحة، ومسافات بين المعادلات والخطوات.\n- إذا لم أحدد اسم الدرس لكنني أرسلت سؤالًا أو نصًا، استنتج الموضوع من المحتوى. إذا لم تكن واثقًا، اذكر افتراضك بوضوح ولا تخترع اسم درس أو معلومة من المنهج.`;
 }
 
 function stageLabel(stage: StudyPrompt["stage"]) {

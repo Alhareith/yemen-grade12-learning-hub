@@ -7,6 +7,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import HomeV3 from "./pages/HomeV3";
 import "./v2.css";
+import "./polish.css";
 
 export default function App() {
   return (
