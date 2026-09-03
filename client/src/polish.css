@@ -1,0 +1,45 @@
+/* Final approved-theme polish: keep the V3 layout, only deepen the developer footer. */
+footer {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+footer > div > a {
+  background: #111827 !important;
+  box-shadow: inset 0 0 0 1px #263349 !important;
+}
+
+footer .bg-white,
+footer .bg-slate-50 {
+  background: #111827 !important;
+}
+
+footer .border-slate-200,
+footer .ring-slate-100 {
+  border-color: #334155 !important;
+  --tw-ring-color: #263349 !important;
+}
+
+footer .text-slate-950,
+footer .text-slate-700,
+footer .text-slate-600 {
+  color: #e2e8f0 !important;
+}
+
+footer .text-slate-500 {
+  color: #cbd5e1 !important;
+}
+
+footer .text-slate-400,
+footer .text-slate-300 {
+  color: #94a3b8 !important;
+}
+
+footer .text-violet-700 {
+  color: #c4b5fd !important;
+}
+
+footer a:hover {
+  border-color: #8b5cf6 !important;
+  color: #ffffff !important;
+}
