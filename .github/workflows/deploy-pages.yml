@@ -2,7 +2,9 @@ name: نشر موقع دليل الثالث على GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - arena/01a0694f-yemen-grade12-learning-hub
   workflow_dispatch:
 
 permissions:
