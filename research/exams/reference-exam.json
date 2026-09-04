@@ -39,5 +39,10 @@
     "allowsOcrOnlyApproval": false,
     "publicQuestionStatus": "verified"
   },
-  "nextStage": "stage-2-skill-map"
+  "integrationContracts": {
+    "skillTaxonomy": "research/exams/calculus-skill-map.json",
+    "questionSchema": "research/exams/question.schema.json",
+    "typescriptModel": "shared/exams/question-model.ts"
+  },
+  "nextStage": "stage-4-digitize-reference-exam"
 }
