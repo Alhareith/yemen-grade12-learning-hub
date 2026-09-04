@@ -25,6 +25,7 @@ import {
   type SkillRemediation,
 } from "@shared/exams/remediation";
 import type { ExamSession } from "@shared/exams/session-engine";
+import LearningDashboard from "@/components/LearningDashboard";
 
 type ReviewFilter = "all" | QuestionResultStatus;
 
@@ -56,12 +57,13 @@ export default function ExamResultReport({ exam, session, onRestart }: { exam: E
         </div>
 
         <div className="mt-5 rounded-2xl border border-violet-100 bg-violet-50 p-4">
-          <strong className="block text-xs font-black text-violet-950">ابدأ بالأخطاء، لا بالدرجة فقط</strong>
+          <strong className="block text-xs font-black text-violet-950">لا تتوقف عند الدرجة</strong>
           <p className="mt-1 text-[11px] font-medium leading-6 text-violet-900">
-            التصحيح حتمي من مفتاح كل سؤال المعتمد داخل البيانات. تحليل المهارات أدناه محافظ: سؤال واحد يعطي إشارة فقط، ولا نسميه ضعفًا مؤكدًا.
+            نبدأ أولًا بالمحاور الكبيرة حتى يكون التحليل أوثق وأسهل، ثم ننزل إلى المهارات المحددة والأسئلة التي أخطأت فيها. سؤال واحد يبقى إشارة فقط ولا يتحول إلى حكم نهائي على مستواك.
           </p>
         </div>
 
+        <LearningDashboard report={report} />
         <SkillRemediationPanel items={remediation} />
 
         <div className="mt-6">
@@ -107,8 +109,8 @@ function SkillRemediationPanel({ items }: { items: SkillRemediation[] }) {
   if (items.length === 0) {
     return (
       <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
-        <strong className="flex items-center gap-2 text-xs font-black text-emerald-900"><CheckCircle2 className="h-4 w-4" />لا توجد نقاط ضعف ظاهرة في هذه المحاولة</strong>
-        <p className="mt-1 text-[11px] font-medium leading-6 text-emerald-800">أجبت عن كل المهارات التي ظهرت لك بصورة صحيحة. أعد المحاكاة لاحقًا للتأكد من الثبات.</p>
+        <strong className="flex items-center gap-2 text-xs font-black text-emerald-900"><CheckCircle2 className="h-4 w-4" />لا توجد مهارة محددة ظهر فيها خطأ</strong>
+        <p className="mt-1 text-[11px] font-medium leading-6 text-emerald-800">أجبت عن المهارات التي ظهرت لك بصورة صحيحة. أعد المحاكاة لاحقًا للتأكد من ثبات الأداء.</p>
       </div>
     );
   }
@@ -120,9 +122,9 @@ function SkillRemediationPanel({ items }: { items: SkillRemediation[] }) {
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-700"><Target className="h-5 w-5" /></span>
         <div>
-          <span className="text-[10px] font-extrabold text-violet-700">المرحلة 9 · ماذا تراجع الآن؟</span>
-          <h2 className="mt-1 text-base font-black text-slate-950">أولويات المراجعة من أخطائك</h2>
-          <p className="mt-1 text-[11px] font-medium leading-6 text-slate-500">الترتيب يعتمد على عدد الأخطاء وحجم الدليل، وليس على تخمينات AI.</p>
+          <span className="text-[10px] font-extrabold text-violet-700">داخل المحاور ذات الأولوية</span>
+          <h2 className="mt-1 text-base font-black text-slate-950">المهارات التي تبدأ بها</h2>
+          <p className="mt-1 text-[11px] font-medium leading-6 text-slate-500">هذه طبقة أدق من التحليل؛ لذلك نظهر حجم الدليل بجانب كل مهارة حتى لا نعطي حكمًا أكبر من البيانات المتاحة.</p>
         </div>
       </div>
 
