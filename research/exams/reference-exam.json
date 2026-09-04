@@ -44,16 +44,31 @@
     "sessionStorage": "client/src/exams/session-storage.ts",
     "resultReport": "shared/exams/result-report.ts",
     "resultUI": "client/src/components/ExamResultReport.tsx",
+    "remediationEngine": "shared/exams/remediation.ts",
     "pilotExamData": "client/src/data/exams/pilotExam.ts",
     "answerVerificationRegister": "research/exams/04-pilot-answer-verification.md",
-    "publicationTest": "client/src/exams/pilot-exam.test.ts"
+    "publicationTest": "client/src/exams/pilot-exam.test.ts",
+    "remediationTest": "client/src/exams/remediation.test.ts",
+    "homeExamEntry": "client/src/pages/HomeV3.tsx"
   },
   "stageProgress": {
     "stage4": { "status": "implemented", "mode": "verified-adapted-pilot", "verifiedQuestionCount": 50, "document": "research/exams/04-reference-digitization.md" },
     "stage5": { "status": "implemented", "document": "research/exams/05-basic-exam-engine.md" },
     "stage6": { "status": "implemented", "document": "research/exams/06-mobile-exam-experience.md" },
     "stage7": { "status": "implemented", "document": "research/exams/07-session-recovery.md" },
-    "stage8": { "status": "implemented", "document": "research/exams/08-scoring-and-result-review.md" }
+    "stage8": { "status": "implemented", "document": "research/exams/08-scoring-and-result-review.md" },
+    "stage9": {
+      "status": "implemented",
+      "document": "research/exams/09-error-review-and-remediation.md",
+      "features": [
+        "skill-level-mistake-aggregation",
+        "evidence-confidence-levels",
+        "top-three-review-priorities",
+        "deterministic-remediation-recommendations",
+        "copy-prefilled-help-prompt-for-wrong-question",
+        "visible-home-exams-entry-to-pilot"
+      ]
+    }
   },
-  "nextAction": "stage-9-error-review-and-remediation-integration"
+  "nextAction": "stage-10-skill-diagnosis-and-progress-model"
 }

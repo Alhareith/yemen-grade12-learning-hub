@@ -97,7 +97,7 @@ const socialLinks = [
   { label: "الموقع الشخصي", href: "https://alharethprofilo.netlify.app/", icon: Globe2 },
   { label: "GitHub", href: "https://github.com/Alhareith", icon: Github },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/%D8%A7%D9%84%D8%AD%D8%A7%D8%B1%D8%AB-%D8%A7%D9%84%D8%AF%D8%A7%D9%87%D9%8A%D8%A9-95b4a831a", icon: Linkedin },
-  { label: "Hugging Face", href: "https://huggingface.co/Alhareth7790", icon: Sparkles },
+  { label: "Hugging Face", href: "https://huggingface.co/Alhareith7790", icon: Sparkles },
   { label: "Telegram", href: "https://t.me/devhareth", icon: Send },
   { label: "Facebook", href: "https://www.facebook.com/alharth.aldahyt/", icon: Facebook },
   { label: "البريد", href: "mailto:alhareithaldahia@gmail.com", icon: Mail },
@@ -397,19 +397,42 @@ function UnitRow({ link }: { link: UnitLink }) {
 function ExamsView() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-8">
-      <PageHeading title="الاختبارات والمراجعة" description="افتح المصدر الذي تريد التدرب منه مباشرة." />
-      <div className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white">
-        {examChannels.map((channel) => (
-          <a key={channel.url} href={channel.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 border-b border-slate-100 p-4 text-right last:border-0 hover:bg-slate-50 sm:p-5">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700"><FileQuestion className="h-4.5 w-4.5" /></span>
+      <PageHeading title="الاختبارات والمراجعة" description="ابدأ بالمحاكاة التفاعلية داخل الموقع، أو افتح مصادر اختبارات إضافية." />
+
+      <a href="#exam-pilot" className="mt-5 block overflow-hidden rounded-3xl border border-violet-200 bg-slate-950 text-white shadow-[0_18px_45px_rgba(15,23,42,.08)] transition hover:-translate-y-0.5">
+        <div className="p-5 sm:p-6">
+          <div className="flex items-start gap-3">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200"><Target className="h-6 w-6" /></span>
             <span className="min-w-0 flex-1">
-              <small className="text-[9px] font-extrabold text-amber-700">{channel.badge}</small>
-              <strong className="block text-sm font-black leading-6 text-slate-950">{channel.title}</strong>
-              <span className="mt-1 block text-xs font-medium leading-5 text-slate-500">{channel.handle} · {channel.detail}</span>
+              <small className="text-[10px] font-extrabold text-violet-300">اختبار تفاعلي داخل الموقع · متاح الآن</small>
+              <strong className="mt-1 block text-lg font-black leading-8">محاكاة التفاضل والتكامل</strong>
+              <span className="mt-1 block text-xs font-medium leading-6 text-slate-300">50 سؤالًا · 80 درجة · مؤقت اختياري · حفظ واستكمال · نتيجة ومراجعة أخطاء وتحليل مهارات.</span>
             </span>
-            <ExternalLink className="h-4 w-4 shrink-0 text-slate-300" />
-          </a>
-        ))}
+            <ChevronLeft className="mt-4 h-5 w-5 shrink-0 text-violet-300" />
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2 text-[9px] font-extrabold text-slate-300">
+            <span className="rounded-full bg-white/10 px-2.5 py-1.5">20 صح/خطأ</span>
+            <span className="rounded-full bg-white/10 px-2.5 py-1.5">30 اختيارًا</span>
+            <span className="rounded-full bg-white/10 px-2.5 py-1.5">مراجعة موجهة بعد التسليم</span>
+          </div>
+        </div>
+      </a>
+
+      <div className="mt-6">
+        <span className="text-[10px] font-extrabold text-slate-400">مصادر اختبارات إضافية</span>
+        <div className="mt-2 overflow-hidden rounded-3xl border border-slate-200 bg-white">
+          {examChannels.map((channel) => (
+            <a key={channel.url} href={channel.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 border-b border-slate-100 p-4 text-right last:border-0 hover:bg-slate-50 sm:p-5">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700"><FileQuestion className="h-4.5 w-4.5" /></span>
+              <span className="min-w-0 flex-1">
+                <small className="text-[9px] font-extrabold text-amber-700">{channel.badge}</small>
+                <strong className="block text-sm font-black leading-6 text-slate-950">{channel.title}</strong>
+                <span className="mt-1 block text-xs font-medium leading-5 text-slate-500">{channel.handle} · {channel.detail}</span>
+              </span>
+              <ExternalLink className="h-4 w-4 shrink-0 text-slate-300" />
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );

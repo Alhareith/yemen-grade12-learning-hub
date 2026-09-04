@@ -5,8 +5,11 @@ import {
   ChevronDown,
   ChevronUp,
   CircleHelp,
+  ClipboardCheck,
+  Copy,
   ExternalLink,
   RotateCcw,
+  Target,
   XCircle,
 } from "lucide-react";
 import type { ExamDefinition } from "@shared/exams/exam-model";
@@ -16,12 +19,18 @@ import {
   type QuestionResultReview,
   type QuestionResultStatus,
 } from "@shared/exams/result-report";
+import {
+  buildQuestionHelpPrompt,
+  buildSkillRemediation,
+  type SkillRemediation,
+} from "@shared/exams/remediation";
 import type { ExamSession } from "@shared/exams/session-engine";
 
 type ReviewFilter = "all" | QuestionResultStatus;
 
 export default function ExamResultReport({ exam, session, onRestart }: { exam: ExamDefinition; session: ExamSession; onRestart: () => void }) {
   const report = useMemo(() => buildExamResultReport(exam, session), [exam, session]);
+  const remediation = useMemo(() => buildSkillRemediation(report), [report]);
   const [filter, setFilter] = useState<ReviewFilter>(() => report.score.incorrectCount > 0 ? "incorrect" : report.score.unansweredCount > 0 ? "unanswered" : "all");
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null);
   const timedOut = session.timingMode === "timed" && session.deadlineAt !== undefined && (session.submittedAt ?? 0) >= session.deadlineAt;
@@ -49,11 +58,13 @@ export default function ExamResultReport({ exam, session, onRestart }: { exam: E
         <div className="mt-5 rounded-2xl border border-violet-100 bg-violet-50 p-4">
           <strong className="block text-xs font-black text-violet-950">ابدأ بالأخطاء، لا بالدرجة فقط</strong>
           <p className="mt-1 text-[11px] font-medium leading-6 text-violet-900">
-            التصحيح حتمي من مفتاح كل سؤال المعتمد داخل البيانات. دليل الإجابة قد يكون مفتاحًا منشورًا، حلًا منشورًا، أو تحققًا رياضيًا مستقلًا موثقًا. لا نعرض شرحًا إلا إذا كان مراجعًا.
+            التصحيح حتمي من مفتاح كل سؤال المعتمد داخل البيانات. تحليل المهارات أدناه محافظ: سؤال واحد يعطي إشارة فقط، ولا نسميه ضعفًا مؤكدًا.
           </p>
         </div>
 
-        <div className="mt-5">
+        <SkillRemediationPanel items={remediation} />
+
+        <div className="mt-6">
           <div className="flex items-end justify-between gap-3">
             <div>
               <span className="text-[10px] font-extrabold text-slate-500">مراجعة الإجابات</span>
@@ -71,7 +82,12 @@ export default function ExamResultReport({ exam, session, onRestart }: { exam: E
           {visibleReviews.length > 0 ? (
             <div className="mt-3 space-y-2.5">
               {visibleReviews.map((review) => (
-                <QuestionReviewCard key={review.questionId} review={review} expanded={expandedQuestionId === review.questionId} onToggle={() => setExpandedQuestionId((current) => current === review.questionId ? null : review.questionId)} />
+                <QuestionReviewCard
+                  key={review.questionId}
+                  review={review}
+                  expanded={expandedQuestionId === review.questionId}
+                  onToggle={() => setExpandedQuestionId((current) => current === review.questionId ? null : review.questionId)}
+                />
               ))}
             </div>
           ) : (
@@ -87,11 +103,75 @@ export default function ExamResultReport({ exam, session, onRestart }: { exam: E
   );
 }
 
+function SkillRemediationPanel({ items }: { items: SkillRemediation[] }) {
+  if (items.length === 0) {
+    return (
+      <div className="mt-5 rounded-2xl border border-emerald-100 bg-emerald-50 p-4">
+        <strong className="flex items-center gap-2 text-xs font-black text-emerald-900"><CheckCircle2 className="h-4 w-4" />لا توجد نقاط ضعف ظاهرة في هذه المحاولة</strong>
+        <p className="mt-1 text-[11px] font-medium leading-6 text-emerald-800">أجبت عن كل المهارات التي ظهرت لك بصورة صحيحة. أعد المحاكاة لاحقًا للتأكد من الثبات.</p>
+      </div>
+    );
+  }
+
+  const priorities = items.slice(0, 3);
+
+  return (
+    <section className="mt-5 rounded-3xl border border-slate-200 bg-slate-50 p-4 sm:p-5">
+      <div className="flex items-start gap-3">
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-violet-100 text-violet-700"><Target className="h-5 w-5" /></span>
+        <div>
+          <span className="text-[10px] font-extrabold text-violet-700">المرحلة 9 · ماذا تراجع الآن؟</span>
+          <h2 className="mt-1 text-base font-black text-slate-950">أولويات المراجعة من أخطائك</h2>
+          <p className="mt-1 text-[11px] font-medium leading-6 text-slate-500">الترتيب يعتمد على عدد الأخطاء وحجم الدليل، وليس على تخمينات AI.</p>
+        </div>
+      </div>
+
+      <div className="mt-4 space-y-2.5">
+        {priorities.map((item, index) => <SkillPriorityCard key={item.skillId} item={item} rank={index + 1} />)}
+      </div>
+
+      {items.length > priorities.length && (
+        <p className="mt-3 text-[10px] font-bold leading-5 text-slate-500">هناك {items.length - priorities.length} مهارات أخرى بها أخطاء أقل أولوية؛ راجعها من الأسئلة أدناه بعد إنهاء الأولويات الثلاث.</p>
+      )}
+    </section>
+  );
+}
+
+function SkillPriorityCard({ item, rank }: { item: SkillRemediation; rank: number }) {
+  return (
+    <article className="rounded-2xl border border-slate-200 bg-white p-3.5">
+      <div className="flex items-start gap-3">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-[10px] font-black text-white">{rank}</span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <strong className="text-xs font-black leading-6 text-slate-950">{item.skillTitle}</strong>
+            <span className="rounded-full bg-rose-50 px-2 py-1 text-[9px] font-extrabold text-rose-700">{item.missedCount} خطأ/غير مجاب</span>
+          </div>
+          <p className="mt-1 text-[10px] font-extrabold text-violet-700">{item.statusLabel}</p>
+          <p className="mt-1 text-[10px] font-medium leading-5 text-slate-500">{item.confidenceLabel} · {item.questionCount} سؤال على هذه المهارة</p>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full bg-slate-900" style={{ width: `${Math.max(4, item.masteryPercentage)}%` }} />
+          </div>
+          <p className="mt-2 text-[11px] font-bold leading-6 text-slate-700">{item.recommendation}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function QuestionReviewCard({ review, expanded, onToggle }: { review: QuestionResultReview; expanded: boolean; onToggle: () => void }) {
+  const [copied, setCopied] = useState(false);
   const StatusIcon = review.status === "correct" ? CheckCircle2 : review.status === "incorrect" ? XCircle : CircleHelp;
   const tone = review.status === "correct" ? "border-emerald-200 bg-emerald-50/40 text-emerald-700" : review.status === "incorrect" ? "border-rose-200 bg-rose-50/45 text-rose-700" : "border-amber-200 bg-amber-50/45 text-amber-800";
   const statusLabel = review.status === "correct" ? "صحيح" : review.status === "incorrect" ? "خطأ" : "بدون إجابة";
   const adapted = review.source.relation === "adapted";
+
+  const copyHelpPrompt = async () => {
+    const success = await copyText(buildQuestionHelpPrompt(review));
+    if (!success) return;
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  };
 
   return (
     <article className={`overflow-hidden rounded-2xl border ${tone}`}>
@@ -128,6 +208,13 @@ function QuestionReviewCard({ review, expanded, onToggle }: { review: QuestionRe
               <strong className="flex items-center gap-2 text-[11px] font-black text-slate-900"><Check className="h-4 w-4 text-emerald-600" />شرح مراجع</strong>
               <div className="mt-2 text-xs font-medium leading-7 text-slate-700"><RichContentView content={review.reviewedExplanation} /></div>
             </div>
+          )}
+
+          {review.status !== "correct" && (
+            <button type="button" onClick={copyHelpPrompt} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-violet-700 px-4 text-[11px] font-extrabold text-white sm:w-auto">
+              {copied ? <ClipboardCheck className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? "تم نسخ برومبت الشرح" : "انسخ برومبت لشرح خطئي"}
+            </button>
           )}
 
           {adapted && (
@@ -183,4 +270,30 @@ function formatElapsed(ms: number): string {
   const minutes = totalMinutes % 60;
   if (hours > 0) return `${hours} س و${minutes} د`;
   return `${minutes} دقيقة`;
+}
+
+async function copyText(value: string): Promise<boolean> {
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch {
+    // Fall through to the DOM fallback for browsers that deny Clipboard API access.
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = value;
+    textarea.setAttribute("readonly", "");
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand("copy");
+    textarea.remove();
+    return copied;
+  } catch {
+    return false;
+  }
 }
