@@ -54,16 +54,17 @@ export function makePilotQuestion(spec: PilotQuestionSpec): ExamQuestion {
       correctOptionId: spec.correctOptionId,
       points,
       answerEvidence: {
-        type: "published-solution",
+        type: "independent-verification",
         sourceUrl: pilotExamProvenance.readableSolvedMirror.url,
-        locator: "الإجابة محسوبة ومراجعة رياضيًا للصياغة المتكيفة؛ ملف 2020 مرجع لبنية الاختبار ونمط الأسئلة وليس مفتاحًا حرفيًا لهذا النص.",
+        locator: "الإجابة حُسبت ومراجعت رياضيًا للصياغة المنشورة نفسها؛ المرجع الخارجي يثبت بنية ونمط المحاكاة ولا يُقدَّم كمفتاح حرفي لهذا السؤال المتكيف.",
       },
     },
     source: {
       sourcePackageUrl: pilotExamProvenance.primaryReference.url,
       sourceFileName: "مرجع بنية 2020 — السؤال الحالي متكيف وليس نقلًا حرفيًا",
-      questionPage: 1,
       digitizationMethod: "manual",
+      relation: "adapted",
+      adaptationNote: "صياغة تدريبية جديدة مبنية على موضوعات ونمط الاختبار المرجعي؛ لا تمثل نص سؤال وزاري حرفي.",
     },
     analysis: {
       primarySkillId: spec.skill,
