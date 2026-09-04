@@ -46,6 +46,8 @@
     "typescriptExamModel": "shared/exams/exam-model.ts",
     "sessionEngine": "shared/exams/session-engine.ts",
     "sessionStorage": "client/src/exams/session-storage.ts",
+    "resultReport": "shared/exams/result-report.ts",
+    "resultUI": "client/src/components/ExamResultReport.tsx",
     "pilotExamData": "client/src/data/exams/pilotExam.ts"
   },
   "stageProgress": {
@@ -91,7 +93,20 @@
         "pagehide-final-save"
       ],
       "studentLaunchBlockedUntilStage4Ready": true
+    },
+    "stage8": {
+      "status": "implemented",
+      "document": "research/exams/08-scoring-and-result-review.md",
+      "features": [
+        "deterministic-result-report",
+        "correct-incorrect-unanswered-review",
+        "answer-and-source-evidence",
+        "reviewed-explanation-only",
+        "result-filters",
+        "mobile-question-review"
+      ],
+      "studentLaunchBlockedUntilStage4Ready": true
     }
   },
-  "nextAction": "استئناف رقمنة المرحلة 4 عند توفر ملف المصدر القابل للمراجعة؛ محرك الاختبار وتجربة الهاتف والاستعادة الآمنة جاهزة لتشغيل نموذج verified فور اعتماده"
+  "nextAction": "استئناف رقمنة المرحلة 4 عند توفر ملف المصدر القابل للمراجعة؛ المراحل 5-8 جاهزة لتشغيل وتصحيح ومراجعة نموذج verified فور اعتماده"
 }

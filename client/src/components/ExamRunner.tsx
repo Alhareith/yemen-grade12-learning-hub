@@ -9,7 +9,6 @@ import {
   Flag,
   Grid2X2,
   History,
-  RotateCcw,
   ShieldCheck,
   TimerOff,
   X,
@@ -23,7 +22,6 @@ import {
   createExamSession,
   getRemainingTimeMs,
   getSessionProgress,
-  scoreSession,
   setCurrentQuestion,
   submitSession,
   toggleQuestionFlag,
@@ -36,6 +34,7 @@ import {
   saveSessionSafely,
   type SessionRecoveryResult,
 } from "@/exams/session-storage";
+import ExamResultReport from "@/components/ExamResultReport";
 
 type RecoveryCandidate = Extract<SessionRecoveryResult, { kind: "resumable" }>;
 type StorageState = "ok" | "unavailable" | "conflict";
@@ -296,49 +295,20 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
   }
 
   if (session.status === "submitted") {
-    const score = scoreSession(exam, session);
-    const timedOut = session.timingMode === "timed"
-      && session.deadlineAt !== undefined
-      && (session.submittedAt ?? 0) >= session.deadlineAt;
-    const elapsedMs = Math.max(0, (session.submittedAt ?? session.updatedAt) - session.startedAt);
-
     return (
-      <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,.06)]">
-        <div className="bg-slate-950 p-5 text-white sm:p-7">
-          <span className="text-[10px] font-extrabold text-violet-300">
-            {timedOut ? "انتهى وقت المحاكاة" : "تم تسليم المحاكاة"}
-          </span>
-          <div className="mt-2 flex items-end gap-2">
-            <strong className="text-4xl font-black">{score.percentage}%</strong>
-            <span className="pb-1 text-xs font-bold text-slate-400">النتيجة</span>
-          </div>
-          <p className="mt-2 text-xs font-medium text-slate-400">الوقت المستخدم: {formatElapsed(elapsedMs)}</p>
-        </div>
-
-        <div className="p-4 sm:p-6">
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <ResultStat label="صحيح" value={score.correctCount} tone="good" />
-            <ResultStat label="خطأ" value={score.incorrectCount} tone="bad" />
-            <ResultStat label="بدون إجابة" value={score.unansweredCount} />
-          </div>
-          <p className="mt-5 text-xs font-medium leading-6 text-slate-500">
-            هذه نتيجة تصحيح حتمية من مفتاح الإجابة الموثق. تحليل المهارات وأسباب الخطأ سيُضاف في المرحلة التشخيصية اللاحقة.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              removeStoredSession(exam.id, window.localStorage);
-              setSession(null);
-              setConfirmSubmit(false);
-              setShowMap(false);
-            }}
-            className="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl bg-slate-100 px-4 text-xs font-extrabold text-slate-800 hover:bg-slate-200"
-          >
-            <RotateCcw className="h-4 w-4" />
-            محاولة جديدة
-          </button>
-        </div>
-      </section>
+      <ExamResultReport
+        exam={exam}
+        session={session}
+        onRestart={() => {
+          removeStoredSession(exam.id, window.localStorage);
+          setSession(null);
+          setConfirmSubmit(false);
+          setShowMap(false);
+          setRecovery(null);
+          setNewerSession(null);
+          setStorageState("ok");
+        }}
+      />
     );
   }
 
@@ -662,21 +632,6 @@ function RichContentView({ content }: { content: RichContent }) {
   );
 }
 
-function ResultStat({ label, value, tone = "neutral" }: { label: string; value: number; tone?: "neutral" | "good" | "bad" }) {
-  const className = tone === "good"
-    ? "bg-emerald-50 text-emerald-800"
-    : tone === "bad"
-      ? "bg-rose-50 text-rose-800"
-      : "bg-slate-50 text-slate-800";
-
-  return (
-    <div className={`rounded-2xl p-3 ${className}`}>
-      <strong className="block text-xl font-black">{value}</strong>
-      <small className="text-[9px] font-extrabold opacity-70">{label}</small>
-    </div>
-  );
-}
-
 function Legend({ swatch, label, dot = false }: { swatch: string; label: string; dot?: boolean }) {
   return (
     <span className="inline-flex items-center gap-1.5">
@@ -715,14 +670,6 @@ function formatCountdown(ms: number): string {
 
   if (hours > 0) return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   return `${pad(minutes)}:${pad(seconds)}`;
-}
-
-function formatElapsed(ms: number): string {
-  const totalMinutes = Math.floor(ms / 60_000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  if (hours > 0) return `${hours} س و${minutes} د`;
-  return `${minutes} دقيقة`;
 }
 
 function pad(value: number): string {
