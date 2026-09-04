@@ -6,6 +6,7 @@ import {
   canResumeSession,
   createExamSession,
   getRemainingTimeMs,
+  getSessionIntegrityIssue,
   getSessionProgress,
   isSessionTimeExpired,
   scoreSession,
@@ -63,7 +64,7 @@ function makeQuestion(id: string, order: number, correctOptionId: "A" | "B"): Ex
   };
 }
 
-function makeReadyExam(): ExamDefinition {
+export function makeReadyExam(): ExamDefinition {
   return {
     schemaVersion: "1.0",
     id: "TEST-EXAM",
@@ -190,5 +191,30 @@ describe("exam session engine", () => {
     };
 
     expect(canResumeSession(changedExam, session)).toBe(false);
+  });
+
+  it("rejects a stored session with an invalid current question index", () => {
+    const exam = makeReadyExam();
+    const session = createExamSession(exam, { timingMode: "untimed", nowMs: 100 });
+    const corrupted = { ...session, currentIndex: 99 };
+
+    expect(getSessionIntegrityIssue(exam, corrupted)).toBe("invalid-current-index");
+    expect(canResumeSession(exam, corrupted)).toBe(false);
+  });
+
+  it("rejects a stored answer whose option does not belong to its question", () => {
+    const exam = makeReadyExam();
+    const session = createExamSession(exam, { timingMode: "untimed", nowMs: 100 });
+    const corrupted = { ...session, answers: { Q1: "NOT-AN-OPTION" } };
+
+    expect(getSessionIntegrityIssue(exam, corrupted)).toBe("invalid-answer-option");
+  });
+
+  it("rejects a timed session when its persisted deadline was extended", () => {
+    const exam = makeReadyExam();
+    const session = createExamSession(exam, { timingMode: "timed", nowMs: 1_000 });
+    const corrupted = { ...session, deadlineAt: (session.deadlineAt ?? 0) + 60_000 };
+
+    expect(getSessionIntegrityIssue(exam, corrupted)).toBe("invalid-deadline");
   });
 });
