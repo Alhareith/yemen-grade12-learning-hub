@@ -73,7 +73,7 @@ describe("stage 4 verified adapted calculus pilot", () => {
 
   it("keeps adapted provenance explicit instead of claiming verbatim ministerial text", () => {
     expect(pilotExamProvenance.publicLabel).toContain("ليست نسخة حرفية");
-    expect(questions.every((q) => q.source.sourceFileName.includes("متكيف") || q.source.sourceFileName.includes("متكيف") === false)).toBe(true);
+    expect(questions.every((q) => q.source.sourceFileName.includes("متكيف"))).toBe(true);
     expect(pilotCalculusExam.source.fileName).toContain("لا نص حرفي");
   });
 });
