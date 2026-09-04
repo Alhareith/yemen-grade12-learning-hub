@@ -24,6 +24,21 @@ export type ExamSession = {
   submittedAt?: number;
 };
 
+export type SessionIntegrityIssue =
+  | "exam-not-ready"
+  | "invalid-shape"
+  | "unsupported-version"
+  | "wrong-exam"
+  | "invalid-status"
+  | "invalid-timing-mode"
+  | "invalid-question-set"
+  | "invalid-current-index"
+  | "invalid-timestamps"
+  | "invalid-deadline"
+  | "invalid-flags"
+  | "invalid-answer-question"
+  | "invalid-answer-option";
+
 export type QuestionScore = {
   questionId: string;
   selectedOptionId?: string;
@@ -262,41 +277,91 @@ export function isSessionTimeExpired(
   return remaining !== null && remaining <= 0;
 }
 
-export function canResumeSession(exam: ExamDefinition, session: ExamSession): boolean {
-  return session.status === "in-progress" && isSessionCompatibleWithExam(exam, session);
-}
+export function getSessionIntegrityIssue(
+  exam: ExamDefinition,
+  candidate: unknown,
+): SessionIntegrityIssue | null {
+  if (!isExamReadyForStudents(exam)) return "exam-not-ready";
+  if (!isRecord(candidate)) return "invalid-shape";
+  if (candidate.version !== 2) return "unsupported-version";
+  if (candidate.examId !== exam.id) return "wrong-exam";
+  if (candidate.status !== "in-progress" && candidate.status !== "submitted") return "invalid-status";
+  if (candidate.timingMode !== "timed" && candidate.timingMode !== "untimed") return "invalid-timing-mode";
 
-export function isSessionCompatibleWithExam(exam: ExamDefinition, session: ExamSession): boolean {
-  if (!isExamReadyForStudents(exam)) return false;
-  if (session.version !== 2 || session.examId !== exam.id) return false;
-  if (session.timingMode !== "timed" && session.timingMode !== "untimed") return false;
-
-  if (session.timingMode === "timed") {
-    if (!Number.isFinite(session.deadlineAt) || (session.deadlineAt ?? 0) <= session.startedAt) return false;
-  } else if (session.deadlineAt !== undefined) {
-    return false;
+  if (!Array.isArray(candidate.questionIds) || !candidate.questionIds.every(isString)) {
+    return "invalid-question-set";
   }
 
   const readyQuestions = getStudentReadyQuestions(exam);
-  if (readyQuestions.length !== session.questionIds.length) return false;
-
+  if (candidate.questionIds.length !== readyQuestions.length) return "invalid-question-set";
   for (let index = 0; index < readyQuestions.length; index += 1) {
-    if (readyQuestions[index].id !== session.questionIds[index]) return false;
+    if (candidate.questionIds[index] !== readyQuestions[index].id) return "invalid-question-set";
   }
 
-  const questionIdSet = new Set(session.questionIds);
-  const flagSet = new Set(session.flaggedQuestionIds);
-  if (flagSet.size !== session.flaggedQuestionIds.length) return false;
-
-  for (let index = 0; index < session.flaggedQuestionIds.length; index += 1) {
-    if (!questionIdSet.has(session.flaggedQuestionIds[index])) return false;
+  if (
+    !Number.isInteger(candidate.currentIndex)
+    || (candidate.currentIndex as number) < 0
+    || (candidate.currentIndex as number) >= readyQuestions.length
+  ) {
+    return "invalid-current-index";
   }
 
-  for (const questionId of Object.keys(session.answers)) {
-    if (!questionIdSet.has(questionId)) return false;
+  if (
+    !isFiniteNumber(candidate.startedAt)
+    || !isFiniteNumber(candidate.updatedAt)
+    || candidate.startedAt < 0
+    || candidate.updatedAt < candidate.startedAt
+  ) {
+    return "invalid-timestamps";
   }
 
-  return true;
+  if (candidate.status === "in-progress" && candidate.submittedAt !== undefined) {
+    return "invalid-timestamps";
+  }
+  if (candidate.status === "submitted") {
+    if (!isFiniteNumber(candidate.submittedAt) || candidate.submittedAt < candidate.startedAt) {
+      return "invalid-timestamps";
+    }
+  }
+
+  if (candidate.timingMode === "timed") {
+    const expectedDeadline = candidate.startedAt + exam.durationMinutes * 60_000;
+    if (!isFiniteNumber(candidate.deadlineAt) || candidate.deadlineAt !== expectedDeadline) {
+      return "invalid-deadline";
+    }
+  } else if (candidate.deadlineAt !== undefined) {
+    return "invalid-deadline";
+  }
+
+  if (!Array.isArray(candidate.flaggedQuestionIds) || !candidate.flaggedQuestionIds.every(isString)) {
+    return "invalid-flags";
+  }
+  const questionIdSet = new Set(candidate.questionIds as string[]);
+  const flagSet = new Set(candidate.flaggedQuestionIds as string[]);
+  if (flagSet.size !== candidate.flaggedQuestionIds.length) return "invalid-flags";
+  for (const questionId of candidate.flaggedQuestionIds as string[]) {
+    if (!questionIdSet.has(questionId)) return "invalid-flags";
+  }
+
+  if (!isRecord(candidate.answers)) return "invalid-answer-question";
+  const questionById = new Map(readyQuestions.map((question) => [question.id, question]));
+  for (const [questionId, optionId] of Object.entries(candidate.answers)) {
+    if (!questionIdSet.has(questionId)) return "invalid-answer-question";
+    if (typeof optionId !== "string") return "invalid-answer-option";
+    const question = questionById.get(questionId);
+    if (!question?.options.some((option) => option.id === optionId)) return "invalid-answer-option";
+  }
+
+  return null;
+}
+
+export function canResumeSession(exam: ExamDefinition, session: unknown): session is ExamSession {
+  if (!isRecord(session) || session.status !== "in-progress") return false;
+  return getSessionIntegrityIssue(exam, session) === null;
+}
+
+export function isSessionCompatibleWithExam(exam: ExamDefinition, session: unknown): session is ExamSession {
+  return getSessionIntegrityIssue(exam, session) === null;
 }
 
 export function getSessionStorageKey(examId: string): string {
@@ -344,6 +409,18 @@ function findSessionQuestion(
   const question = questions.find((candidate) => candidate.id === questionId);
   if (!question) throw new Error(`Verified question ${questionId} is unavailable`);
   return question;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isString(value: unknown): value is string {
+  return typeof value === "string";
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === "number" && Number.isFinite(value);
 }
 
 function roundToTwo(value: number): number {
