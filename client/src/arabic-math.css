@@ -1,0 +1,62 @@
+.arabic-rich-content {
+  direction: rtl;
+  unicode-bidi: isolate;
+}
+
+.arabic-math-wrap {
+  direction: rtl;
+  unicode-bidi: isolate;
+  max-width: 100%;
+  color: inherit;
+}
+
+.arabic-math-inline {
+  display: inline-flex;
+  align-items: center;
+  margin-inline: 0.22rem;
+  vertical-align: -0.16em;
+}
+
+.arabic-math-block {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  padding-block: 0.5rem;
+  text-align: center;
+  scrollbar-width: thin;
+}
+
+.arabic-math-wrap math {
+  direction: rtl;
+  font-family: "STIX Two Math", "Cambria Math", "Noto Sans Math", "Times New Roman", serif;
+  font-size: 1.12em;
+  line-height: 1.25;
+  font-feature-settings: "rtlm" 1, "kern" 1;
+  font-variant-numeric: lining-nums;
+}
+
+.arabic-math-wrap mtext,
+.arabic-math-wrap .arabic-math-word {
+  font-family: "Noto Naskh Arabic", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+}
+
+.arabic-math-wrap mi {
+  font-style: normal;
+}
+
+.arabic-math-wrap mfrac {
+  font-size: 1.04em;
+}
+
+.arabic-math-wrap msqrt,
+.arabic-math-wrap mroot {
+  font-size: 1.04em;
+}
+
+@media (max-width: 430px) {
+  .arabic-math-wrap math {
+    font-size: 1.08em;
+  }
+}

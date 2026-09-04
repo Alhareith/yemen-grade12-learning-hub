@@ -2,6 +2,7 @@
  * V3 app shell — separated mobile-first sections.
  */
 import { useEffect, useState } from "react";
+import ArabicExamTypography from "@/components/ArabicExamTypography";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -36,7 +37,14 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          {route === "exam-pilot" ? <ExamPilot onBack={goHome} /> : <HomeV3 />}
+          {route === "exam-pilot" ? (
+            <div data-arabic-exam dir="rtl" lang="ar">
+              <ArabicExamTypography />
+              <ExamPilot onBack={goHome} />
+            </div>
+          ) : (
+            <HomeV3 />
+          )}
           <Toaster position="top-center" richColors />
         </TooltipProvider>
       </ThemeProvider>
