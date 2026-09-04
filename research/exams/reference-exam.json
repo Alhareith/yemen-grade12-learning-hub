@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "pilotId": "MATH-CALC-2024-PILOT-01",
+  "status": "source-selected",
+  "subject": "رياضيات",
+  "branch": "التفاضل والتكامل",
+  "year": 2024,
+  "pilotModelPosition": 1,
+  "sourcePackage": {
+    "title": "جميع نماذج التفاضل وزاري ٢٠٢٤م",
+    "fileName": "جميع_نماذج_التفاضل_وزاري_٢٠٢٤م_تجميع_أ_عبير_حيدر_.pdf",
+    "publisher": "الإدارة العامة للإعلام التربوي والقناة التعليمية-اليمن",
+    "publisherRelation": "قناة تعليمية مذكور أنها تابعة لوزارة التربية والتعليم والبحث العلمي-اليمن",
+    "modelCountClaim": 30,
+    "nonDuplicateClaim": true,
+    "answerKeyClaim": "الحل المعتمد وفق نظام التصحيح الإلكتروني",
+    "primaryUrl": "https://t.me/YemenEducationC/23345",
+    "mirrorUrl": "https://t.me/s/YemenEducationC/27047"
+  },
+  "supportingSources": [
+    {
+      "role": "official-archive-context",
+      "name": "نماذج اختبارات الشهادة الثانوية — مكتب وزارة التربية والتعليم بمحافظة حضرموت",
+      "url": "https://meoh.gov.ye/services/high-school-exam-forms/",
+      "usage": "التحقق من وجود أرشيف رسمي وتقسيم الرياضيات إلى تفاضل وتكامل وجبر وهندسة؛ لا يخلط مفتاح إجابة ورقة مختلفة بالنموذج المختار"
+    },
+    {
+      "role": "secondary-question-cross-check",
+      "name": "قناة نهج الأوائل للاختبارات",
+      "url": "https://t.me/s/Nahg20/4977",
+      "usage": "مقارنة سؤال منفرد أو تصنيفه عند الحاجة فقط؛ ليس مصدر الاعتماد الأول"
+    }
+  ],
+  "publicationGate": {
+    "requiresAllPagesPresent": true,
+    "requiresManualMathSymbolReview": true,
+    "requiresOptionsReview": true,
+    "requiresAnswerVerification": true,
+    "allowsOcrOnlyApproval": false,
+    "publicQuestionStatus": "verified"
+  },
+  "nextStage": "stage-2-skill-map"
+}
