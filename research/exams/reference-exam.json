@@ -60,7 +60,23 @@
       "runner": "client/src/components/ExamRunner.tsx",
       "guardedPage": "client/src/pages/ExamPilot.tsx",
       "studentLaunchBlockedUntilStage4Ready": true
+    },
+    "stage6": {
+      "status": "implemented",
+      "document": "research/exams/06-mobile-exam-experience.md",
+      "sessionVersion": 2,
+      "features": [
+        "timed-or-untimed-start",
+        "persistent-deadline",
+        "auto-submit-on-time-expiry",
+        "review-flags",
+        "question-map-sheet",
+        "first-unanswered-navigation",
+        "large-mobile-touch-targets",
+        "sticky-focus-header-and-controls"
+      ],
+      "studentLaunchBlockedUntilStage4Ready": true
     }
   },
-  "nextAction": "استئناف رقمنة المرحلة 4 عند توفر ملف المصدر القابل للمراجعة؛ محرك المرحلة 5 جاهز لاستقبال الأسئلة verified"
+  "nextAction": "استئناف رقمنة المرحلة 4 عند توفر ملف المصدر القابل للمراجعة؛ المرحلتان 5 و6 جاهزتان لتشغيل نموذج verified فور اعتماده"
 }
