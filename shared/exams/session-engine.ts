@@ -2,16 +2,25 @@ import { getStudentReadyQuestions, isExamReadyForStudents, type ExamDefinition }
 import type { ExamQuestion } from "./question-model";
 
 export type ExamSessionStatus = "in-progress" | "submitted";
+export type ExamTimingMode = "timed" | "untimed";
+
+export type CreateExamSessionOptions = {
+  timingMode?: ExamTimingMode;
+  nowMs?: number;
+};
 
 export type ExamSession = {
-  version: 1;
+  version: 2;
   examId: string;
   status: ExamSessionStatus;
+  timingMode: ExamTimingMode;
   questionIds: string[];
   answers: Record<string, string>;
+  flaggedQuestionIds: string[];
   currentIndex: number;
   startedAt: number;
   updatedAt: number;
+  deadlineAt?: number;
   submittedAt?: number;
 };
 
@@ -39,23 +48,35 @@ export type ExamScore = {
 export type SessionProgress = {
   answeredCount: number;
   unansweredCount: number;
+  flaggedCount: number;
   totalCount: number;
   percentage: number;
 };
 
-export function createExamSession(exam: ExamDefinition, nowMs = Date.now()): ExamSession {
+export function createExamSession(
+  exam: ExamDefinition,
+  options: CreateExamSessionOptions = {},
+): ExamSession {
   assertExamReady(exam);
   const questions = getStudentReadyQuestions(exam);
+  const timingMode = options.timingMode ?? "timed";
+  const nowMs = options.nowMs ?? Date.now();
+  const deadlineAt = timingMode === "timed"
+    ? nowMs + exam.durationMinutes * 60_000
+    : undefined;
 
   return {
-    version: 1,
+    version: 2,
     examId: exam.id,
     status: "in-progress",
+    timingMode,
     questionIds: questions.map((question) => question.id),
     answers: {},
+    flaggedQuestionIds: [],
     currentIndex: 0,
     startedAt: nowMs,
     updatedAt: nowMs,
+    deadlineAt,
   };
 }
 
@@ -66,7 +87,7 @@ export function answerQuestion(
   optionId: string,
   nowMs = Date.now(),
 ): ExamSession {
-  assertSessionCanChange(exam, session);
+  assertSessionCanAnswer(exam, session, nowMs);
   const question = findSessionQuestion(exam, session, questionId);
 
   if (!question.options.some((option) => option.id === optionId)) {
@@ -86,7 +107,7 @@ export function clearQuestionAnswer(
   questionId: string,
   nowMs = Date.now(),
 ): ExamSession {
-  assertSessionCanChange(exam, session);
+  assertSessionCanAnswer(exam, session, nowMs);
   findSessionQuestion(exam, session, questionId);
 
   const answers = { ...session.answers };
@@ -95,13 +116,30 @@ export function clearQuestionAnswer(
   return { ...session, answers, updatedAt: nowMs };
 }
 
+export function toggleQuestionFlag(
+  exam: ExamDefinition,
+  session: ExamSession,
+  questionId: string,
+  nowMs = Date.now(),
+): ExamSession {
+  assertSessionCanNavigate(exam, session);
+  findSessionQuestion(exam, session, questionId);
+
+  const isFlagged = session.flaggedQuestionIds.includes(questionId);
+  const flaggedQuestionIds = isFlagged
+    ? session.flaggedQuestionIds.filter((id) => id !== questionId)
+    : [...session.flaggedQuestionIds, questionId];
+
+  return { ...session, flaggedQuestionIds, updatedAt: nowMs };
+}
+
 export function setCurrentQuestion(
   exam: ExamDefinition,
   session: ExamSession,
   index: number,
   nowMs = Date.now(),
 ): ExamSession {
-  assertSessionCanChange(exam, session);
+  assertSessionCanNavigate(exam, session);
 
   if (!Number.isInteger(index) || index < 0 || index >= session.questionIds.length) {
     throw new Error("Question index is outside the current exam session");
@@ -115,7 +153,7 @@ export function submitSession(
   session: ExamSession,
   nowMs = Date.now(),
 ): ExamSession {
-  assertSessionCanChange(exam, session);
+  assertSessionCanNavigate(exam, session);
 
   return {
     ...session,
@@ -195,7 +233,33 @@ export function getSessionProgress(session: ExamSession): SessionProgress {
   const unansweredCount = Math.max(0, totalCount - answeredCount);
   const percentage = totalCount > 0 ? roundToTwo((answeredCount / totalCount) * 100) : 0;
 
-  return { answeredCount, unansweredCount, totalCount, percentage };
+  return {
+    answeredCount,
+    unansweredCount,
+    flaggedCount: session.flaggedQuestionIds.length,
+    totalCount,
+    percentage,
+  };
+}
+
+export function getRemainingTimeMs(
+  exam: ExamDefinition,
+  session: ExamSession,
+  nowMs = Date.now(),
+): number | null {
+  if (session.timingMode === "untimed") return null;
+  if (!isSessionCompatibleWithExam(exam, session)) return 0;
+  if (session.deadlineAt === undefined) return 0;
+  return Math.max(0, session.deadlineAt - nowMs);
+}
+
+export function isSessionTimeExpired(
+  exam: ExamDefinition,
+  session: ExamSession,
+  nowMs = Date.now(),
+): boolean {
+  const remaining = getRemainingTimeMs(exam, session, nowMs);
+  return remaining !== null && remaining <= 0;
 }
 
 export function canResumeSession(exam: ExamDefinition, session: ExamSession): boolean {
@@ -204,7 +268,14 @@ export function canResumeSession(exam: ExamDefinition, session: ExamSession): bo
 
 export function isSessionCompatibleWithExam(exam: ExamDefinition, session: ExamSession): boolean {
   if (!isExamReadyForStudents(exam)) return false;
-  if (session.version !== 1 || session.examId !== exam.id) return false;
+  if (session.version !== 2 || session.examId !== exam.id) return false;
+  if (session.timingMode !== "timed" && session.timingMode !== "untimed") return false;
+
+  if (session.timingMode === "timed") {
+    if (!Number.isFinite(session.deadlineAt) || (session.deadlineAt ?? 0) <= session.startedAt) return false;
+  } else if (session.deadlineAt !== undefined) {
+    return false;
+  }
 
   const readyQuestions = getStudentReadyQuestions(exam);
   if (readyQuestions.length !== session.questionIds.length) return false;
@@ -213,11 +284,23 @@ export function isSessionCompatibleWithExam(exam: ExamDefinition, session: ExamS
     if (readyQuestions[index].id !== session.questionIds[index]) return false;
   }
 
+  const questionIdSet = new Set(session.questionIds);
+  const flagSet = new Set(session.flaggedQuestionIds);
+  if (flagSet.size !== session.flaggedQuestionIds.length) return false;
+
+  for (let index = 0; index < session.flaggedQuestionIds.length; index += 1) {
+    if (!questionIdSet.has(session.flaggedQuestionIds[index])) return false;
+  }
+
+  for (const questionId of Object.keys(session.answers)) {
+    if (!questionIdSet.has(questionId)) return false;
+  }
+
   return true;
 }
 
 export function getSessionStorageKey(examId: string): string {
-  return `yemen-grade12:exam-session:v1:${examId}`;
+  return `yemen-grade12:exam-session:v2:${examId}`;
 }
 
 function assertExamReady(exam: ExamDefinition) {
@@ -226,13 +309,25 @@ function assertExamReady(exam: ExamDefinition) {
   }
 }
 
-function assertSessionCanChange(exam: ExamDefinition, session: ExamSession) {
+function assertSessionCanNavigate(exam: ExamDefinition, session: ExamSession) {
   if (session.status !== "in-progress") {
     throw new Error("Submitted exam session cannot be changed");
   }
 
   if (!isSessionCompatibleWithExam(exam, session)) {
     throw new Error("Exam session is stale or incompatible with the verified exam");
+  }
+}
+
+function assertSessionCanAnswer(
+  exam: ExamDefinition,
+  session: ExamSession,
+  nowMs: number,
+) {
+  assertSessionCanNavigate(exam, session);
+
+  if (isSessionTimeExpired(exam, session, nowMs)) {
+    throw new Error("Exam time has expired");
   }
 }
 
