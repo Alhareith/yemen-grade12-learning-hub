@@ -1,5 +1,6 @@
 import type { ExamResultReport, QuestionResultReview } from "./result-report";
 import type { RichContent } from "./question-model";
+import { buildArabicOutputPolicy } from "../prompts/arabic-output-policy";
 
 export type RemediationConfidence = "signal-only" | "limited" | "good" | "strong";
 
@@ -142,6 +143,8 @@ export function buildQuestionHelpPrompt(review: QuestionResultReview): string {
     "",
     "اشرح لي سبب صحة الإجابة الصحيحة وسبب خطئي خطوة بخطوة بلغة عربية واضحة مناسبة للثالث الثانوي، واذكر القاعدة أو الفكرة التي يجب أن أراجعها، ثم أعطني مثالًا مشابهًا محلولًا وتمرينًا واحدًا مع الإجابة في النهاية.",
     "أكمل الإجابة كاملة في رد واحد ولا تنتظر مني ردًا أثناء الشرح.",
+    "",
+    buildArabicOutputPolicy("رياضيات"),
   ].join("\n");
 }
 

@@ -64,7 +64,7 @@ describe("stage 9 remediation", () => {
     expect(buildSkillRemediation(report)).toEqual([]);
   });
 
-  it("builds a complete external-AI help prompt for a wrong answer", () => {
+  it("builds a complete Arabic-first external-AI help prompt for a wrong answer", () => {
     const question = pilotCalculusExam.questions[0];
     let session = createExamSession(pilotCalculusExam, { timingMode: "untimed", nowMs: 1_000 });
     session = answerQuestion(
@@ -84,5 +84,8 @@ describe("stage 9 remediation", () => {
     expect(prompt).toContain("إجابتي:");
     expect(prompt).toContain("الإجابة الصحيحة:");
     expect(prompt).toContain("أكمل الإجابة كاملة في رد واحد");
+    expect(prompt).toContain("قاعدة الرياضيات صارمة");
+    expect(prompt).toContain("x→س");
+    expect(prompt).toContain("لا تستخدم x أو y أو f(x)");
   });
 });

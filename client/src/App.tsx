@@ -1,5 +1,5 @@
 /**
- * V3 app shell — separated mobile-first sections.
+ * Product shell — prompts and simulation are the primary student paths.
  */
 import { useEffect, useState } from "react";
 import ArabicExamTypography from "@/components/ArabicExamTypography";
@@ -8,7 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import ExamPilot from "./pages/ExamPilot";
-import HomeV3 from "./pages/HomeV3";
+import HomeV4 from "./pages/HomeV4";
 import "./v2.css";
 import "./polish.css";
 
@@ -43,7 +43,7 @@ export default function App() {
               <ExamPilot onBack={goHome} />
             </div>
           ) : (
-            <HomeV3 />
+            <HomeV4 />
           )}
           <Toaster position="top-center" richColors />
         </TooltipProvider>
