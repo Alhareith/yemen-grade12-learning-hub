@@ -5,9 +5,12 @@ import {
   answerQuestion,
   canResumeSession,
   createExamSession,
+  getRemainingTimeMs,
   getSessionProgress,
+  isSessionTimeExpired,
   scoreSession,
   submitSession,
+  toggleQuestionFlag,
 } from "@shared/exams/session-engine";
 
 function makeQuestion(id: string, order: number, correctOptionId: "A" | "B"): ExamQuestion {
@@ -87,38 +90,84 @@ describe("exam session engine", () => {
     exam.questions = [];
     exam.blockingNotes = ["source pages unavailable"];
 
-    expect(() => createExamSession(exam, 100)).toThrow("Exam is not ready for students");
+    expect(() => createExamSession(exam, { nowMs: 100 })).toThrow(
+      "Exam is not ready for students",
+    );
   });
 
-  it("creates an immutable resumable session and records valid answers", () => {
+  it("creates a timed session with a stable deadline", () => {
     const exam = makeReadyExam();
-    const session = createExamSession(exam, 100);
-    const updated = answerQuestion(exam, session, "Q1", "A", 200);
+    const session = createExamSession(exam, { timingMode: "timed", nowMs: 1_000 });
+
+    expect(session.version).toBe(2);
+    expect(session.timingMode).toBe("timed");
+    expect(session.deadlineAt).toBe(3_601_000);
+    expect(getRemainingTimeMs(exam, session, 2_000)).toBe(3_599_000);
+    expect(isSessionTimeExpired(exam, session, 3_601_000)).toBe(true);
+  });
+
+  it("supports an untimed session without inventing a deadline", () => {
+    const exam = makeReadyExam();
+    const session = createExamSession(exam, { timingMode: "untimed", nowMs: 1_000 });
+
+    expect(session.deadlineAt).toBeUndefined();
+    expect(getRemainingTimeMs(exam, session, 999_999)).toBeNull();
+    expect(isSessionTimeExpired(exam, session, 999_999)).toBe(false);
+  });
+
+  it("records valid answers immutably and tracks review flags", () => {
+    const exam = makeReadyExam();
+    const session = createExamSession(exam, { timingMode: "untimed", nowMs: 100 });
+    const answered = answerQuestion(exam, session, "Q1", "A", 200);
+    const flagged = toggleQuestionFlag(exam, answered, "Q2", 300);
 
     expect(session.answers).toEqual({});
-    expect(updated.answers).toEqual({ Q1: "A" });
-    expect(updated.updatedAt).toBe(200);
-    expect(canResumeSession(exam, updated)).toBe(true);
-    expect(getSessionProgress(updated)).toEqual({
+    expect(answered.answers).toEqual({ Q1: "A" });
+    expect(flagged.flaggedQuestionIds).toEqual(["Q2"]);
+    expect(canResumeSession(exam, flagged)).toBe(true);
+    expect(getSessionProgress(flagged)).toEqual({
       answeredCount: 1,
       unansweredCount: 1,
+      flaggedCount: 1,
       totalCount: 2,
       percentage: 50,
     });
   });
 
+  it("toggles a review flag without creating duplicates", () => {
+    const exam = makeReadyExam();
+    let session = createExamSession(exam, { timingMode: "untimed", nowMs: 100 });
+    session = toggleQuestionFlag(exam, session, "Q1", 200);
+    session = toggleQuestionFlag(exam, session, "Q1", 300);
+
+    expect(session.flaggedQuestionIds).toEqual([]);
+  });
+
   it("rejects an option that does not belong to the question", () => {
     const exam = makeReadyExam();
-    const session = createExamSession(exam, 100);
+    const session = createExamSession(exam, { timingMode: "untimed", nowMs: 100 });
 
     expect(() => answerQuestion(exam, session, "Q1", "X", 200)).toThrow(
       "does not belong to question",
     );
   });
 
+  it("prevents answers after time expires but still permits final submission", () => {
+    const exam = makeReadyExam();
+    const session = createExamSession(exam, { timingMode: "timed", nowMs: 100 });
+    const expiredAt = 100 + exam.durationMinutes * 60_000;
+
+    expect(() => answerQuestion(exam, session, "Q1", "A", expiredAt)).toThrow(
+      "Exam time has expired",
+    );
+
+    const submitted = submitSession(exam, session, expiredAt);
+    expect(submitted.status).toBe("submitted");
+  });
+
   it("scores correct, wrong and unanswered questions deterministically after submit", () => {
     const exam = makeReadyExam();
-    let session = createExamSession(exam, 100);
+    let session = createExamSession(exam, { timingMode: "untimed", nowMs: 100 });
     session = answerQuestion(exam, session, "Q1", "B", 200);
     session = submitSession(exam, session, 300);
 
@@ -134,7 +183,7 @@ describe("exam session engine", () => {
 
   it("does not resume a session after the verified question set changes", () => {
     const exam = makeReadyExam();
-    const session = createExamSession(exam, 100);
+    const session = createExamSession(exam, { timingMode: "untimed", nowMs: 100 });
     const changedExam: ExamDefinition = {
       ...exam,
       questions: [exam.questions[0]],
