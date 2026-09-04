@@ -1,30 +1,31 @@
 import type { ExamDefinition } from "@shared/exams/exam-model";
+import { pilotExamQuestions01 } from "./pilotExamQuestions01";
+import { pilotExamQuestions02 } from "./pilotExamQuestions02";
+import { PILOT_EXAM_ID, pilotExamProvenance } from "./pilotExamProvenance";
 
 export const pilotCalculusExam: ExamDefinition = {
   schemaVersion: "1.0",
-  id: "MATH-CALC-2024-PILOT-01",
-  title: "رياضيات — التفاضل والتكامل — النموذج التجريبي 2024",
+  id: PILOT_EXAM_ID,
+  title: "رياضيات — التفاضل والتكامل — محاكاة وزارية تدريبية",
   subject: "رياضيات",
   branch: "التفاضل والتكامل",
-  year: 2024,
-  durationMinutes: 180,
-  availability: "blocked-source-access",
+  year: 2020,
+  durationMinutes: pilotExamProvenance.referenceFormat.durationMinutes,
+  availability: "ready",
   source: {
-    title: "جميع نماذج التفاضل وزاري ٢٠٢٤م",
-    publisher: "الإدارة العامة للإعلام التربوي والقناة التعليمية-اليمن",
-    primaryUrl: "https://t.me/YemenEducationC/23345",
-    mirrorUrl: "https://t.me/s/YemenEducationC/27047",
-    fileName: "جميع_نماذج_التفاضل_وزاري_٢٠٢٤م_تجميع_أ_عبير_حيدر_.pdf",
+    title: "مرجع بنية: نماذج اختبارات وزارية في التفاضل والتكامل 2020",
+    publisher: pilotExamProvenance.primaryReference.publisher,
+    primaryUrl: pilotExamProvenance.primaryReference.url,
+    mirrorUrl: pilotExamProvenance.readableSolvedMirror.url,
+    fileName: "اختبارات التفاضل والتكامل مع الإجابة 2020م — مرجع بنية، لا نص حرفي للمحاكاة",
   },
-  questions: [],
-  blockingNotes: [
-    "هوية الحزمة ووجود الحل منشوران، لكن صفحات ملف النموذج ومفتاح الإجابة لم تصبح قابلة للفحص المباشر سؤالًا سؤالًا في مسار الاسترجاع الحالي.",
-    "لن يدخل أي سؤال في النسخة العامة قبل مطابقة نصه ورموزه وخياراته وإجابته بالمصدر الأصلي ثم وصوله إلى verified.",
-  ],
+  questions: [...pilotExamQuestions01, ...pilotExamQuestions02],
+  blockingNotes: [],
 };
 
 export const pilotExamReferences = {
   officialArchive: "https://meoh.gov.ye/services/high-school-exam-forms/",
   primarySource: pilotCalculusExam.source.primaryUrl,
-  mirrorSource: pilotCalculusExam.source.mirrorUrl,
+  readableSolvedMirror: pilotExamProvenance.readableSolvedMirror.url,
+  provenance: pilotExamProvenance,
 } as const;

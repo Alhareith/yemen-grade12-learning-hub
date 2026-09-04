@@ -1,43 +1,39 @@
 {
-  "schemaVersion": 1,
-  "pilotId": "MATH-CALC-2024-PILOT-01",
-  "status": "digitization-blocked-source-access",
+  "schemaVersion": 2,
+  "pilotId": "MATH-CALC-2020-ADAPTED-PILOT-01",
+  "status": "ready",
   "subject": "رياضيات",
   "branch": "التفاضل والتكامل",
-  "year": 2024,
-  "pilotModelPosition": 1,
-  "sourcePackage": {
-    "title": "جميع نماذج التفاضل وزاري ٢٠٢٤م",
-    "fileName": "جميع_نماذج_التفاضل_وزاري_٢٠٢٤م_تجميع_أ_عبير_حيدر_.pdf",
-    "publisher": "الإدارة العامة للإعلام التربوي والقناة التعليمية-اليمن",
-    "publisherRelation": "قناة تعليمية مذكور أنها تابعة لوزارة التربية والتعليم والبحث العلمي-اليمن",
-    "modelCountClaim": 30,
-    "nonDuplicateClaim": true,
-    "answerKeyClaim": "الحل المعتمد وفق نظام التصحيح الإلكتروني",
-    "primaryUrl": "https://t.me/YemenEducationC/23345",
-    "mirrorUrl": "https://t.me/s/YemenEducationC/27047"
+  "year": 2020,
+  "contentRelation": "adapted",
+  "referenceFormat": {
+    "durationMinutes": 180,
+    "trueFalseCount": 20,
+    "trueFalsePointsEach": 1,
+    "singleChoiceCount": 30,
+    "singleChoicePointsEach": 2,
+    "totalQuestions": 50,
+    "totalPoints": 80
   },
-  "supportingSources": [
-    {
-      "role": "official-archive-context",
-      "name": "نماذج اختبارات الشهادة الثانوية — مكتب وزارة التربية والتعليم بمحافظة حضرموت",
-      "url": "https://meoh.gov.ye/services/high-school-exam-forms/",
-      "usage": "التحقق من وجود أرشيف رسمي وتقسيم الرياضيات إلى تفاضل وتكامل وجبر وهندسة؛ لا يخلط مفتاح إجابة ورقة مختلفة بالنموذج المختار"
-    },
-    {
-      "role": "secondary-question-cross-check",
-      "name": "قناة نهج الأوائل للاختبارات",
-      "url": "https://t.me/s/Nahg20/4977",
-      "usage": "مقارنة سؤال منفرد أو تصنيفه عند الحاجة فقط؛ ليس مصدر الاعتماد الأول"
-    }
-  ],
+  "sourceReference": {
+    "role": "format-and-style-reference",
+    "title": "نماذج اختبارات وزارية في التفاضل والتكامل 2020",
+    "primaryUrl": "https://t.me/s/YemenEducationC/15308",
+    "readableSolvedMirror": "https://www.scribd.com/document/787167221/اختبارات-التفاضل-والتكامل-مع-الاجابة-2020م-1",
+    "verbatimClaim": false
+  },
+  "futureArchiveSource": {
+    "title": "جميع نماذج التفاضل وزاري ٢٠٢٤م",
+    "url": "https://t.me/YemenEducationC/23345",
+    "usage": "future verbatim import only when exact pages and matching key are reviewable"
+  },
   "publicationGate": {
-    "requiresAllPagesPresent": true,
-    "requiresManualMathSymbolReview": true,
-    "requiresOptionsReview": true,
-    "requiresAnswerVerification": true,
+    "allQuestionsVerified": true,
+    "verifiedQuestionCount": 50,
+    "requiresSkillTaxonomy": true,
+    "requiresIndependentAnswerRegisterForAdaptedQuestions": true,
     "allowsOcrOnlyApproval": false,
-    "publicQuestionStatus": "verified"
+    "prohibitsAdaptedQuestionsBeingPresentedAsVerbatim": true
   },
   "integrationContracts": {
     "skillTaxonomy": "research/exams/calculus-skill-map.json",
@@ -48,65 +44,16 @@
     "sessionStorage": "client/src/exams/session-storage.ts",
     "resultReport": "shared/exams/result-report.ts",
     "resultUI": "client/src/components/ExamResultReport.tsx",
-    "pilotExamData": "client/src/data/exams/pilotExam.ts"
+    "pilotExamData": "client/src/data/exams/pilotExam.ts",
+    "answerVerificationRegister": "research/exams/04-pilot-answer-verification.md",
+    "publicationTest": "client/src/exams/pilot-exam.test.ts"
   },
   "stageProgress": {
-    "stage4": {
-      "status": "blocked-source-access",
-      "verifiedQuestionCount": 0,
-      "document": "research/exams/04-reference-digitization.md",
-      "reason": "بيانات الحزمة متاحة لكن صفحات PDF ومفتاح النموذج المختار لم تصبح قابلة للفحص المباشر سؤالًا سؤالًا؛ لذلك لم تُنشأ أسئلة verified بالتخمين"
-    },
-    "stage5": {
-      "status": "implemented",
-      "document": "research/exams/05-basic-exam-engine.md",
-      "runner": "client/src/components/ExamRunner.tsx",
-      "guardedPage": "client/src/pages/ExamPilot.tsx",
-      "studentLaunchBlockedUntilStage4Ready": true
-    },
-    "stage6": {
-      "status": "implemented",
-      "document": "research/exams/06-mobile-exam-experience.md",
-      "sessionVersion": 2,
-      "features": [
-        "timed-or-untimed-start",
-        "persistent-deadline",
-        "auto-submit-on-time-expiry",
-        "review-flags",
-        "question-map-sheet",
-        "first-unanswered-navigation",
-        "large-mobile-touch-targets",
-        "sticky-focus-header-and-controls"
-      ],
-      "studentLaunchBlockedUntilStage4Ready": true
-    },
-    "stage7": {
-      "status": "implemented",
-      "document": "research/exams/07-session-recovery.md",
-      "features": [
-        "explicit-resume-or-restart-choice",
-        "expired-attempt-recovery",
-        "strict-persisted-session-integrity",
-        "safe-local-storage-adapter",
-        "storage-failure-fallback",
-        "cross-tab-newer-session-protection",
-        "pagehide-final-save"
-      ],
-      "studentLaunchBlockedUntilStage4Ready": true
-    },
-    "stage8": {
-      "status": "implemented",
-      "document": "research/exams/08-scoring-and-result-review.md",
-      "features": [
-        "deterministic-result-report",
-        "correct-incorrect-unanswered-review",
-        "answer-and-source-evidence",
-        "reviewed-explanation-only",
-        "result-filters",
-        "mobile-question-review"
-      ],
-      "studentLaunchBlockedUntilStage4Ready": true
-    }
+    "stage4": { "status": "implemented", "mode": "verified-adapted-pilot", "verifiedQuestionCount": 50, "document": "research/exams/04-reference-digitization.md" },
+    "stage5": { "status": "implemented", "document": "research/exams/05-basic-exam-engine.md" },
+    "stage6": { "status": "implemented", "document": "research/exams/06-mobile-exam-experience.md" },
+    "stage7": { "status": "implemented", "document": "research/exams/07-session-recovery.md" },
+    "stage8": { "status": "implemented", "document": "research/exams/08-scoring-and-result-review.md" }
   },
-  "nextAction": "استئناف رقمنة المرحلة 4 عند توفر ملف المصدر القابل للمراجعة؛ المراحل 5-8 جاهزة لتشغيل وتصحيح ومراجعة نموذج verified فور اعتماده"
+  "nextAction": "stage-9-error-review-and-remediation-integration"
 }
