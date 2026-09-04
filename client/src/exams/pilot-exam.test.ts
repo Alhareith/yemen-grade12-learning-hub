@@ -46,7 +46,7 @@ describe("stage 4 verified adapted calculus pilot", () => {
     for (let index = 0; index < questions.length; index += 1) {
       session = answerQuestion(pilotCalculusExam, session, questions[index].id, questions[index].answer.correctOptionId, 2_000 + index);
     }
-    session = submitSession(session, 10_000);
+    session = submitSession(pilotCalculusExam, session, 10_000);
     const score = scoreSession(pilotCalculusExam, session);
     expect(score.correctCount).toBe(50);
     expect(score.incorrectCount).toBe(0);
@@ -54,5 +54,11 @@ describe("stage 4 verified adapted calculus pilot", () => {
     expect(score.earnedPoints).toBe(80);
     expect(score.totalPoints).toBe(80);
     expect(score.percentage).toBe(100);
+  });
+
+  it("keeps adapted provenance explicit instead of claiming verbatim ministerial text", () => {
+    expect(pilotExamProvenance.publicLabel).toContain("ليست نسخة حرفية");
+    expect(questions.every((q) => q.source.sourceFileName.includes("متكيف"))).toBe(true);
+    expect(pilotCalculusExam.source.fileName).toContain("لا نص حرفي");
   });
 });
