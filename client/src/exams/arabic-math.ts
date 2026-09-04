@@ -12,6 +12,8 @@ type MathNode =
   | { kind: "row"; children: MathNode[] }
   | { kind: "fraction"; numerator: MathNode; denominator: MathNode }
   | { kind: "sup"; base: MathNode; exponent: MathNode }
+  | { kind: "sub"; base: MathNode; subscript: MathNode }
+  | { kind: "subsup"; base: MathNode; subscript: MathNode; superscript: MathNode }
   | { kind: "root"; body: MathNode }
   | { kind: "fenced"; open: string; close: string; body: MathNode }
   | { kind: "absolute"; body: MathNode }
@@ -53,7 +55,7 @@ const FUNCTIONS: Record<string, string> = {
   log: "لو",
 };
 
-const RELATIONS = new Set(["=", "≤", "≥", "<", ">", "∈", "→"]);
+const RELATIONS = new Set(["=", "≠", "≤", "≥", "<", ">", "∈", "→"]);
 
 export function toArabicDigits(value: string | number): string {
   return String(value).replace(/[0-9]/g, (digit) => ARABIC_DIGITS[Number(digit)] ?? digit);
@@ -62,7 +64,6 @@ export function toArabicDigits(value: string | number): string {
 export function localizeArabicText(value: string): string {
   return toArabicDigits(value)
     .replace(/\bMath\b/g, "رياضيات")
-    .replace(/\s+,/g, "،")
     .replace(/,/g, "،");
 }
 
@@ -72,7 +73,7 @@ export function arabicMathPlainText(source: string): string {
   for (let index = 0; index < tokens.length; index += 1) {
     const token = tokens[index];
     if (token.kind === "number") {
-      output += toArabicDigits(token.value);
+      output += localizeNumber(token.value);
     } else if (token.kind === "ident") {
       if (token.value === "lim") output += "نها";
       else if (FUNCTIONS[token.value]) output += FUNCTIONS[token.value];
@@ -85,6 +86,8 @@ export function arabicMathPlainText(source: string): string {
       output += "،";
     } else if (token.value === "...") {
       output += "…";
+    } else if (token.value === "-") {
+      output += "−";
     } else {
       output += token.value;
     }
@@ -93,25 +96,19 @@ export function arabicMathPlainText(source: string): string {
 }
 
 export function renderArabicMathML(source: string, display: "inline" | "block" = "inline"): string {
-  const tokens = tokenize(source);
-  const parser = new Parser(tokens);
-  const node = parser.parseExpression();
+  const node = parseAll(tokenize(source));
   const body = toMathML(node);
   const mode = display === "block" ? "block" : "inline";
   return `<math xmlns="http://www.w3.org/1998/Math/MathML" dir="rtl" display="${mode}" aria-label="${escapeXml(arabicMathPlainText(source))}">${body}</math>`;
 }
 
 export function collectArabicMathDiagnostics(source: string): string[] {
-  const diagnostics: string[] = [];
   try {
-    const tokens = tokenize(source);
-    const parser = new Parser(tokens);
-    parser.parseExpression();
-    if (!parser.atEnd()) diagnostics.push(`unparsed:${tokens.slice(parser.position()).map((token) => token.value).join("")}`);
+    parseAll(tokenize(source));
+    return [];
   } catch (error) {
-    diagnostics.push(error instanceof Error ? error.message : "unknown-math-error");
+    return [error instanceof Error ? error.message : "unknown-math-error"];
   }
-  return diagnostics;
 }
 
 class Parser {
@@ -127,9 +124,22 @@ class Parser {
     return this.index >= this.tokens.length;
   }
 
+  remaining(): Token[] {
+    return this.tokens.slice(this.index);
+  }
+
   parseExpression(): MathNode {
     if (this.tokens.length === 0) return textNode("");
-    return this.parseRelation();
+    return this.parseSequence();
+  }
+
+  private parseSequence(): MathNode {
+    let left = this.parseRelation();
+    while (this.match(",")) {
+      const right = this.parseRelation();
+      left = row(left, operator("،"), right);
+    }
+    return left;
   }
 
   private parseRelation(): MathNode {
@@ -156,19 +166,16 @@ class Parser {
     let left = this.parsePower();
     while (!this.atEnd()) {
       if (this.match("/")) {
-        const right = this.parsePower();
-        left = { kind: "fraction", numerator: left, denominator: right };
+        left = { kind: "fraction", numerator: left, denominator: this.parsePower() };
         continue;
       }
       if (this.match("×") || this.match("*")) {
-        const right = this.parsePower();
-        left = row(left, operator("×"), right);
+        left = row(left, operator("×"), this.parsePower());
         continue;
       }
       const next = this.peek();
       if (next && startsPrimary(next)) {
-        const right = this.parsePower();
-        left = row(left, right);
+        left = row(left, this.parsePower());
         continue;
       }
       break;
@@ -182,14 +189,25 @@ class Parser {
     while (this.match("'")) {
       let primeCount = 1;
       while (this.match("'")) primeCount += 1;
-      base = { kind: "sup", base, exponent: operator(primeCount === 1 ? "′" : "″") };
+      base = { kind: "sup", base, exponent: operator(primeCount === 1 ? "′" : primeCount === 2 ? "″" : "‴") };
     }
 
-    if (this.match("^")) {
-      const exponent = this.parseScriptValue();
-      base = { kind: "sup", base, exponent };
+    let subscript: MathNode | undefined;
+    let superscript: MathNode | undefined;
+    let readingScripts = true;
+    while (readingScripts) {
+      if (!subscript && this.match("_")) {
+        subscript = this.parseScriptValue();
+      } else if (!superscript && this.match("^")) {
+        superscript = this.parseScriptValue();
+      } else {
+        readingScripts = false;
+      }
     }
 
+    if (subscript && superscript) return { kind: "subsup", base, subscript, superscript };
+    if (subscript) return { kind: "sub", base, subscript };
+    if (superscript) return { kind: "sup", base, exponent: superscript };
     return base;
   }
 
@@ -205,8 +223,7 @@ class Parser {
     const token = this.advance();
     if (!token) return textNode("");
 
-    if (token.kind === "number") return { kind: "number", value: toArabicDigits(token.value) };
-
+    if (token.kind === "number") return { kind: "number", value: localizeNumber(token.value) };
     if (token.kind === "arabic") return { kind: "text", value: localizeArabicText(token.value) };
 
     if (token.kind === "ident") {
@@ -234,15 +251,14 @@ class Parser {
 
   private parseFence(expectedClose: string, open: string, close: string): MathNode {
     const innerTokens = this.consumeUntilMatching(expectedClose);
-    const body = new Parser(innerTokens).parseExpression();
-    return { kind: "fenced", open, close, body };
+    return { kind: "fenced", open, close, body: parseAll(innerTokens) };
   }
 
   private parseAbsolute(): MathNode {
     const inner: Token[] = [];
     while (!this.atEnd() && this.peek()?.value !== "|") inner.push(this.advance()!);
-    this.match("|");
-    return { kind: "absolute", body: new Parser(inner).parseExpression() };
+    if (!this.match("|")) throw new Error("unclosed:absolute-value");
+    return { kind: "absolute", body: parseAll(inner) };
   }
 
   private parseLimit(): MathNode {
@@ -266,8 +282,7 @@ class Parser {
     if (differentialIndex === this.index && this.tokens[differentialIndex + 1]?.value === "/") {
       const denominatorStart = differentialIndex + 2;
       const denominatorEnd = this.findTopLevelStop(denominatorStart);
-      const denominatorTokens = this.tokens.slice(denominatorStart, denominatorEnd);
-      const denominator = new Parser(denominatorTokens).parseExpression();
+      const denominator = parseAll(this.tokens.slice(denominatorStart, denominatorEnd));
       this.index = denominatorEnd;
       return {
         kind: "integral",
@@ -279,7 +294,7 @@ class Parser {
     }
 
     const bodyTokens = this.tokens.slice(this.index, differentialIndex);
-    const body = new Parser(bodyTokens).parseExpression();
+    const body = parseAll(bodyTokens);
     this.index = differentialIndex + 1;
     return {
       kind: "integral",
@@ -314,14 +329,8 @@ class Parser {
   }
 
   private parseScriptValue(): MathNode {
-    if (this.match("{")) {
-      const tokens = this.consumeUntilMatching("}");
-      return new Parser(tokens).parseExpression();
-    }
-    if (this.match("(")) {
-      const tokens = this.consumeUntilMatching(")");
-      return new Parser(tokens).parseExpression();
-    }
+    if (this.match("{")) return parseAll(this.consumeUntilMatching("}"));
+    if (this.match("(")) return parseAll(this.consumeUntilMatching(")"));
     return this.parseUnary();
   }
 
@@ -340,7 +349,7 @@ class Parser {
       }
       output.push(token);
     }
-    return output;
+    throw new Error(`unclosed:${open}`);
   }
 
   private match(value: string): boolean {
@@ -370,6 +379,16 @@ class Parser {
   private previous(): Token {
     return this.tokens[this.index - 1];
   }
+}
+
+function parseAll(tokens: Token[]): MathNode {
+  if (tokens.length === 0) return textNode("");
+  const parser = new Parser(tokens);
+  const node = parser.parseExpression();
+  if (!parser.atEnd()) {
+    throw new Error(`unparsed:${parser.remaining().map((token) => token.value).join("")}`);
+  }
+  return node;
 }
 
 function tokenize(source: string): Token[] {
@@ -411,7 +430,7 @@ function tokenize(source: string): Token[] {
       continue;
     }
 
-    if (/[\u0600-\u06FF]/.test(char) && !/[،]/.test(char)) {
+    if (/[\u0600-\u06FF]/.test(char) && char !== "،") {
       let value = char;
       index += 1;
       while (index < source.length && /[\u0600-\u06FF\s]/.test(source[index]) && source[index] !== "،") {
@@ -422,8 +441,7 @@ function tokenize(source: string): Token[] {
       continue;
     }
 
-    const normalized = char === "−" ? "-" : char;
-    tokens.push({ kind: "symbol", value: normalized });
+    tokens.push({ kind: "symbol", value: char === "−" ? "-" : char });
     index += 1;
   }
 
@@ -439,6 +457,10 @@ function normalizeOperator(value: string): string {
   if (value === "-") return "−";
   if (value === ",") return "،";
   return value;
+}
+
+function localizeNumber(value: string): string {
+  return toArabicDigits(value).replace(/\./g, "٫");
 }
 
 function identifierNode(value: string, word = false): MathNode {
@@ -481,6 +503,10 @@ function toMathML(node: MathNode): string {
       return `<mfrac>${toMathML(node.numerator)}${toMathML(node.denominator)}</mfrac>`;
     case "sup":
       return `<msup>${toMathML(node.base)}${toMathML(node.exponent)}</msup>`;
+    case "sub":
+      return `<msub>${toMathML(node.base)}${toMathML(node.subscript)}</msub>`;
+    case "subsup":
+      return `<msubsup>${toMathML(node.base)}${toMathML(node.subscript)}${toMathML(node.superscript)}</msubsup>`;
     case "root":
       return `<msqrt>${toMathML(node.body)}</msqrt>`;
     case "fenced":
