@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  AlertTriangle,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -7,6 +8,7 @@ import {
   Eraser,
   Flag,
   Grid2X2,
+  History,
   RotateCcw,
   ShieldCheck,
   TimerOff,
@@ -17,12 +19,10 @@ import { getStudentReadyQuestions } from "@shared/exams/exam-model";
 import type { RichContent } from "@shared/exams/question-model";
 import {
   answerQuestion,
-  canResumeSession,
   clearQuestionAnswer,
   createExamSession,
   getRemainingTimeMs,
   getSessionProgress,
-  getSessionStorageKey,
   scoreSession,
   setCurrentQuestion,
   submitSession,
@@ -30,10 +30,23 @@ import {
   type ExamSession,
   type ExamTimingMode,
 } from "@shared/exams/session-engine";
+import {
+  loadSessionForRecovery,
+  removeStoredSession,
+  saveSessionSafely,
+  type SessionRecoveryResult,
+} from "@/exams/session-storage";
+
+type RecoveryCandidate = Extract<SessionRecoveryResult, { kind: "resumable" }>;
+type StorageState = "ok" | "unavailable" | "conflict";
 
 export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
   const questions = useMemo(() => getStudentReadyQuestions(exam), [exam]);
   const [session, setSession] = useState<ExamSession | null>(null);
+  const [recovery, setRecovery] = useState<RecoveryCandidate | null>(null);
+  const [recoveryNotice, setRecoveryNotice] = useState<string | null>(null);
+  const [storageState, setStorageState] = useState<StorageState>("ok");
+  const [newerSession, setNewerSession] = useState<ExamSession | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [startMode, setStartMode] = useState<ExamTimingMode>("timed");
   const [confirmSubmit, setConfirmSubmit] = useState(false);
@@ -41,29 +54,56 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
   const [nowMs, setNowMs] = useState(() => Date.now());
 
   useEffect(() => {
-    const key = getSessionStorageKey(exam.id);
-    try {
-      const raw = window.localStorage.getItem(key);
-      if (raw) {
-        const parsed = JSON.parse(raw) as ExamSession;
-        if (canResumeSession(exam, parsed)) setSession(parsed);
-        else window.localStorage.removeItem(key);
-      }
-    } catch {
-      window.localStorage.removeItem(key);
+    const result = loadSessionForRecovery(exam, window.localStorage);
+    if (result.kind === "resumable") {
+      setRecovery(result);
+    } else if (result.kind === "discarded") {
+      setRecoveryNotice(recoveryReasonText(result.reason));
+    } else if (result.kind === "unavailable") {
+      setStorageState("unavailable");
     }
     setLoaded(true);
   }, [exam]);
 
   useEffect(() => {
     if (!loaded || !session) return;
-    const key = getSessionStorageKey(exam.id);
-    if (session.status === "in-progress") {
-      window.localStorage.setItem(key, JSON.stringify(session));
-    } else {
-      window.localStorage.removeItem(key);
+    const result = saveSessionSafely(exam, session, window.localStorage);
+    if (result.kind === "unavailable" || result.kind === "invalid-session") {
+      setStorageState("unavailable");
+      return;
     }
-  }, [exam.id, loaded, session]);
+    if (result.kind === "conflict") {
+      setNewerSession(result.newerSession);
+      setStorageState("conflict");
+    }
+  }, [exam, loaded, session]);
+
+  useEffect(() => {
+    if (!session || session.status !== "in-progress") return;
+    const flush = () => {
+      saveSessionSafely(exam, session, window.localStorage);
+    };
+    window.addEventListener("pagehide", flush);
+    return () => window.removeEventListener("pagehide", flush);
+  }, [exam, session]);
+
+  useEffect(() => {
+    if (!session || session.status !== "in-progress") return;
+    const key = `yemen-grade12:exam-session:v2:${exam.id}`;
+    const onStorage = (event: StorageEvent) => {
+      if (event.storageArea !== window.localStorage || event.key !== key || event.newValue === null) return;
+      const result = loadSessionForRecovery(exam, window.localStorage);
+      if (
+        result.kind === "resumable"
+        && result.session.updatedAt > session.updatedAt
+      ) {
+        setNewerSession(result.session);
+        setStorageState("conflict");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [exam, session]);
 
   useEffect(() => {
     if (!session || session.status !== "in-progress" || session.timingMode !== "timed") return;
@@ -93,6 +133,106 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
     );
   }
 
+  if (session && storageState === "conflict" && newerSession) {
+    const newerProgress = getSessionProgress(newerSession);
+    return (
+      <section className="overflow-hidden rounded-[28px] border border-amber-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,.06)]">
+        <div className="bg-amber-950 p-5 text-white sm:p-7">
+          <span className="inline-flex items-center gap-2 text-[10px] font-extrabold text-amber-200">
+            <AlertTriangle className="h-4 w-4" />
+            حماية من تعارض المحاولات
+          </span>
+          <h1 className="mt-3 text-xl font-black leading-8">وجدنا نسخة أحدث من هذه المحاولة</h1>
+          <p className="mt-2 text-sm font-medium leading-7 text-amber-100/80">
+            يبدو أن الاختبار مفتوح في تبويب آخر أو على نسخة أحدث في المتصفح. لن نكتب فوقها حتى لا نفقد إجاباتك.
+          </p>
+        </div>
+        <div className="p-4 sm:p-6">
+          <div className="rounded-2xl bg-amber-50 p-4 text-xs font-bold leading-6 text-amber-950">
+            النسخة الأحدث تحتوي {newerProgress.answeredCount} إجابة من أصل {newerProgress.totalCount}.
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setSession(newerSession);
+              setNowMs(Date.now());
+              setNewerSession(null);
+              setStorageState("ok");
+            }}
+            className="mt-4 min-h-12 w-full rounded-2xl bg-slate-950 px-5 text-sm font-extrabold text-white sm:w-auto"
+          >
+            استعادة النسخة الأحدث
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  if (!session && recovery) {
+    const progress = getSessionProgress(recovery.session);
+    const remaining = getRemainingTimeMs(exam, recovery.session, Date.now());
+    return (
+      <section className="overflow-hidden rounded-[28px] border border-violet-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,.06)]">
+        <div className="bg-slate-950 p-5 text-white sm:p-7">
+          <span className="inline-flex items-center gap-2 rounded-full bg-violet-400/10 px-3 py-1.5 text-[10px] font-extrabold text-violet-200">
+            <History className="h-4 w-4" />
+            محاولة محفوظة على هذا الجهاز
+          </span>
+          <h1 className="mt-4 text-xl font-black leading-9">{recovery.expired ? "انتهى وقت محاولتك السابقة" : "هل تريد إكمال محاولتك السابقة؟"}</h1>
+          <p className="mt-2 text-sm font-medium leading-7 text-slate-300">
+            آخر حفظ: {formatSavedAt(recovery.session.updatedAt)} · أجبت {progress.answeredCount} من {progress.totalCount}.
+          </p>
+          {!recovery.expired && remaining !== null && (
+            <p className="mt-1 text-xs font-bold text-violet-200">الوقت المتبقي محفوظ كما هو: {formatCountdown(remaining)}</p>
+          )}
+        </div>
+
+        <div className="p-4 sm:p-6">
+          {recovery.expired ? (
+            <div className="rounded-2xl bg-amber-50 p-4 text-xs font-bold leading-6 text-amber-950">
+              انتهى المؤقت أثناء غيابك. لن نفتح الإجابات للتعديل؛ يمكنك عرض النتيجة كما كانت عند انتهاء الوقت.
+            </div>
+          ) : (
+            <div className="rounded-2xl bg-violet-50 p-4 text-xs font-medium leading-6 text-violet-950">
+              لن نبدأ محاولة جديدة فوق إجاباتك المحفوظة إلا إذا اخترت ذلك بنفسك.
+            </div>
+          )}
+
+          <div className="mt-4 grid gap-2 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (recovery.expired) {
+                  const submittedAt = Math.max(Date.now(), recovery.session.deadlineAt ?? Date.now());
+                  setSession(submitSession(exam, recovery.session, submittedAt));
+                  removeStoredSession(exam.id, window.localStorage);
+                } else {
+                  setSession(recovery.session);
+                  setNowMs(Date.now());
+                }
+                setRecovery(null);
+              }}
+              className="min-h-12 rounded-2xl bg-violet-700 px-4 text-sm font-extrabold text-white"
+            >
+              {recovery.expired ? "عرض النتيجة" : "متابعة المحاولة"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                removeStoredSession(exam.id, window.localStorage);
+                setRecovery(null);
+                setRecoveryNotice("تم حذف المحاولة السابقة. يمكنك بدء محاولة جديدة.");
+              }}
+              className="min-h-12 rounded-2xl bg-slate-100 px-4 text-sm font-extrabold text-slate-700"
+            >
+              حذفها والبدء من جديد
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (!session) {
     return (
       <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,.06)]">
@@ -108,6 +248,13 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
         </div>
 
         <div className="p-4 sm:p-6">
+          {recoveryNotice && (
+            <div className="mb-4 rounded-2xl border border-slate-200 bg-slate-50 p-3.5 text-[11px] font-bold leading-6 text-slate-700">
+              {recoveryNotice}
+            </div>
+          )}
+          {storageState === "unavailable" && <StorageUnavailableNotice />}
+
           <span className="text-[10px] font-extrabold text-slate-500">اختر طريقة المحاكاة</span>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <ModeButton
@@ -126,13 +273,16 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
             />
           </div>
 
-          <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs font-medium leading-6 text-slate-600">
-            تُحفظ إجاباتك تلقائيًا على هذا الجهاز. إذا أغلقت الصفحة يمكنك العودة وإكمال المحاولة ما دامت نسخة الاختبار لم تتغير.
-          </div>
+          {storageState !== "unavailable" && (
+            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-xs font-medium leading-6 text-slate-600">
+              تُحفظ إجاباتك تلقائيًا على هذا الجهاز. عند العودة سنعرض المحاولة المحفوظة أولًا ولن نستبدلها بصمت.
+            </div>
+          )}
 
           <button
             type="button"
             onClick={() => {
+              removeStoredSession(exam.id, window.localStorage);
               setNowMs(Date.now());
               setSession(createExamSession(exam, { timingMode: startMode }));
             }}
@@ -177,7 +327,7 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
           <button
             type="button"
             onClick={() => {
-              window.localStorage.removeItem(getSessionStorageKey(exam.id));
+              removeStoredSession(exam.id, window.localStorage);
               setSession(null);
               setConfirmSubmit(false);
               setShowMap(false);
@@ -223,6 +373,11 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
   return (
     <section className="relative flex min-h-[calc(100dvh-6.5rem)] flex-col overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-[0_18px_55px_rgba(15,23,42,.06)]">
       <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/96 p-3.5 backdrop-blur-xl sm:p-4">
+        {storageState === "unavailable" && (
+          <div className="mb-3 rounded-xl bg-amber-50 px-3 py-2 text-[10px] font-bold leading-5 text-amber-900">
+            الحفظ التلقائي غير متاح الآن. يمكنك إكمال الاختبار، لكن لا تغلق الصفحة قبل التسليم.
+          </div>
+        )}
         <div className="flex items-center justify-between gap-2">
           <div className="min-w-0">
             <small className="block truncate text-[9px] font-extrabold text-violet-700">{exam.subject} · {exam.branch}</small>
@@ -427,6 +582,20 @@ export default function ExamRunner({ exam }: { exam: ExamDefinition }) {
   );
 }
 
+function StorageUnavailableNotice() {
+  return (
+    <div className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3.5">
+      <strong className="flex items-center gap-2 text-xs font-black text-amber-950">
+        <AlertTriangle className="h-4 w-4" />
+        الحفظ التلقائي غير متاح في هذا المتصفح
+      </strong>
+      <p className="mt-1 text-[11px] font-medium leading-5 text-amber-900">
+        يمكنك أداء الاختبار، لكن إذا أغلقت الصفحة قد لا نستطيع استعادة المحاولة. أبقِ الصفحة مفتوحة حتى التسليم.
+      </p>
+    </div>
+  );
+}
+
 function ModeButton({ active, icon: Icon, title, description, onClick }: {
   active: boolean;
   icon: typeof Clock3;
@@ -515,6 +684,27 @@ function Legend({ swatch, label, dot = false }: { swatch: string; label: string;
       {label}
     </span>
   );
+}
+
+function recoveryReasonText(reason: string): string {
+  if (reason === "unsupported-version" || reason === "invalid-question-set" || reason === "wrong-exam") {
+    return "وجدنا محاولة محفوظة لنسخة قديمة من الاختبار، فتجاهلناها حفاظًا على دقة النتيجة.";
+  }
+  if (reason === "not-in-progress") {
+    return "وجدنا بيانات محاولة منتهية قديمة، فتم تنظيفها قبل بدء محاولة جديدة.";
+  }
+  return "وجدنا محاولة محفوظة غير سليمة، فلم نستخدمها حتى لا تتأثر إجاباتك أو نتيجتك.";
+}
+
+function formatSavedAt(timestamp: number): string {
+  try {
+    return new Intl.DateTimeFormat("ar-YE", {
+      hour: "numeric",
+      minute: "2-digit",
+    }).format(new Date(timestamp));
+  } catch {
+    return "وقت سابق";
+  }
 }
 
 function formatCountdown(ms: number): string {
