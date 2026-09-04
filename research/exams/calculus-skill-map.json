@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "1.0",
+  "taxonomyId": "YEMEN-G12-MATH-CALCULUS-V1",
+  "subject": "رياضيات",
+  "track": "التفاضل والتكامل",
+  "purpose": "ربط أسئلة النموذج التجريبي بمهارات قابلة للقياس والتحليل",
+  "questionLinkingRules": {
+    "primarySkillRequired": true,
+    "maxSecondarySkills": 2,
+    "allowUnclassifiedInStudentAnalysis": false,
+    "minimumEvidenceForConfidentDiagnosis": 3,
+    "oneQuestionDiagnosisLabel": "signal-only",
+    "errorTagsRequireJustification": true
+  },
+  "evidenceLevels": [
+    { "minQuestions": 1, "maxQuestions": 1, "level": "signal-only", "label": "ظهرت إشارة تحتاج تحقق" },
+    { "minQuestions": 2, "maxQuestions": 2, "level": "limited", "label": "يبدو أنك تحتاج مراجعة" },
+    { "minQuestions": 3, "maxQuestions": 4, "level": "good", "label": "دليل كافٍ لتصنيف أولي" },
+    { "minQuestions": 5, "maxQuestions": null, "level": "strong", "label": "دليل قوي لتوصية مراجعة" }
+  ],
+  "errorTags": [
+    { "id": "ERR-CONCEPT", "label": "خطأ في فهم المفهوم" },
+    { "id": "ERR-RULE-SELECTION", "label": "اختيار قاعدة أو مبرهنة غير مناسبة" },
+    { "id": "ERR-CONDITION", "label": "تجاهل شرط تطبيق" },
+    { "id": "ERR-ALGEBRA", "label": "خطأ جبري" },
+    { "id": "ERR-SIGN", "label": "خطأ إشارة" },
+    { "id": "ERR-SUBSTITUTION", "label": "خطأ تعويض" },
+    { "id": "ERR-NOTATION", "label": "خطأ قراءة أو كتابة رمز" },
+    { "id": "ERR-INTERVAL", "label": "خطأ مجال أو فترة أو حدود" },
+    { "id": "ERR-INCOMPLETE", "label": "خطوات ناقصة" }
+  ],
+  "strands": [
+    {
+      "id": "CALC-FOUNDATIONS",
+      "title": "النهايات والاتصال",
+      "topics": [
+        {
+          "id": "LIMITS",
+          "title": "النهايات",
+          "skills": [
+            { "id": "LIM-DIRECT", "title": "التعويض المباشر في النهاية", "prerequisites": [] },
+            { "id": "LIM-FACTOR", "title": "حساب النهاية بالتحليل والاختصار", "prerequisites": ["التحليل الجبري"] },
+            { "id": "LIM-RATIONALIZE", "title": "حساب النهاية باستخدام المرافق", "prerequisites": ["المرافق", "تبسيط الجذور"] },
+            { "id": "LIM-INFINITY", "title": "النهايات عند ما لا نهاية", "prerequisites": ["مقارنة الحدود والدرجات"] },
+            { "id": "LIM-TRIG", "title": "النهايات المثلثية", "prerequisites": ["الهويات والنسب المثلثية"] }
+          ]
+        },
+        {
+          "id": "CONTINUITY",
+          "title": "الاتصال",
+          "skills": [
+            { "id": "CONT-POINT", "title": "التحقق من اتصال دالة عند نقطة", "prerequisites": ["LIM-DIRECT"] },
+            { "id": "CONT-PARAMETER", "title": "إيجاد قيمة تجعل الدالة متصلة", "prerequisites": ["CONT-POINT", "حل المعادلات"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CALC-DIFFERENTIATION",
+      "title": "التفاضل",
+      "topics": [
+        {
+          "id": "DERIVATIVE-RULES",
+          "title": "قواعد الاشتقاق",
+          "skills": [
+            { "id": "DER-RULES", "title": "اختيار وتطبيق قواعد الاشتقاق الأساسية", "prerequisites": [] },
+            { "id": "DER-NTH", "title": "المشتقة من رتبة أعلى أو المشتقة النونية", "prerequisites": ["DER-RULES"] },
+            { "id": "DER-EXP-LOG", "title": "مشتقة الدوال الأسية واللوغاريتمية", "prerequisites": ["DER-RULES"] },
+            { "id": "DER-TRIG", "title": "مشتقة الدوال المثلثية", "prerequisites": ["DER-RULES", "الهويات المثلثية"] }
+          ]
+        },
+        {
+          "id": "CHAIN-RULE",
+          "title": "الدوال المركبة وقاعدة التسلسل",
+          "skills": [
+            { "id": "DER-COMPOSITION", "title": "التعرف على تركيب دالتين", "prerequisites": [] },
+            { "id": "DER-CHAIN", "title": "تطبيق قاعدة التسلسل", "prerequisites": ["DER-COMPOSITION", "DER-RULES"] }
+          ]
+        },
+        {
+          "id": "TANGENT-NORMAL",
+          "title": "المماس والناظم",
+          "skills": [
+            { "id": "APP-TANGENT", "title": "إيجاد معادلة المماس", "prerequisites": ["DER-RULES", "معادلة المستقيم"] },
+            { "id": "APP-NORMAL", "title": "إيجاد معادلة الناظم", "prerequisites": ["APP-TANGENT"] }
+          ]
+        },
+        {
+          "id": "ROLLE-MVT",
+          "title": "مبرهنتا رول والقيمة المتوسطة",
+          "skills": [
+            { "id": "THM-ROLLE-CHECK", "title": "التحقق من شروط مبرهنة رول", "prerequisites": ["CONT-POINT"] },
+            { "id": "THM-ROLLE-APPLY", "title": "تطبيق مبرهنة رول", "prerequisites": ["THM-ROLLE-CHECK", "DER-RULES"] },
+            { "id": "THM-MVT-CHECK", "title": "التحقق من شروط مبرهنة القيمة المتوسطة", "prerequisites": ["CONT-POINT"] },
+            { "id": "THM-MVT-APPLY", "title": "تطبيق مبرهنة القيمة المتوسطة", "prerequisites": ["THM-MVT-CHECK", "DER-RULES"] }
+          ]
+        },
+        {
+          "id": "FUNCTION-VARIATION",
+          "title": "دراسة تغيرات الدالة",
+          "skills": [
+            { "id": "VAR-CRITICAL", "title": "تحديد النقاط الحرجة", "prerequisites": ["DER-RULES"] },
+            { "id": "VAR-MONOTONICITY", "title": "تحديد فترات التزايد والتناقص", "prerequisites": ["VAR-CRITICAL", "تحليل الإشارة"] },
+            { "id": "VAR-EXTREMA", "title": "تحديد القيم القصوى", "prerequisites": ["VAR-MONOTONICITY"] },
+            { "id": "VAR-INFLECTION", "title": "تحديد نقاط الانعطاف", "prerequisites": ["DER-NTH"] },
+            { "id": "VAR-FULL-STUDY", "title": "إجراء دراسة متكاملة لتغيرات الدالة", "prerequisites": ["VAR-CRITICAL", "VAR-MONOTONICITY", "VAR-EXTREMA"] }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "CALC-INTEGRATION",
+      "title": "التكامل",
+      "topics": [
+        {
+          "id": "DEFINITE-INTEGRAL-FOUNDATIONS",
+          "title": "بناء مفهوم التكامل المحدد",
+          "skills": [
+            { "id": "INT-SUM-LAWS", "title": "قوانين حساب المجموع", "prerequisites": [] },
+            { "id": "INT-DEF", "title": "استخدام تعريف التكامل المحدد", "prerequisites": ["INT-SUM-LAWS"] },
+            { "id": "INT-INTEGRABILITY", "title": "تحديد قابلية الدالة للتكامل على فترة", "prerequisites": ["CONT-POINT"] },
+            { "id": "INT-COMPARISON", "title": "تطبيق مبرهنة المقارنة", "prerequisites": ["INT-INTEGRABILITY"] },
+            { "id": "INT-BOUNDS", "title": "تطبيق مبرهنة الحدين الأعلى والأدنى", "prerequisites": ["INT-INTEGRABILITY"] }
+          ]
+        },
+        {
+          "id": "INDEFINITE-INTEGRAL",
+          "title": "التكامل غير المحدد",
+          "skills": [
+            { "id": "INT-BASIC-RULES", "title": "قواعد التكامل غير المحدد", "prerequisites": [] },
+            { "id": "INT-TRIG", "title": "تكامل الدوال المثلثية", "prerequisites": ["INT-BASIC-RULES", "الهويات المثلثية"] },
+            { "id": "INT-EXP", "title": "تكامل الدوال الأسية", "prerequisites": ["INT-BASIC-RULES"] },
+            { "id": "INT-ANTIDERIVATIVE", "title": "إيجاد الدالة الأصلية أو معادلة المنحنى", "prerequisites": ["INT-BASIC-RULES", "حل المعادلات"] },
+            { "id": "INT-MEAN-VALUE", "title": "مبرهنة القيمة المتوسطة في التكامل", "prerequisites": ["INT-INTEGRABILITY"] }
+          ]
+        },
+        {
+          "id": "INTEGRATION-METHODS",
+          "title": "طرق التكامل",
+          "skills": [
+            { "id": "INT-SUBSTITUTION-RECOGNIZE", "title": "التعرف على ملاءمة التكامل بالتعويض", "prerequisites": ["INT-BASIC-RULES"] },
+            { "id": "INT-SUBSTITUTION-APPLY", "title": "تنفيذ التكامل بالتعويض", "prerequisites": ["INT-SUBSTITUTION-RECOGNIZE"] },
+            { "id": "INT-BY-PARTS-RECOGNIZE", "title": "التعرف على ملاءمة التكامل بالتجزئة", "prerequisites": ["INT-BASIC-RULES", "DER-RULES"] },
+            { "id": "INT-BY-PARTS-APPLY", "title": "تنفيذ التكامل بالتجزئة", "prerequisites": ["INT-BY-PARTS-RECOGNIZE"] }
+          ]
+        },
+        {
+          "id": "DEFINITE-INTEGRAL-PROPERTIES",
+          "title": "خواص التكامل المحدد",
+          "skills": [
+            { "id": "INT-DEFINITE-PROPERTIES", "title": "استخدام خواص التكامل المحدد", "prerequisites": ["INT-DEF"] }
+          ]
+        }
+      ]
+    }
+  ],
+  "classificationStatuses": [
+    "unclassified",
+    "needs-classification-review",
+    "reviewed",
+    "verified"
+  ],
+  "sourceAnchors": [
+    "https://t.me/s/mathyemenibb2022?before=238",
+    "https://t.me/s/mathyemenibb2022?after=231",
+    "https://t.me/s/mathyemenibb2022?before=280",
+    "https://t.me/s/mathyemenibb2022?before=84",
+    "https://t.me/s/mathyemenibb2022/105",
+    "https://t.me/s/mathyemenibb2022?before=340",
+    "https://t.me/s/mathyemenibb2022?before=385",
+    "https://t.me/s/mathyemenibb2022?after=390",
+    "https://t.me/s/YemenEducationC/24139"
+  ]
+}
