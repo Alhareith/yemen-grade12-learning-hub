@@ -14,6 +14,7 @@ import {
   type PromptSituation,
   type StudyPrompt,
 } from "@/data/promptCatalog";
+import { buildArabicOutputPolicy } from "@shared/prompts/arabic-output-policy";
 
 type PromptLibraryProps = {
   subject: string;
@@ -53,7 +54,7 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
       ? `\n\nسياق إضافي من الطالب:\n${input}`
       : "";
 
-    return `${basePrompt}${extraContext}\n\n${arabicOutputPolicy(subject)}`;
+    return `${basePrompt}${extraContext}\n\n${buildArabicOutputPolicy(subject)}`;
   }, [input, selectedPrompt, subject, unit]);
 
   const chooseSituation = (next: PromptSituation) => {
@@ -153,6 +154,13 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
               الصق السؤال أو النص أو محاولتك كما هي؛ البرومبت سيطلب من الأداة استنتاج الموضوع من المحتوى، وإذا لم يكن واضحًا فستذكر افتراضها بدل اختراع تفاصيل من المنهج.
             </div>
 
+            {subject === "رياضيات" && (
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-3.5 text-xs font-medium leading-6 text-emerald-900">
+                <strong className="font-black">الرياضيات مضبوطة بالعربي.</strong>{" "}
+                البرومبت يطلب صراحة استخدام س، ص، د(س)، جا، جتا، ظا، نها، ط، هـ والأرقام العربية، ويمنع الرجوع إلى x وy والدوال الإنجليزية في الحل النهائي.
+              </div>
+            )}
+
             <label className="block">
               <span className="mb-2 flex items-center justify-between gap-3">
                 <span className="text-xs font-extrabold text-slate-700">{inputLabel}</span>
@@ -191,7 +199,7 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
                 <span className="text-xs font-extrabold text-slate-700">البرومبت الجاهز</span>
-                <span className="text-[10px] font-bold text-slate-400">إجابة عربية منظمة · المعادلات في أسطر واضحة</span>
+                <span className="text-[10px] font-bold text-slate-400">إجابة عربية منظمة · وفي الرياضيات الرموز عربية أيضًا</span>
               </div>
               <pre className="max-h-[52vh] overflow-y-auto whitespace-pre-wrap rounded-2xl border border-slate-200 bg-slate-950 p-4 text-right font-sans text-[13px] font-medium leading-7 text-slate-100 sm:p-5">{generatedPrompt}</pre>
             </div>
@@ -228,8 +236,8 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
           <Sparkles className="h-4 w-4" />
           البرومبتات الجاهزة
         </span>
-        <h1 className="mt-2 text-2xl font-black leading-9 text-slate-950">كيف تريد أن يساعدك الذكاء الاصطناعي في {subject}؟</h1>
-        <p className="mt-2 text-sm font-medium leading-7 text-slate-500">اختر حالتك أولًا. البرومبت يفتح وحده، ويطلب من الأداة أن تشرح بالعربية وتعرض الرموز والمعادلات بطريقة واضحة للطالب.</p>
+        <h1 className="mt-2 text-2xl font-black leading-9 text-slate-950">قل لنا أين أنت متوقف في {subject}</h1>
+        <p className="mt-2 text-sm font-medium leading-7 text-slate-500">اختر حالتك فقط، ثم انسخ البرومبت إلى ChatGPT أو أي أداة ذكاء اصطناعي. لا تحتاج أن تعرف كيف تكتب البرومبت بنفسك.</p>
       </div>
 
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:px-0 lg:grid-cols-4" role="tablist" aria-label="حالة الطالب">
@@ -278,20 +286,6 @@ export default function PromptLibrary({ subject, units = [] }: PromptLibraryProp
       </div>
     </div>
   );
-}
-
-function arabicOutputPolicy(subject: string) {
-  const subjectRule = subject === "رياضيات"
-    ? "في الرياضيات استخدم الرموز العربية الشائعة عندما تكون مناسبة مثل س، ص، ع، ن، م، وعرّف أي رمز غير واضح بالعربية."
-    : subject === "فيزياء"
-      ? "في الفيزياء حافظ على الرموز والوحدات العلمية القياسية مثل V وI وR وm/s عندما يلزم، لكن اكتب اسم كل كمية ومعنى كل رمز ووحدته بالعربية بجانب القانون."
-      : subject === "كيمياء"
-        ? "في الكيمياء لا تعرّب الصيغ الكيميائية القياسية مثل H₂O وNaCl؛ اعرضها كما هي ثم فسّر أسماء المواد والرموز والتفاعل بالعربية."
-        : subject === "لغة إنجليزية"
-          ? "في الإنجليزية أبقِ الكلمات والجمل الإنجليزية كما هي لأنها جزء من التعلم، لكن اجعل الشرح والقواعد والملاحظات والتصحيح بالعربية الواضحة."
-          : "استخدم العربية في الشرح والمصطلحات والعناوين، وعرّف أي رمز أو اختصار بلغة عربية بسيطة.";
-
-  return `معيار الإخراج والعرض:\n- اكتب الشرح والعناوين والخطوات بالعربية الواضحة المناسبة لطالب ثالث ثانوي.\n- استخدم الأرقام العربية ٠١٢٣٤٥٦٧٨٩ في النص وترقيم الخطوات عندما لا يسبب ذلك تشويشًا.\n- عند وجود معادلة أو قانون أو تعبير رمزي، ضعه في سطر مستقل وواضح. إذا كانت الأداة تدعم LaTeX/MathJax فاستخدم تنسيقًا رياضيًا مناسبًا مثل \\[ ... \\] حتى لا يختلط اتجاه RTL بترتيب الحدود.\n- لا تقلب ترتيب طرفي المعادلة بسبب اتجاه العربية، ولا تضع المعادلات الطويلة داخل فقرة عربية مزدحمة.\n- بعد كل قانون أو معادلة مهمة، اشرح الرموز والمتغيرات بالعربية في نقاط قصيرة.\n- استخدم المصطلحات العربية المعتمدة قدر الإمكان، وإذا كان هناك رمز أو مصطلح عالمي لا يصح تعريبه فاحتفظ به وفسّره بالعربية.\n- ${subjectRule}\n- اجعل الناتج مناسبًا للهاتف: فقرات قصيرة، عناوين واضحة، ومسافات بين المعادلات والخطوات.\n- إذا لم أحدد اسم الدرس لكنني أرسلت سؤالًا أو نصًا، استنتج الموضوع من المحتوى. إذا لم تكن واثقًا، اذكر افتراضك بوضوح ولا تخترع اسم درس أو معلومة من المنهج.`;
 }
 
 function stageLabel(stage: StudyPrompt["stage"]) {
