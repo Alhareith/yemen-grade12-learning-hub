@@ -156,7 +156,8 @@ export function validateExamQuestion(
   }
 
   const optionIds = new Set<string>();
-  for (const [index, option] of question.options.entries()) {
+  for (let index = 0; index < question.options.length; index += 1) {
+    const option = question.options[index];
     requireText(option.id, `options[${index}].id`, errors);
     requireText(option.label, `options[${index}].label`, errors);
     validateRichContent(option.content, `options[${index}].content`, errors);
@@ -191,7 +192,8 @@ export function validateExamQuestion(
     errors.push("source.questionPage must be a positive integer");
   }
 
-  for (const [index, asset] of question.assets.entries()) {
+  for (let index = 0; index < question.assets.length; index += 1) {
+    const asset = question.assets[index];
     requireText(asset.id, `assets[${index}].id`, errors);
     requireText(asset.path, `assets[${index}].path`, errors);
     requireText(asset.altText, `assets[${index}].altText`, errors);
@@ -231,7 +233,9 @@ export function validateExamQuestion(
     }
   }
 
-  for (const [index, insight] of (question.analysis.errorInsights ?? []).entries()) {
+  const errorInsights = question.analysis.errorInsights ?? [];
+  for (let index = 0; index < errorInsights.length; index += 1) {
+    const insight = errorInsights[index];
     if (!optionIds.has(insight.optionId)) {
       errors.push(`analysis.errorInsights[${index}].optionId must reference an existing option`);
     }
@@ -248,8 +252,8 @@ export function validateExamQuestion(
     validateRichContent(question.explanation.content, "explanation.content", errors);
   }
 
-  for (const [index, note] of question.verification.blockingNotes.entries()) {
-    requireText(note, `verification.blockingNotes[${index}]`, errors);
+  for (let index = 0; index < question.verification.blockingNotes.length; index += 1) {
+    requireText(question.verification.blockingNotes[index], `verification.blockingNotes[${index}]`, errors);
   }
 
   if (question.verification.reviewedAt && Number.isNaN(Date.parse(question.verification.reviewedAt))) {
@@ -304,7 +308,8 @@ function validateRichContent(content: RichContent, path: string, errors: string[
     return;
   }
 
-  for (const [index, segment] of content.entries()) {
+  for (let index = 0; index < content.length; index += 1) {
+    const segment = content[index];
     if (segment.type === "text") {
       requireText(segment.text, `${path}[${index}].text`, errors);
       continue;
