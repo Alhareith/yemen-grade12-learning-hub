@@ -10,7 +10,7 @@ export const pilotCalculusExam: ExamDefinition = {
   subject: "رياضيات",
   branch: "التفاضل والتكامل",
   year: 2020,
-  durationMinutes: pilotExamProvenance.referenceFormat.durationMinutes,
+  durationMinutes: 60,
   availability: "ready",
   source: {
     title: "مرجع بنية: نماذج اختبارات وزارية في التفاضل والتكامل 2020",
