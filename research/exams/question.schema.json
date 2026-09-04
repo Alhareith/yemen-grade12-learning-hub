@@ -1,0 +1,263 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Alhareith/yemen-grade12-learning-hub/research/exams/question.schema.json",
+  "title": "Yemen Grade 12 Exam Question",
+  "description": "Strict storage contract for digitized, source-traceable exam questions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "examId",
+    "order",
+    "sourceQuestionNumber",
+    "type",
+    "stem",
+    "options",
+    "assets",
+    "answer",
+    "source",
+    "analysis",
+    "difficulty",
+    "verification"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "type": "string", "minLength": 1, "pattern": "^[A-Z0-9][A-Z0-9-]*$" },
+    "examId": { "type": "string", "minLength": 1 },
+    "order": { "type": "integer", "minimum": 1 },
+    "sourceQuestionNumber": { "type": "string", "minLength": 1 },
+    "type": { "enum": ["single-choice", "true-false"] },
+    "stem": { "$ref": "#/$defs/richContent" },
+    "options": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/option" }
+    },
+    "assets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/asset" }
+    },
+    "answer": { "$ref": "#/$defs/answer" },
+    "source": { "$ref": "#/$defs/source" },
+    "analysis": { "$ref": "#/$defs/analysis" },
+    "difficulty": { "enum": ["unrated", "easy", "medium", "hard"] },
+    "explanation": { "$ref": "#/$defs/explanation" },
+    "verification": { "$ref": "#/$defs/verification" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "type": { "const": "true-false" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "options": { "minItems": 2, "maxItems": 2 }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "verification": {
+            "properties": { "status": { "const": "verified" } },
+            "required": ["status"]
+          }
+        },
+        "required": ["verification"]
+      },
+      "then": {
+        "properties": {
+          "verification": {
+            "properties": {
+              "checks": {
+                "properties": {
+                  "sourceMatched": { "const": true },
+                  "textReviewed": { "const": true },
+                  "mathReviewed": { "const": true },
+                  "optionsReviewed": { "const": true },
+                  "answerVerified": { "const": true },
+                  "skillReviewed": { "const": true }
+                }
+              },
+              "blockingNotes": { "maxItems": 0 }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "richContent": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/richSegment" }
+    },
+    "richSegment": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "text"],
+          "properties": {
+            "type": { "const": "text" },
+            "text": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "latex", "display", "altText"],
+          "properties": {
+            "type": { "const": "math" },
+            "latex": { "type": "string", "minLength": 1 },
+            "display": { "enum": ["inline", "block"] },
+            "altText": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "content"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "label": { "type": "string", "minLength": 1 },
+        "content": { "$ref": "#/$defs/richContent" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "path", "altText", "sourcePage"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["image", "diagram"] },
+        "path": { "type": "string", "minLength": 1, "pattern": "^(?!https?://).+" },
+        "altText": { "type": "string", "minLength": 1 },
+        "sourcePage": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "answerEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "sourceUrl", "locator"],
+      "properties": {
+        "type": { "enum": ["published-key", "published-solution"] },
+        "sourceUrl": { "type": "string", "format": "uri" },
+        "sourcePage": { "type": "integer", "minimum": 1 },
+        "locator": { "type": "string", "minLength": 1 }
+      }
+    },
+    "answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["correctOptionId", "points", "answerEvidence"],
+      "properties": {
+        "correctOptionId": { "type": "string", "minLength": 1 },
+        "points": { "type": "number", "exclusiveMinimum": 0 },
+        "answerEvidence": { "$ref": "#/$defs/answerEvidence" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourcePackageUrl", "sourceFileName", "questionPage", "digitizationMethod"],
+      "properties": {
+        "sourcePackageUrl": { "type": "string", "format": "uri" },
+        "sourceFileName": { "type": "string", "minLength": 1 },
+        "questionPage": { "type": "integer", "minimum": 1 },
+        "digitizationMethod": { "enum": ["manual", "ocr-assisted"] }
+      }
+    },
+    "errorInsight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["optionId", "errorTagId", "message", "reviewStatus"],
+      "properties": {
+        "optionId": { "type": "string", "minLength": 1 },
+        "errorTagId": {
+          "enum": [
+            "ERR-CONCEPT",
+            "ERR-RULE-SELECTION",
+            "ERR-CONDITION",
+            "ERR-ALGEBRA",
+            "ERR-SIGN",
+            "ERR-SUBSTITUTION",
+            "ERR-NOTATION",
+            "ERR-INTERVAL",
+            "ERR-INCOMPLETE"
+          ]
+        },
+        "message": { "type": "string", "minLength": 1 },
+        "reviewStatus": { "enum": ["draft", "reviewed"] }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primarySkillId", "secondarySkillIds"],
+      "properties": {
+        "primarySkillId": { "type": "string", "minLength": 1 },
+        "secondarySkillIds": {
+          "type": "array",
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "errorInsights": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/errorInsight" }
+        }
+      }
+    },
+    "explanation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "content"],
+      "properties": {
+        "status": { "enum": ["draft", "reviewed"] },
+        "content": { "$ref": "#/$defs/richContent" }
+      }
+    },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sourceMatched",
+        "textReviewed",
+        "mathReviewed",
+        "optionsReviewed",
+        "answerVerified",
+        "skillReviewed",
+        "mediaReviewed"
+      ],
+      "properties": {
+        "sourceMatched": { "type": "boolean" },
+        "textReviewed": { "type": "boolean" },
+        "mathReviewed": { "type": "boolean" },
+        "optionsReviewed": { "type": "boolean" },
+        "answerVerified": { "type": "boolean" },
+        "skillReviewed": { "type": "boolean" },
+        "mediaReviewed": { "type": "boolean" }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "checks", "blockingNotes"],
+      "properties": {
+        "status": { "enum": ["digitized", "reviewed", "answer-verified", "verified", "blocked"] },
+        "checks": { "$ref": "#/$defs/checks" },
+        "reviewedAt": { "type": "string", "format": "date-time" },
+        "reviewedBy": { "type": "string", "minLength": 1 },
+        "blockingNotes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
