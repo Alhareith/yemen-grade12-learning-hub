@@ -6,7 +6,7 @@ import {
 } from "@/exams/arabic-math";
 import "@/arabic-math.css";
 
-const MATH_SELECTOR = 'span[dir="ltr"][title][aria-label].font-mono';
+const MATH_SELECTOR = 'span[title][aria-label]';
 
 export default function ArabicExamTypography() {
   useEffect(() => {
@@ -27,7 +27,7 @@ export default function ArabicExamTypography() {
 
     enhance();
     const observer = new MutationObserver(queueEnhance);
-    observer.observe(root, { childList: true, subtree: true, characterData: true });
+    observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ["title", "aria-label"] });
 
     return () => observer.disconnect();
   }, []);
@@ -39,9 +39,13 @@ function enhanceMath(root: HTMLElement): void {
   const spans = root.querySelectorAll<HTMLElement>(MATH_SELECTOR);
   for (let index = 0; index < spans.length; index += 1) {
     const span = spans[index];
-    const source = span.getAttribute("title") ?? span.getAttribute("aria-label") ?? span.textContent ?? "";
-    const alreadyRendered = span.querySelector("math") !== null && span.dataset.arabicMathSource === source;
-    if (alreadyRendered) continue;
+    const hasRenderedMath = span.querySelector("math") !== null;
+    const storedSource = span.dataset.arabicMathSource;
+    if (hasRenderedMath && storedSource) continue;
+
+    const candidate = span.getAttribute("title") ?? span.getAttribute("aria-label") ?? span.textContent ?? "";
+    const source = storedSource && candidate === arabicMathPlainText(storedSource) ? storedSource : candidate;
+    if (!looksLikeLegacyMathSpan(span, source)) continue;
 
     const display = span.classList.contains("block") ? "block" : "inline";
     const label = arabicMathPlainText(source);
@@ -54,6 +58,12 @@ function enhanceMath(root: HTMLElement): void {
     span.classList.remove("font-mono", "bg-white", "px-2", "rounded-lg");
     span.classList.add("arabic-math-wrap", display === "block" ? "arabic-math-block" : "arabic-math-inline");
   }
+}
+
+function looksLikeLegacyMathSpan(span: HTMLElement, source: string): boolean {
+  if (span.classList.contains("font-mono")) return true;
+  if (span.dataset.arabicMathSource) return true;
+  return /[=+\-*/^∫√Σ∞≤≥≠→]|\b(?:lim|sin|cos|tan|cot|sec|csc|ln|log|f|x|y)\b/.test(source);
 }
 
 function localizeVisibleText(root: HTMLElement): void {
