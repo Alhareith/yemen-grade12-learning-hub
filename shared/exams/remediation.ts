@@ -69,18 +69,21 @@ export function getSkillTitle(skillId: string): string {
 export function buildSkillRemediation(report: ExamResultReport): SkillRemediation[] {
   const groups = new Map<string, QuestionResultReview[]>();
 
-  for (const review of report.reviews) {
+  for (let index = 0; index < report.reviews.length; index += 1) {
+    const review = report.reviews[index];
     const current = groups.get(review.primarySkillId) ?? [];
     current.push(review);
     groups.set(review.primarySkillId, current);
   }
 
   const remediation: SkillRemediation[] = [];
+  const entries = Array.from(groups.entries());
 
-  for (const [skillId, reviews] of groups) {
-    const correctCount = reviews.filter((item) => item.status === "correct").length;
-    const incorrectCount = reviews.filter((item) => item.status === "incorrect").length;
-    const unansweredCount = reviews.filter((item) => item.status === "unanswered").length;
+  for (let entryIndex = 0; entryIndex < entries.length; entryIndex += 1) {
+    const [skillId, reviews] = entries[entryIndex];
+    const correctCount = reviews.filter((item: QuestionResultReview) => item.status === "correct").length;
+    const incorrectCount = reviews.filter((item: QuestionResultReview) => item.status === "incorrect").length;
+    const unansweredCount = reviews.filter((item: QuestionResultReview) => item.status === "unanswered").length;
     const attemptedCount = correctCount + incorrectCount;
     const missedCount = incorrectCount + unansweredCount;
 
@@ -105,7 +108,9 @@ export function buildSkillRemediation(report: ExamResultReport): SkillRemediatio
       confidenceLabel: confidenceLabel(confidence),
       statusLabel: statusLabel(confidence, masteryPercentage, attemptedCount),
       recommendation: recommendationFor(confidence, masteryPercentage, attemptedCount),
-      questionIds: reviews.filter((item) => item.status !== "correct").map((item) => item.questionId),
+      questionIds: reviews
+        .filter((item: QuestionResultReview) => item.status !== "correct")
+        .map((item: QuestionResultReview) => item.questionId),
     });
   }
 
