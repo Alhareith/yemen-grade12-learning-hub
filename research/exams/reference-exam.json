@@ -45,6 +45,7 @@
     "typescriptQuestionModel": "shared/exams/question-model.ts",
     "typescriptExamModel": "shared/exams/exam-model.ts",
     "sessionEngine": "shared/exams/session-engine.ts",
+    "sessionStorage": "client/src/exams/session-storage.ts",
     "pilotExamData": "client/src/data/exams/pilotExam.ts"
   },
   "stageProgress": {
@@ -76,7 +77,21 @@
         "sticky-focus-header-and-controls"
       ],
       "studentLaunchBlockedUntilStage4Ready": true
+    },
+    "stage7": {
+      "status": "implemented",
+      "document": "research/exams/07-session-recovery.md",
+      "features": [
+        "explicit-resume-or-restart-choice",
+        "expired-attempt-recovery",
+        "strict-persisted-session-integrity",
+        "safe-local-storage-adapter",
+        "storage-failure-fallback",
+        "cross-tab-newer-session-protection",
+        "pagehide-final-save"
+      ],
+      "studentLaunchBlockedUntilStage4Ready": true
     }
   },
-  "nextAction": "استئناف رقمنة المرحلة 4 عند توفر ملف المصدر القابل للمراجعة؛ المرحلتان 5 و6 جاهزتان لتشغيل نموذج verified فور اعتماده"
+  "nextAction": "استئناف رقمنة المرحلة 4 عند توفر ملف المصدر القابل للمراجعة؛ محرك الاختبار وتجربة الهاتف والاستعادة الآمنة جاهزة لتشغيل نموذج verified فور اعتماده"
 }
