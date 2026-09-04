@@ -17,6 +17,7 @@ export default function ArabicExamTypography() {
     const enhance = () => {
       queued = false;
       enhanceMath(root);
+      polishExamCopy(root);
       localizeVisibleText(root);
     };
     const queueEnhance = () => {
@@ -64,6 +65,20 @@ function looksLikeLegacyMathSpan(span: HTMLElement, source: string): boolean {
   if (span.classList.contains("font-mono")) return true;
   if (span.dataset.arabicMathSource) return true;
   return /[=+\-*/^∫√Σ∞≤≥≠→]|\b(?:lim|sin|cos|tan|cot|sec|csc|ln|log|f|x|y)\b/.test(source);
+}
+
+function polishExamCopy(root: HTMLElement): void {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes: Text[] = [];
+  let current = walker.nextNode();
+  while (current) {
+    if (current instanceof Text && current.data.includes("الزمن الرسمي للمحاكاة")) nodes.push(current);
+    current = walker.nextNode();
+  }
+
+  for (const node of nodes) {
+    node.data = node.data.replace("الزمن الرسمي للمحاكاة", "مدة المؤقت داخل الموقع");
+  }
 }
 
 function localizeVisibleText(root: HTMLElement): void {
