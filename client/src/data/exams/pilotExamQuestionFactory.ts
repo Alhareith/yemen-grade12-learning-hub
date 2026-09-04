@@ -38,6 +38,9 @@ const trueFalseOptions: QuestionOption[] = [
   { id: "F", label: "خ", content: text("خطأ") },
 ];
 
+const VERIFICATION_REGISTER_URL =
+  "https://github.com/Alhareith/yemen-grade12-learning-hub/blob/main/research/exams/04-pilot-answer-verification.md";
+
 export function makePilotQuestion(spec: PilotQuestionSpec): ExamQuestion {
   const points = spec.type === "true-false" ? 1 : 2;
   return {
@@ -55,8 +58,8 @@ export function makePilotQuestion(spec: PilotQuestionSpec): ExamQuestion {
       points,
       answerEvidence: {
         type: "independent-verification",
-        sourceUrl: pilotExamProvenance.readableSolvedMirror.url,
-        locator: "الإجابة حُسبت ومراجعت رياضيًا للصياغة المنشورة نفسها؛ المرجع الخارجي يثبت بنية ونمط المحاكاة ولا يُقدَّم كمفتاح حرفي لهذا السؤال المتكيف.",
+        sourceUrl: VERIFICATION_REGISTER_URL,
+        locator: `سجل التحقق المستقل — السؤال ${spec.order}`,
       },
     },
     source: {
