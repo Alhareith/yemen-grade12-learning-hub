@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   Check,
   CheckCircle2,
@@ -249,7 +249,7 @@ function QuestionReviewCard({
   );
 }
 
-function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: string }) {
+function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) {
   return (
     <button
       type="button"
