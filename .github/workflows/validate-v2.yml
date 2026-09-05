@@ -6,6 +6,7 @@ on:
       - "feature/**"
       - "fix/**"
       - "refine/**"
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -30,11 +31,5 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Typecheck
-        run: pnpm check
-
-      - name: Tests
-        run: pnpm exec vitest run
-
-      - name: Build
-        run: pnpm build
+      - name: Verify TypeScript, tests, and production build
+        run: pnpm verify
