@@ -69,20 +69,13 @@ jobs:
           const pageErrors = [];
           const consoleErrors = [];
 
-          const browser = await chromium.launch({
-            executablePath: "/usr/bin/google-chrome",
-            headless: true,
-            args: ["--no-sandbox", "--disable-dev-shm-usage"],
-          });
-
+          const browser = await chromium.launch({ executablePath: "/usr/bin/google-chrome", headless: true, args: ["--no-sandbox", "--disable-dev-shm-usage"] });
           const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
           page.on("requestfailed", (request) => {
             if (request.url().startsWith(baseUrl)) localFailures.push(`${request.url()} :: ${request.failure()?.errorText ?? "failed"}`);
           });
           page.on("pageerror", (error) => pageErrors.push(error.message));
-          page.on("console", (message) => {
-            if (message.type() === "error") consoleErrors.push(message.text());
-          });
+          page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
 
           await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
           await page.getByText("دليل الثالث", { exact: false }).first().waitFor();
@@ -107,7 +100,9 @@ jobs:
           await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
           const mathCount1 = await page.locator("[data-arabic-exam] math").count();
-          assert.ok(mathCount1 > 0, "Expected MathML in model 1 first question");
+          const enhancedMathCount1 = await page.locator("[data-arabic-exam] .arabic-math-wrap").count();
+          assert.ok(mathCount1 > 0, "Expected MathML in protected model 1 question");
+          assert.ok(enhancedMathCount1 > 0, "Expected Arabic math enhancement in model 1");
           await page.screenshot({ path: exam1EvidencePath, fullPage: false });
 
           await page.getByRole("button", { name: "كل النماذج" }).click();
@@ -116,10 +111,8 @@ jobs:
           await page.getByRole("button", { name: "بدون مؤقت" }).click();
           await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
-          const mathCount2 = await page.locator("[data-arabic-exam] math").count();
-          const enhancedMathCount = await page.locator("[data-arabic-exam] .arabic-math-wrap").count();
-          assert.ok(mathCount2 > 0, "Expected MathML in model 2 first question");
-          assert.ok(enhancedMathCount > 0, "Expected Arabic math enhancement in model 2");
+          const model2OptionCount = await page.getByRole("button", { name: /صح|خطأ/ }).count();
+          assert.ok(model2OptionCount >= 2, `Expected true/false options in model 2, got ${model2OptionCount}`);
           assert.equal(await page.locator("[data-arabic-exam]").getAttribute("dir"), "rtl");
           assert.equal(await page.locator("[data-arabic-exam]").getAttribute("lang"), "ar");
           await page.screenshot({ path: exam2EvidencePath, fullPage: false });
@@ -128,19 +121,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({
-            home: true,
-            curriculumRoute: true,
-            skillCount,
-            modelCards: 2,
-            model1FirstQuestion: true,
-            model2FirstQuestion: true,
-            mathCount1,
-            mathCount2,
-            enhancedMathCount,
-            rtl: true,
-          }, null, 2));
-
+          console.log(JSON.stringify({ home: true, curriculumRoute: true, skillCount, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 
