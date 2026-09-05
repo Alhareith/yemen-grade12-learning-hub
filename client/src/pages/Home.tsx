@@ -15,7 +15,6 @@ import {
   FileQuestion,
   FileText,
   FlaskConical,
-  Github,
   Globe2,
   HeartHandshake,
   Home,
@@ -87,7 +86,7 @@ const categoryIcons: Record<string, IconType> = {
 
 const viewTitles: Record<View, string> = {
   home: "الرئيسية",
-  prompts: "البرومبتات",
+  prompts: "أوامر للذكاء الاصطناعي",
   exams: "المحاكاة",
   resources: "المصادر",
   subjects: "المواد",
@@ -95,9 +94,7 @@ const viewTitles: Record<View, string> = {
 
 const socialLinks = [
   { label: "الموقع الشخصي", href: "https://alharethprofilo.netlify.app/", icon: Globe2 },
-  { label: "GitHub", href: "https://github.com/Alhareith", icon: Github },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/%D8%A7%D9%84%D8%AD%D8%A7%D8%B1%D8%AB-%D8%A7%D9%84%D8%AF%D8%A7%D9%87%D9%8A%D8%A9-95b4a831a", icon: Linkedin },
-  { label: "Hugging Face", href: "https://huggingface.co/Alhareith7790", icon: Sparkles },
   { label: "Telegram", href: "https://t.me/devhareth", icon: Send },
   { label: "Facebook", href: "https://www.facebook.com/alharth.aldahyt/", icon: Facebook },
   { label: "البريد", href: "mailto:alhareithaldahia@gmail.com", icon: Mail },
@@ -164,13 +161,13 @@ function AppHeader({ view, onNavigate }: { view: View; onNavigate: (view: View) 
           <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-white"><BookOpen className="h-4.5 w-4.5" /></span>
           <span>
             <strong className="block text-sm font-black text-slate-950">دليل الثالث</strong>
-            <small className="block text-[10px] font-bold text-slate-400">{viewTitles[view]}</small>
+            <small className="block max-w-[165px] text-[10px] font-bold leading-4 text-slate-400">{viewTitles[view]}</small>
           </span>
         </button>
 
         <nav className="hidden items-center gap-1 rounded-2xl bg-slate-100 p-1 md:flex" aria-label="أقسام الموقع">
           <DesktopTab active={view === "home"} onClick={() => onNavigate("home")} label="الرئيسية" />
-          <DesktopTab active={view === "prompts"} onClick={() => onNavigate("prompts")} label="البرومبتات" />
+          <DesktopTab active={view === "prompts"} onClick={() => onNavigate("prompts")} label="أوامر للذكاء الاصطناعي" />
           <DesktopTab active={view === "exams"} onClick={() => onNavigate("exams")} label="المحاكاة" />
           <DesktopTab active={view === "resources"} onClick={() => onNavigate("resources")} label="المصادر" />
           <DesktopTab active={view === "subjects"} onClick={() => onNavigate("subjects")} label="المواد" />
@@ -203,7 +200,7 @@ function HomeView({ selected, onNavigate, onChangeSubject }: {
       <section className="overflow-hidden rounded-[28px] bg-slate-950 p-5 text-white sm:p-8">
         <span className="inline-flex items-center gap-2 text-[11px] font-extrabold text-violet-300"><Leaf className="h-4 w-4" /> لا تحتاج تعرف من أين تبدأ</span>
         <h1 className="mt-3 max-w-2xl text-2xl font-black leading-10 sm:text-4xl sm:leading-[1.35]">افهم ما تعثرت فيه، ثم اختبر نفسك بوضوح.</h1>
-        <p className="mt-2 max-w-xl text-sm font-medium leading-7 text-slate-300">اختر واحدًا فقط الآن: إذا تحتاج فهمًا استخدم برومبت جاهز، وإذا تريد تعرف مستواك ادخل المحاكاة. المصادر تأتي بعد ذلك عندما تحتاج مرجعًا.</p>
+        <p className="mt-2 max-w-xl text-sm font-medium leading-7 text-slate-300">اختر واحدًا فقط الآن: إذا تحتاج فهمًا استخدم أمرًا جاهزًا واسأل به أي ذكاء اصطناعي، وإذا تريد قياس مستواك ادخل المحاكاة. المصادر تأتي بعد ذلك عند الحاجة.</p>
 
         <button type="button" onClick={onChangeSubject} className="mt-5 inline-flex min-h-11 items-center gap-3 rounded-2xl bg-white/10 px-3.5 text-right ring-1 ring-white/10">
           <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${tone}`}><Icon className="h-4 w-4" /></span>
@@ -217,15 +214,15 @@ function HomeView({ selected, onNavigate, onChangeSubject }: {
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-700 text-white"><BrainCircuit className="h-6 w-6" /></span>
           <small className="mt-5 block text-[10px] font-extrabold text-violet-700">١ · عندما لا تفهم أو تتوقف</small>
           <strong className="mt-1 block text-xl font-black text-slate-950">ساعدني أفهم</strong>
-          <p className="mt-2 text-xs font-medium leading-6 text-slate-600">اختر حالتك، الصق سؤالك إن وجد، ثم انسخ برومبت مضبوط للثالث الثانوي وللرياضيات العربية.</p>
-          <span className="mt-4 inline-flex items-center gap-1 text-xs font-extrabold text-violet-700">افتح البرومبتات <ChevronLeft className="h-4 w-4" /></span>
+          <p className="mt-2 text-xs font-medium leading-6 text-slate-600">اختر حالتك، الصق سؤالك إن وجد، ثم انسخ أمرًا جاهزًا مضبوطًا للثالث الثانوي وللعرض العربي.</p>
+          <span className="mt-4 inline-flex items-center gap-1 text-xs font-extrabold text-violet-700">افتح الأوامر الجاهزة <ChevronLeft className="h-4 w-4" /></span>
         </button>
 
         <a href="#exam-pilot" className="group rounded-[26px] border border-slate-800 bg-slate-950 p-5 text-right text-white transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
           <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-violet-200"><Target className="h-6 w-6" /></span>
           <small className="mt-5 block text-[10px] font-extrabold text-violet-300">٢ · عندما تريد قياس مستواك</small>
           <strong className="mt-1 block text-xl font-black">اختبر مستواي</strong>
-          <p className="mt-2 text-xs font-medium leading-6 text-slate-300">محاكاة التفاضل والتكامل: ٥٠ سؤالًا، مؤقت ساعة اختياري، حفظ تلقائي، ثم تحليل يحدد ماذا تراجع.</p>
+          <p className="mt-2 text-xs font-medium leading-6 text-slate-300">محاكاة رياضيات كاملة: ٥٠ سؤالًا، مؤقت اختياري، حفظ تلقائي، ثم تحليل يحدد ماذا تراجع.</p>
           <span className="mt-4 inline-flex items-center gap-1 text-xs font-extrabold text-violet-300">ابدأ المحاكاة <ChevronLeft className="h-4 w-4" /></span>
         </a>
       </section>
@@ -233,8 +230,8 @@ function HomeView({ selected, onNavigate, onChangeSubject }: {
       <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
         <span className="text-[10px] font-extrabold text-slate-400">كيف تستخدم الموقع؟</span>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <GuideStep number="١" title="اختر المادة" text="حدد المادة مرة، وستستخدمها البرومبتات والمصادر تلقائيًا." />
-          <GuideStep number="٢" title="افهم أو اختبر" text="استخدم البرومبت إذا تعثرت، أو المحاكاة إذا أردت قياس نفسك." />
+          <GuideStep number="١" title="اختر المادة" text="حدد المادة مرة، وستستخدمها الأوامر والمصادر تلقائيًا." />
+          <GuideStep number="٢" title="افهم أو اختبر" text="استخدم أمر الشرح إذا تعثرت، أو المحاكاة إذا أردت قياس نفسك." />
           <GuideStep number="٣" title="اتبع التوجيه" text="بعد الاختبار ابدأ بالمحور الذي يضعه التحليل في أول الأولويات." />
         </div>
       </section>
@@ -242,7 +239,7 @@ function HomeView({ selected, onNavigate, onChangeSubject }: {
       <section className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white">
         <div className="flex items-center gap-3 border-b border-slate-100 p-4 sm:p-5">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600"><Library className="h-5 w-5" /></span>
-          <span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-slate-400">بعد البرومبت والمحاكاة</small><strong className="block text-sm font-black text-slate-950">تحتاج كتابًا أو فيديو أو قناة؟</strong></span>
+          <span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-slate-400">بعد الأوامر والمحاكاة</small><strong className="block text-sm font-black text-slate-950">تحتاج كتابًا أو فيديو أو قناة؟</strong></span>
         </div>
         <ActionRow icon={Library} title="افتح مصادر المادة" description={`${selected.sources.length} مصدرًا منظمًا لـ ${selected.title}.`} onClick={() => onNavigate("resources")} />
         <ActionRow icon={FileQuestion} title="اختبارات ومراجعة إضافية" description="المحاكاة داخل الموقع أولًا، ثم مصادر اختبارات خارجية عند الحاجة." onClick={() => onNavigate("exams")} />
@@ -262,7 +259,7 @@ function ActionRow({ icon: Icon, title, description, onClick }: { icon: IconType
 function SubjectsView({ selectedId, onSelect }: { selectedId: string; onSelect: (material: MaterialCatalog) => void }) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-8">
-      <PageHeading title="اختر المادة" description="اخترها مرة، ثم استخدم البرومبتات والمصادر في نفس السياق." />
+      <PageHeading title="اختر المادة" description="اخترها مرة، ثم استخدم الأوامر الجاهزة والمصادر في نفس السياق." />
       <div className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white">
         {materials.map((material) => {
           const Icon = subjectIcons[material.id] ?? BookOpenText;
@@ -287,7 +284,7 @@ function ResourcesView({ selected, selectedUnits, visibleSources, filter, onFilt
 }) {
   return (
     <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
-      <div className="flex items-end justify-between gap-3"><PageHeading title={`مصادر ${selected.title}`} description="المصادر هنا لتدعم فهمك بعد البرومبت والمحاكاة، لا لتغرقك في الروابط." /><button type="button" onClick={onChangeSubject} className="mb-1 shrink-0 rounded-xl bg-white px-3 py-2 text-[10px] font-extrabold text-violet-700 ring-1 ring-slate-200">تغيير المادة</button></div>
+      <div className="flex items-end justify-between gap-3"><PageHeading title={`مصادر ${selected.title}`} description="المصادر هنا لتدعم فهمك بعد الأوامر والمحاكاة، لا لتغرقك في الروابط." /><button type="button" onClick={onChangeSubject} className="mb-1 shrink-0 rounded-xl bg-white px-3 py-2 text-[10px] font-extrabold text-violet-700 ring-1 ring-slate-200">تغيير المادة</button></div>
       <div className="mt-5 grid grid-cols-2 rounded-2xl bg-slate-200/70 p-1"><button type="button" onClick={() => onMode("sources")} className={`min-h-10 rounded-xl text-xs font-extrabold ${mode === "sources" ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"}`}>المصادر</button><button type="button" onClick={() => onMode("units")} className={`min-h-10 rounded-xl text-xs font-extrabold ${mode === "units" ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"}`}>حسب الوحدة</button></div>
       {mode === "sources" ? (
         <>
@@ -315,7 +312,7 @@ function ExamsView() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-8">
       <PageHeading title="المحاكاة" description="ابدأ بالاختبار داخل الموقع. بعد التسليم ستحصل على درجة، مراجعة أخطاء، ومحاور واضحة تبدأ منها المراجعة." />
-      <a href="#exam-pilot" className="mt-5 block overflow-hidden rounded-3xl border border-violet-200 bg-slate-950 text-white shadow-[0_18px_45px_rgba(15,23,42,.08)] transition hover:-translate-y-0.5"><div className="p-5 sm:p-6"><div className="flex items-start gap-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200"><Target className="h-6 w-6" /></span><span className="min-w-0 flex-1"><small className="text-[10px] font-extrabold text-violet-300">متاح الآن · داخل الموقع</small><strong className="mt-1 block text-lg font-black leading-8">محاكاة التفاضل والتكامل</strong><span className="mt-1 block text-xs font-medium leading-6 text-slate-300">٥٠ سؤالًا · ٨٠ درجة · ساعة واحدة عند اختيار المؤقت · حفظ واستكمال · تحليل وتوجيه بعد التسليم.</span></span><ChevronLeft className="mt-4 h-5 w-5 text-violet-300" /></div><div className="mt-4 flex flex-wrap gap-2 text-[9px] font-extrabold text-slate-300"><span className="rounded-full bg-white/10 px-2.5 py-1.5">٢٠ صح/خطأ</span><span className="rounded-full bg-white/10 px-2.5 py-1.5">٣٠ اختيارًا</span><span className="rounded-full bg-white/10 px-2.5 py-1.5">خطة مراجعة بعد النتيجة</span></div></div></a>
+      <a href="#exam-pilot" className="mt-5 block overflow-hidden rounded-3xl border border-violet-200 bg-slate-950 text-white shadow-[0_18px_45px_rgba(15,23,42,.08)] transition hover:-translate-y-0.5"><div className="p-5 sm:p-6"><div className="flex items-start gap-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200"><Target className="h-6 w-6" /></span><span className="min-w-0 flex-1"><small className="text-[10px] font-extrabold text-violet-300">متاح الآن · داخل الموقع</small><strong className="mt-1 block text-lg font-black leading-8">محاكاة الرياضيات</strong><span className="mt-1 block text-xs font-medium leading-6 text-slate-300">نماذج من ٥٠ سؤالًا · ٨٠ درجة · ساعة عند اختيار المؤقت · حفظ واستكمال · تحليل وتوجيه بعد التسليم.</span></span><ChevronLeft className="mt-4 h-5 w-5 text-violet-300" /></div><div className="mt-4 flex flex-wrap gap-2 text-[9px] font-extrabold text-slate-300"><span className="rounded-full bg-white/10 px-2.5 py-1.5">٢٠ صح/خطأ</span><span className="rounded-full bg-white/10 px-2.5 py-1.5">٣٠ اختيارًا</span><span className="rounded-full bg-white/10 px-2.5 py-1.5">خطة مراجعة بعد النتيجة</span></div></div></a>
       <div className="mt-6"><span className="text-[10px] font-extrabold text-slate-400">مصادر اختبارات إضافية — بعد المحاكاة</span><div className="mt-2 overflow-hidden rounded-3xl border border-slate-200 bg-white">{examChannels.map((channel) => <a key={channel.url} href={channel.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 border-b border-slate-100 p-4 text-right last:border-0 hover:bg-slate-50 sm:p-5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700"><FileQuestion className="h-4.5 w-4.5" /></span><span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-amber-700">{channel.badge}</small><strong className="block text-sm font-black leading-6 text-slate-950">{channel.title}</strong><span className="mt-1 block text-xs font-medium leading-5 text-slate-500">{channel.handle} · {channel.detail}</span></span><ExternalLink className="h-4 w-4 text-slate-300" /></a>)}</div></div>
     </div>
   );
@@ -327,12 +324,26 @@ function PageHeading({ title, description }: { title: string; description: strin
 
 function DeveloperFooter() {
   return (
-    <footer className="mt-8 border-t border-slate-200 bg-white px-4 py-8 sm:px-6"><div className="mx-auto max-w-5xl"><a href="https://alharethprofilo.netlify.app/" target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-100"><img src={PROFILE_IMAGE_URL} alt="الحارث الداهية" loading="lazy" decoding="async" className="h-12 w-12 rounded-2xl object-cover" /><span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-violet-700">تصميم وتطوير</small><strong className="block text-sm font-black text-slate-950">الحارث الداهية</strong><span className="block text-[10px] font-medium text-slate-500">زيارة الموقع الشخصي والملف التعريفي</span></span><ExternalLink className="h-4 w-4 text-slate-300" /></a><div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">{socialLinks.map((social) => { const Icon = social.icon; const email = social.href.startsWith("mailto:"); return <a key={social.label} href={social.href} target={email ? undefined : "_blank"} rel={email ? undefined : "noreferrer"} className="flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 text-[10px] font-extrabold text-slate-600 hover:border-violet-200 hover:text-violet-700"><Icon className="h-3.5 w-3.5" />{social.label}</a>; })}</div><p className="mt-5 text-center text-[10px] font-medium leading-5 text-slate-400">ابدأ بالفهم والمحاكاة، واستخدم المصادر عندما تحتاجها · دليل الثالث الثانوي اليمني</p></div></footer>
+    <footer className="mt-8 border-t border-slate-200 bg-white px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-5xl">
+        <h2 className="text-lg font-black text-slate-950">من نحن</h2>
+        <p className="mt-1 max-w-2xl text-xs font-medium leading-6 text-slate-500">دليل تعليمي يساعد طالب الثالث الثانوي اليمني على الوصول إلى شرح واضح، محاكاة مفيدة، ومصادر مرتبة دون تشتيت.</p>
+
+        <a href="https://alharethprofilo.netlify.app/" target="_blank" rel="noreferrer" className="mt-4 flex items-center gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-100">
+          <img src={PROFILE_IMAGE_URL} alt="الحارث الداهية" loading="lazy" decoding="async" className="h-12 w-12 rounded-2xl object-cover" />
+          <span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-violet-700">تصميم وتطوير</small><strong className="block text-sm font-black text-slate-950">الحارث الداهية</strong><span className="block text-[10px] font-medium leading-5 text-slate-500">زيارة الموقع الشخصي والملف التعريفي</span></span>
+          <ExternalLink className="h-4 w-4 shrink-0 text-slate-300" />
+        </a>
+
+        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">{socialLinks.map((social) => { const Icon = social.icon; const email = social.href.startsWith("mailto:"); return <a key={social.label} href={social.href} target={email ? undefined : "_blank"} rel={email ? undefined : "noreferrer"} className="flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-2 text-[10px] font-extrabold text-slate-600 hover:border-violet-200 hover:text-violet-700"><Icon className="h-3.5 w-3.5" />{social.label}</a>; })}</div>
+        <p className="mt-5 text-center text-[10px] font-medium leading-5 text-slate-400">ابدأ بالفهم والمحاكاة، واستخدم المصادر عندما تحتاجها · دليل الثالث الثانوي اليمني</p>
+      </div>
+    </footer>
   );
 }
 
 function MobileTabs({ view, onNavigate }: { view: View; onNavigate: (view: View) => void }) {
-  return <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-slate-200 bg-white/98 px-1 pb-[max(6px,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgba(15,23,42,.08)] backdrop-blur-xl md:hidden" aria-label="أقسام الموقع"><MobileTab icon={Home} label="الرئيسية" active={view === "home"} onClick={() => onNavigate("home")} /><MobileTab icon={Sparkles} label="البرومبتات" active={view === "prompts"} onClick={() => onNavigate("prompts")} /><MobileTab icon={Target} label="المحاكاة" active={view === "exams"} onClick={() => onNavigate("exams")} /><MobileTab icon={BookOpenCheck} label="المصادر" active={view === "resources"} onClick={() => onNavigate("resources")} /><MobileTab icon={Library} label="المواد" active={view === "subjects"} onClick={() => onNavigate("subjects")} /></nav>;
+  return <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-slate-200 bg-white/98 px-1 pb-[max(6px,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgba(15,23,42,.08)] backdrop-blur-xl md:hidden" aria-label="أقسام الموقع"><MobileTab icon={Home} label="الرئيسية" active={view === "home"} onClick={() => onNavigate("home")} /><MobileTab icon={Sparkles} label="أوامر" active={view === "prompts"} onClick={() => onNavigate("prompts")} /><MobileTab icon={Target} label="المحاكاة" active={view === "exams"} onClick={() => onNavigate("exams")} /><MobileTab icon={BookOpenCheck} label="المصادر" active={view === "resources"} onClick={() => onNavigate("resources")} /><MobileTab icon={Library} label="المواد" active={view === "subjects"} onClick={() => onNavigate("subjects")} /></nav>;
 }
 
 function MobileTab({ icon: Icon, label, active, onClick }: { icon: IconType; label: string; active: boolean; onClick: () => void }) {

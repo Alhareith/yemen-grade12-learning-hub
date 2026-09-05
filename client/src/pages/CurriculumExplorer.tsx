@@ -2,18 +2,16 @@ import { useMemo, useState } from "react";
 import {
   ArrowRight,
   BookOpenCheck,
-  BrainCircuit,
-  CheckCircle2,
   ChevronLeft,
   Copy,
   ExternalLink,
   Layers3,
   Library,
   Sigma,
-  Target,
 } from "lucide-react";
 import { curriculumGraph, curriculumIndex } from "@/data/curriculum";
 import { selfStudyPrompts } from "@/data/promptCatalog";
+import { buildArabicOutputPolicy } from "@shared/prompts/arabic-output-policy";
 
 const explainPrompt = selfStudyPrompts.find((prompt) => prompt.id === "rebuild-from-zero") ?? selfStudyPrompts[0];
 
@@ -68,13 +66,27 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
 
   const copySkillPrompt = async () => {
     if (!skillContext || !explainPrompt) return;
-    const prompt = explainPrompt.build({
+    const basePrompt = explainPrompt.build({
       subject: skillContext.subject.title,
       unit: skillContext.unit.title,
       lesson: skillContext.lesson.title,
       input: skillContext.skill.title,
     });
-    await navigator.clipboard.writeText(prompt);
+    const prompt = `${basePrompt}\n\n${buildArabicOutputPolicy(skillContext.subject.title)}`;
+
+    try {
+      await navigator.clipboard.writeText(prompt);
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = prompt;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   };
@@ -94,7 +106,7 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
         <section className="mt-4 overflow-hidden rounded-[28px] bg-slate-950 p-5 text-white sm:p-7">
           <span className="text-[10px] font-extrabold text-violet-300">ابدأ من مكانك الحقيقي في المنهج</span>
           <h1 className="mt-2 text-2xl font-black leading-10 sm:text-3xl">المادة ← الوحدة ← الدرس ← المهارة</h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-slate-300">اختر ما تدرسه، وسيجمع لك الموقع المصادر والبرومبتات والأسئلة والمحاكاة المرتبطة بهذه المهارة فقط. إذا لم توجد أسئلة بعد، سيظهر ذلك بوضوح.</p>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-slate-300">اختر ما تدرسه، وسيعرض لك الموقع أمرًا جاهزًا للشرح والمصادر المرتبطة بهذه المهارة بوضوح.</p>
         </section>
 
         <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
@@ -145,55 +157,41 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
               <StepTitle number="٤" title="اختر المهارة" />
               <div className="mt-3 grid gap-2 sm:grid-cols-2">
                 {skills.map((skill) => (
-                  <button key={skill.id} data-curriculum-skill={skill.id} type="button" onClick={() => { setSkillId(skill.id); setCopied(false); }} className={`rounded-2xl border p-3 text-right ${activeSkill?.id === skill.id ? "border-violet-300 bg-violet-50" : "border-slate-200 bg-white"}`}>
-                    <small className="text-[9px] font-extrabold text-slate-400">{skill.id}</small>
-                    <strong className="mt-1 block text-xs font-black leading-6 text-slate-950">{skill.title}</strong>
+                  <button key={skill.id} data-curriculum-skill={skill.id} type="button" onClick={() => { setSkillId(skill.id); setCopied(false); }} className={`rounded-2xl border p-3.5 text-right ${activeSkill?.id === skill.id ? "border-violet-300 bg-violet-50" : "border-slate-200 bg-white"}`}>
+                    <strong className="block text-sm font-black leading-7 text-slate-950">{skill.title}</strong>
                   </button>
                 ))}
               </div>
             </section>
 
             {skillContext && (
-              <section className="overflow-hidden rounded-3xl border border-violet-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,.06)]">
+              <section data-skill-detail className="overflow-hidden rounded-3xl border border-violet-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,.06)]">
                 <div className="bg-violet-50 p-4 sm:p-5">
                   <div className="flex items-start gap-3">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-700 text-white"><Sigma className="h-5 w-5" /></span>
                     <span className="min-w-0 flex-1">
-                      <small className="text-[9px] font-extrabold text-violet-700">{skillContext.subject.title} · {skillContext.unit.title}</small>
-                      <strong className="mt-1 block text-base font-black leading-7 text-slate-950">{skillContext.skill.title}</strong>
-                      <span className="mt-1 block text-[11px] font-bold text-slate-500">الدرس: {skillContext.lesson.title}</span>
+                      <small className="block text-[10px] font-extrabold leading-5 text-violet-700">{skillContext.subject.title} · {skillContext.unit.title}</small>
+                      <strong className="mt-1 block text-lg font-black leading-8 text-slate-950">{skillContext.skill.title}</strong>
+                      <span className="mt-1 block text-xs font-bold leading-6 text-slate-500">الدرس: {skillContext.lesson.title}</span>
                     </span>
                   </div>
                 </div>
 
                 <div className="p-4 sm:p-5">
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                    <Metric icon={BookOpenCheck} value={skillContext.sources.length} label="مصادر" />
-                    <Metric icon={BrainCircuit} value={skillContext.prompts.length} label="برومبتات" />
-                    <Metric icon={CheckCircle2} value={skillContext.questions.length} label="أسئلة تقيسها" />
-                    <Metric icon={Target} value={skillContext.simulations.length} label="محاكاة" />
-                  </div>
+                  <p className="text-xs font-medium leading-6 text-slate-500">الأمر يضيف المادة والوحدة والدرس والمهارة تلقائيًا، ويطلب شرحًا عربيًا منسقًا يناسب الثالث الثانوي.</p>
 
-                  <button type="button" onClick={copySkillPrompt} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white">
-                    <Copy className="h-4 w-4" /> {copied ? "تم نسخ برومبت الشرح" : "انسخ برومبت لشرح هذه المهارة"}
+                  <button data-skill-prompt-action type="button" onClick={copySkillPrompt} className={`mt-4 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl px-4 text-center text-sm font-black text-white ${copied ? "bg-emerald-600" : "bg-violet-700"}`}>
+                    <Copy className="h-4 w-4 shrink-0" /> {copied ? "تم نسخ الأمر" : "انسخ الأمر واسأل به أي ذكاء اصطناعي"}
                   </button>
 
-                  {skillContext.simulations.length > 0 ? (
-                    <a href="#exam-pilot" className="mt-2 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-xs font-black text-white">
-                      <Target className="h-4 w-4" /> اختبر هذه المهارة داخل المحاكاة
-                    </a>
-                  ) : (
-                    <div className="mt-2 rounded-2xl bg-slate-50 p-3 text-center text-[10px] font-bold leading-5 text-slate-500">لا توجد محاكاة تقيس هذه المهارة حاليًا؛ لن نعرض اختبارًا غير موجود.</div>
-                  )}
-
-                  <div className="mt-5">
-                    <span className="text-[10px] font-extrabold text-slate-400">مصادر مرتبطة بهذه المهارة</span>
+                  <div className="mt-6">
+                    <span className="text-[11px] font-extrabold text-slate-400">مصادر مرتبطة بهذه المهارة</span>
                     <div className="mt-2 space-y-2">
                       {skillContext.sources.slice(0, 6).map((source) => (
-                        <a key={source.id} href={source.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3 text-right hover:bg-slate-50">
+                        <a key={source.id} href={source.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3.5 text-right hover:bg-slate-50">
                           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><BookOpenCheck className="h-4 w-4" /></span>
-                          <span className="min-w-0 flex-1"><strong className="block text-xs font-black leading-6 text-slate-900">{source.title}</strong><small className="text-[9px] font-bold text-slate-400">{source.kind === "simulation-source" ? "مرجع المحاكاة" : "مصدر تعلّم"}</small></span>
-                          <ExternalLink className="h-4 w-4 text-slate-300" />
+                          <span className="min-w-0 flex-1"><strong className="block text-sm font-black leading-7 text-slate-900">{source.title}</strong><small className="mt-0.5 block text-[10px] font-bold leading-5 text-slate-400">{source.kind === "simulation-source" ? "مرجع المحاكاة" : "مصدر تعلّم"}</small></span>
+                          <ExternalLink className="h-4 w-4 shrink-0 text-slate-300" />
                         </a>
                       ))}
                     </div>
@@ -210,8 +208,4 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
 
 function StepTitle({ number, title }: { number: string; title: string }) {
   return <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-950 text-[10px] font-black text-white">{number}</span><strong className="text-sm font-black text-slate-950">{title}</strong></div>;
-}
-
-function Metric({ icon: Icon, value, label }: { icon: typeof BookOpenCheck; value: number; label: string }) {
-  return <div className="rounded-2xl bg-slate-50 p-3 text-center"><Icon className="mx-auto h-4 w-4 text-violet-700" /><strong className="mt-1 block text-lg font-black text-slate-950">{value}</strong><small className="text-[9px] font-extrabold text-slate-500">{label}</small></div>;
 }

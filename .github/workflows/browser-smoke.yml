@@ -54,7 +54,7 @@ jobs:
           cat /tmp/yemen-grade12-preview.log
           exit 1
 
-      - name: Verify curriculum navigation and both math models
+      - name: Verify mobile prompts, curriculum and both math models
         run: |
           cd /tmp/yemen-grade12-browser-smoke
           node --input-type=module <<'NODE'
@@ -62,9 +62,10 @@ jobs:
           import { chromium } from "playwright-core";
 
           const baseUrl = "http://127.0.0.1:4173/";
+          const promptEvidencePath = `${process.env.GITHUB_WORKSPACE}/prompt-mobile-smoke.png`;
+          const curriculumEvidencePath = `${process.env.GITHUB_WORKSPACE}/curriculum-smoke.png`;
           const exam1EvidencePath = `${process.env.GITHUB_WORKSPACE}/exam-model-1-smoke.png`;
           const exam2EvidencePath = `${process.env.GITHUB_WORKSPACE}/exam-model-2-smoke.png`;
-          const curriculumEvidencePath = `${process.env.GITHUB_WORKSPACE}/curriculum-smoke.png`;
           const localFailures = [];
           const pageErrors = [];
           const consoleErrors = [];
@@ -81,10 +82,38 @@ jobs:
           await page.getByText("دليل الثالث", { exact: false }).first().waitFor();
           assert.equal(await page.locator("html").getAttribute("dir"), "rtl");
 
-          await page.locator('a[href="#curriculum"]').first().click();
+          assert.equal(await page.getByText("من نحن", { exact: true }).count(), 1, "Expected footer heading");
+          assert.equal(await page.getByText("GitHub", { exact: true }).count(), 0, "GitHub footer link should be removed");
+          assert.equal(await page.getByText("Hugging Face", { exact: true }).count(), 0, "Hugging Face footer link should be removed");
+
+          await page.getByRole("button", { name: "أوامر", exact: true }).click();
+          await page.getByRole("heading", { name: "أوامر اسأل بها أي ذكاء اصطناعي متوفر لديك" }).waitFor();
+          assert.equal(await page.getByText("لا تحتاج كتابة اسم الدرس.", { exact: true }).count(), 0, "Old lesson-name notice should be removed");
+          assert.equal(await page.getByText("الرياضيات مضبوطة بالعربي.", { exact: true }).count(), 0, "Old math notice should be removed");
+
+          await page.getByText("اشرح الدرس من الصفر", { exact: true }).click();
+          await page.locator("[data-generated-prompt]").waitFor();
+          const generatedPrompt = await page.locator("[data-generated-prompt]").innerText();
+          assert.ok(generatedPrompt.includes("تنسيق العرض مثل الكتاب المدرسي"), "Expected school-book formatting policy in copied command");
+          assert.ok(generatedPrompt.includes("اختر طريقة الشرح التي تناسبك"), "Expected depth-choice policy in copied command");
+          assert.ok(generatedPrompt.includes("١. مرة واحدة"), "Expected one-response option");
+          assert.ok(generatedPrompt.includes("٢. خطوة بخطوة بعمق أكبر"), "Expected deep step-by-step option");
+          assert.ok(generatedPrompt.includes("٣. خطوات قليلة مكتملة ومتدرجة"), "Expected grouped-steps option");
+          assert.ok(generatedPrompt.includes("٤. شرح مركز ثم مثال"), "Expected focused-example option");
+          assert.ok(generatedPrompt.includes("إذا كان المطلوب صغيرًا أو مباشرًا"), "Expected direct response rule for small topics");
+          await page.screenshot({ path: promptEvidencePath, fullPage: false });
+
+          await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-curriculum-explorer]").waitFor();
           const skillCount = await page.locator("[data-curriculum-skill]").count();
           assert.ok(skillCount > 0, "Expected visible curriculum skills");
+          await page.locator("[data-skill-detail]").waitFor();
+          await page.locator("[data-skill-prompt-action]").waitFor();
+          assert.equal(await page.locator("[data-skill-detail]").getByText("برومبتات", { exact: true }).count(), 0, "Skill metric dashboard should be removed");
+          assert.equal(await page.locator("[data-skill-detail]").getByText("محاكاة", { exact: true }).count(), 0, "Skill simulation metric/action should be removed");
+          assert.equal(await page.getByText("اختبر هذه المهارة داخل المحاكاة", { exact: true }).count(), 0, "Per-skill exam action should be removed");
+          assert.equal(await page.getByText("CPLX-NUMBER-USE", { exact: true }).count(), 0, "Technical skill id should not be student-visible");
+          assert.ok((await page.locator("[data-skill-prompt-action]").innerText()).includes("انسخ الأمر واسأل به أي ذكاء اصطناعي"));
           await page.screenshot({ path: curriculumEvidencePath, fullPage: false });
 
           await page.goto(`${baseUrl}#exam-pilot`, { waitUntil: "domcontentloaded" });
@@ -121,7 +150,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, curriculumRoute: true, skillCount, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, promptRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, skillDashboardRemoved: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 
@@ -131,8 +160,9 @@ jobs:
         with:
           name: browser-smoke-evidence
           path: |
+            prompt-mobile-smoke.png
+            curriculum-smoke.png
             exam-model-1-smoke.png
             exam-model-2-smoke.png
-            curriculum-smoke.png
           if-no-files-found: ignore
           retention-days: 14
