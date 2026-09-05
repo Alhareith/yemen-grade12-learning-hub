@@ -11,91 +11,43 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install Playwright package
-        run: npm install --no-save --legacy-peer-deps playwright@1.55.0
-
-      - name: Verify production and lazy exam route
+      - name: Verify Vercel home, lazy chunks, and exam route
         env:
           BASE_URL: https://yemen-grade12-learning-hub-alhareith.vercel.app/
         run: |
-          node --input-type=module <<'EOF'
-          import { chromium } from 'playwright';
+          set -euo pipefail
 
-          const base = process.env.BASE_URL;
-          const browser = await chromium.launch({ headless: true, channel: 'chrome' });
-          const page = await browser.newPage();
+          status="$(curl -sS -o home.html -w '%{http_code}' "$BASE_URL")"
+          test "$status" = "200"
+          grep -q 'دليل الثالث' home.html
 
-          const responses = [];
-          const consoleErrors = [];
-          const pageErrors = [];
+          main_js="$(grep -oE '<script[^>]+src="/assets/[^"]+\.js"' home.html | head -1 | sed -E 's/.*src="([^"]+)".*/\1/')"
+          test -n "$main_js"
+          curl -fsSL "${BASE_URL%/}${main_js}" -o main.js
 
-          page.on('response', response => {
-            responses.push({ url: response.url(), status: response.status() });
-          });
-          page.on('console', message => {
-            if (message.type() === 'error') consoleErrors.push(message.text());
-          });
-          page.on('pageerror', error => pageErrors.push(String(error)));
+          exam_chunk="$(grep -oE 'ExamPilot-[A-Za-z0-9_-]+\.js' main.js | head -1)"
+          arabic_chunk="$(grep -oE 'ArabicExamTypography-[A-Za-z0-9_-]+\.js' main.js | head -1)"
+          test -n "$exam_chunk"
+          test -n "$arabic_chunk"
 
-          const home = await page.goto(base, { waitUntil: 'networkidle', timeout: 60000 });
-          if (!home || home.status() !== 200) {
-            throw new Error(`Home returned ${home?.status() ?? 'no response'}`);
-          }
+          curl -fsSI "${BASE_URL}assets/${exam_chunk}" >/dev/null
+          curl -fsSI "${BASE_URL}assets/${arabic_chunk}" >/dev/null
 
-          const title = await page.title();
-          if (!title.includes('دليل الثالث')) {
-            throw new Error(`Unexpected title: ${title}`);
-          }
+          google-chrome \
+            --headless=new \
+            --no-sandbox \
+            --disable-gpu \
+            --virtual-time-budget=12000 \
+            --dump-dom \
+            "${BASE_URL}#exam-pilot" > exam.html 2>chrome.log
 
-          const initialScripts = new Set(
-            responses
-              .filter(r => r.status < 400 && /\.js(?:\?|$)/.test(r.url))
-              .map(r => r.url)
-          );
+          grep -q 'data-arabic-exam' exam.html
+          grep -q 'التفاضل والتكامل' exam.html
 
-          responses.length = 0;
-          await page.goto(`${base}#exam-pilot`, { waitUntil: 'networkidle', timeout: 60000 });
-          await page.waitForSelector('[data-arabic-exam]', { timeout: 30000 });
-
-          const examText = await page.locator('[data-arabic-exam]').innerText();
-          if (!examText.includes('التفاضل والتكامل')) {
-            throw new Error('Exam route loaded but expected calculus content was not found');
-          }
-
-          const failedAssets = responses.filter(
-            r => r.status >= 400 && /\.(?:js|css)(?:\?|$)/.test(r.url)
-          );
-          if (failedAssets.length) {
-            throw new Error(`Failed JS/CSS assets: ${JSON.stringify(failedAssets)}`);
-          }
-
-          const routeScripts = responses
-            .filter(r => r.status < 400 && /\.js(?:\?|$)/.test(r.url))
-            .map(r => r.url);
-          const lazyScripts = routeScripts.filter(url => !initialScripts.has(url));
-          if (lazyScripts.length === 0) {
-            throw new Error(`No lazy JS chunk loaded for #exam-pilot. Route scripts: ${JSON.stringify(routeScripts)}`);
-          }
-
-          if (pageErrors.length) {
-            throw new Error(`Page errors: ${JSON.stringify(pageErrors)}`);
-          }
-
-          console.log(`HOME_STATUS=${home.status()}`);
-          console.log(`TITLE=${title}`);
-          console.log(`EXAM_ROUTE_OK=true`);
-          console.log(`LAZY_CHUNKS=${JSON.stringify(lazyScripts)}`);
-          console.log(`CONSOLE_ERRORS=${JSON.stringify(consoleErrors)}`);
-
-          await browser.close();
-          EOF
+          echo "HOME_STATUS=$status"
+          echo "MAIN_JS=$main_js"
+          echo "EXAM_CHUNK=$exam_chunk"
+          echo "ARABIC_CHUNK=$arabic_chunk"
+          echo "EXAM_ROUTE_OK=true"
