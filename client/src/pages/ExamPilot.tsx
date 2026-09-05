@@ -1,10 +1,11 @@
 import { ArrowRight, CheckCircle2, ExternalLink, FileCheck2, ShieldAlert } from "lucide-react";
 import ExamRunner from "@/components/ExamRunner";
+import { curriculumSkillIds } from "@/data/curriculum";
 import { pilotCalculusExam, pilotExamReferences } from "@/data/exams/pilotExam";
 import { isExamReadyForStudents } from "@shared/exams/exam-model";
 
 export default function ExamPilot({ onBack }: { onBack: () => void }) {
-  const ready = isExamReadyForStudents(pilotCalculusExam);
+  const ready = isExamReadyForStudents(pilotCalculusExam, curriculumSkillIds);
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#f5f6fa] px-4 py-5 font-sans text-slate-950 sm:px-6 sm:py-8">
