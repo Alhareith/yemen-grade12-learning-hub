@@ -42,7 +42,7 @@ export function makeAgpQuestion(spec: AgpQuestionSpec): ExamQuestion {
       correctOptionId: spec.correctOptionId,
       points: spec.type === "true-false" ? 1 : 2,
       answerEvidence: {
-        type: "independent-verification",
+        type: "published-solution",
         sourceUrl: agpExamProvenance.publishedSolution.url,
         locator: `النموذج الوزاري 2024 رقم (1) — السؤال ${spec.order} — الحل المنشور للنموذج نفسه`,
       },
