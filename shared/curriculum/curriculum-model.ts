@@ -198,7 +198,7 @@ export function validateCurriculumGraph(graph: CurriculumGraph): string[] {
   const skills = new Map(graph.skills.map((item) => [item.id, item]));
   const sources = new Map(graph.sources.map((item) => [item.id, item]));
   const questions = indexUnique(graph.questions, "questions", errors);
-  const simulations = indexUnique(graph.simulations, "simulations", errors);
+  indexUnique(graph.simulations, "simulations", errors);
   const simulationsByExamId = new Map<string, CurriculumSimulationLink>();
 
   graph.simulations.forEach((simulation) => {
@@ -384,7 +384,7 @@ function requireText(value: string, path: string, errors: string[]) {
 }
 
 function uniqueIds(ids: string[]) {
-  return [...new Set(ids)];
+  return Array.from(new Set(ids));
 }
 
 function isDefined<T>(value: T | undefined): value is T {
