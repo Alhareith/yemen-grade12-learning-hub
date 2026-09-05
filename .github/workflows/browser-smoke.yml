@@ -35,8 +35,12 @@ jobs:
       - name: Build Vercel-style static output
         run: GITHUB_ACTIONS=false pnpm build
 
-      - name: Install browser driver only for smoke verification
-        run: npm install --no-save --legacy-peer-deps playwright-core
+      - name: Install isolated browser driver for smoke verification
+        run: |
+          mkdir -p /tmp/yemen-grade12-browser-smoke
+          cd /tmp/yemen-grade12-browser-smoke
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
 
       - name: Start production preview
         run: |
@@ -52,11 +56,13 @@ jobs:
 
       - name: Verify home and protected exam presentation
         run: |
+          cd /tmp/yemen-grade12-browser-smoke
           node --input-type=module <<'NODE'
           import assert from "node:assert/strict";
           import { chromium } from "playwright-core";
 
           const baseUrl = "http://127.0.0.1:4173/";
+          const evidencePath = `${process.env.GITHUB_WORKSPACE}/exam-question-smoke.png`;
           const localFailures = [];
           const pageErrors = [];
           const consoleErrors = [];
@@ -101,7 +107,7 @@ jobs:
           assert.ok(mathCount > 0, "Expected MathML in the first displayed calculus question");
           assert.ok(enhancedMathCount > 0, "Expected Arabic math enhancement to remain active");
 
-          await page.screenshot({ path: "exam-question-smoke.png", fullPage: false });
+          await page.screenshot({ path: evidencePath, fullPage: false });
 
           assert.deepEqual(localFailures, [], `Local asset failures: ${localFailures.join(" | ")}`);
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
