@@ -21,10 +21,8 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install Playwright
-        run: |
-          npm install --no-save --legacy-peer-deps playwright@1.55.0
-          npx playwright install --with-deps chromium
+      - name: Install Playwright package
+        run: npm install --no-save --legacy-peer-deps playwright@1.55.0
 
       - name: Verify production and lazy exam route
         env:
@@ -34,7 +32,7 @@ jobs:
           import { chromium } from 'playwright';
 
           const base = process.env.BASE_URL;
-          const browser = await chromium.launch({ headless: true });
+          const browser = await chromium.launch({ headless: true, channel: 'chrome' });
           const page = await browser.newPage();
 
           const responses = [];
