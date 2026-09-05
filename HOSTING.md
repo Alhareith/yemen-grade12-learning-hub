@@ -3,7 +3,9 @@
 ## الروابط العامة
 
 - الرابط الأساسي (GitHub Pages): https://alhareith.github.io/yemen-grade12-learning-hub/
-- الرابط البديل لليمن (Vercel): https://yemen-grade12-learning-hub-alhareith.vercel.app/
+- الرابط البديل العام لليمن (Vercel): https://yemen-grade12-learning-hub.vercel.app/
+
+> ملاحظة: النطاق `https://yemen-grade12-learning-hub-alhareith.vercel.app/` محمي حاليًا بواسطة Vercel Authentication ويحوّل الزائر غير المسجل إلى تسجيل دخول Vercel، لذلك لا يُستخدم كرابط عام للطلاب.
 
 ## سبب وجود رابط بديل
 
@@ -16,6 +18,10 @@
 - إعداد Vercel: Framework = `Vite`، Root Directory = `.`، Build Command = `pnpm exec vite build`، Output Directory = `dist/public`.
 - عند البناء خارج GitHub Actions يستخدم Vite base بقيمة `/`، لذلك تعمل أصول Vercel من جذر النطاق مباشرة.
 - لا يعتمد نشر Vercel على Proxy أو Rewrite إلى GitHub Pages.
+
+## التحقق الإنتاجي
+
+تم التحقق من أن الرابط العام على Vercel يعيد HTTP 200، وأن حزم المحاكاة المحملة عند الطلب تستجيب بنجاح، وأن المسار `#exam-pilot` يفتح محاكاة التفاضل والتكامل بعد تنفيذ JavaScript في متصفح حقيقي.
 
 ## الأداء
 
