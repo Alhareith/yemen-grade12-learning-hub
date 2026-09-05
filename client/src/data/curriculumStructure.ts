@@ -123,7 +123,7 @@ const units: CurriculumUnit[] = unitExpansions.map((unit) => {
     subjectId: unit.subjectId,
     title: unit.title,
     mappingStatus: id === MATH_CALCULUS_UNIT_ID ? "lesson-skill" : "unit-only",
-    lessonIds: id === MATH_CALCULUS_UNIT_ID ? [...calculusLessonIds] : [],
+    lessonIds: id === MATH_CALCULUS_UNIT_ID ? Array.from(calculusLessonIds) : [],
     sourceIds: unit.links.map((_, index) => unitLinkSourceId(id, index)),
     promptIds: [],
   };
