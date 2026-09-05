@@ -1,0 +1,3 @@
+backup branch: backup/pre-curriculum-ui-2026-09-05
+commit: 2ad5819d33a9f1c421bb68ba5678ebffd34ce348
+purpose: restore the exact production state before the student curriculum explorer UI was added.
