@@ -23,6 +23,7 @@ export const agpGeneralExam: ExamDefinition = {
 };
 
 export const agpExamReferences = {
+  curriculumSource: agpExamProvenance.questionReference.url,
   questionModel: agpExamProvenance.questionReference.url,
   publishedSolution: agpExamProvenance.publishedSolution.url,
   skillMap: "https://github.com/Alhareith/yemen-grade12-learning-hub/blob/main/research/curriculum/math-algebra-geometry-probability-skill-map.json",
