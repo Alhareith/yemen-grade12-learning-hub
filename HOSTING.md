@@ -7,12 +7,16 @@
 
 ## سبب وجود رابط بديل
 
-بعض شبكات المستخدمين قد تواجه مشكلة في الوصول إلى نطاق `github.io`. لذلك توجد مرآة إنتاجية على Vercel تعمل كمسار وصول مستقل للطالب، بينما يبقى GitHub Pages مصدر النشر الأساسي.
+بعض شبكات المستخدمين قد تواجه مشكلة في الوصول إلى نطاق `github.io`. لذلك توجد نسخة إنتاجية مستقلة على Vercel تعمل كمسار وصول بديل للطالب، مع بقاء GitHub Pages فعالًا بالتوازي.
+
+## طريقة النشر
+
+- GitHub Pages يبني المشروع من الفرع `main` باستخدام GitHub Actions، ويستخدم Vite base بقيمة `/yemen-grade12-learning-hub/`.
+- Vercel مرتبط مباشرة بالمستودع `Alhareith/yemen-grade12-learning-hub` ويبني المشروع نفسه من جذر المستودع.
+- إعداد Vercel: Framework = `Vite`، Root Directory = `.`، Build Command = `pnpm exec vite build`، Output Directory = `dist/public`.
+- عند البناء خارج GitHub Actions يستخدم Vite base بقيمة `/`، لذلك تعمل أصول Vercel من جذر النطاق مباشرة.
+- لا يعتمد نشر Vercel على Proxy أو Rewrite إلى GitHub Pages.
 
 ## الأداء
 
 تم فصل المحاكاة وطبقة تنسيق الرياضيات عن الحزمة الأولى وتحميلهما عند الطلب فقط، وإزالة Google Fonts من مسار الإقلاع. بعد التحسين هبطت الحزمة الرئيسية من نحو 316.67 kB إلى 140.46 kB قبل gzip، ومن 85.84 kB إلى 35.26 kB بعد gzip.
-
-## مزامنة المحتوى
-
-مرآة Vercel توجه الطلبات إلى النسخة المنشورة على GitHub Pages من جهة خوادم Vercel، بما في ذلك أصول المسار `/yemen-grade12-learning-hub/`. هذا يعني أن الطالب يتعامل مع نطاق Vercel ولا يحتاج جهازه إلى الاتصال المباشر بنطاق `github.io` أثناء استخدام رابط المرآة.
