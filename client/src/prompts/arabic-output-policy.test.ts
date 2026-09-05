@@ -16,7 +16,8 @@ describe("Arabic output policy", () => {
     expect(rule).toContain("cos→جتا");
     expect(rule).toContain("lim→نها");
     expect(rule).toContain("dx→دس");
-    expect(rule).toContain("لا تستخدم x أو y أو z أو i");
+    expect(rule).toContain("لا تستخدم x أو y أو f(x)");
+    expect(rule).toContain("ولا تستخدم z أو i");
     expect(rule).toContain("فحصًا صامتًا");
   });
 
