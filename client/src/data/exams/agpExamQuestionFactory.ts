@@ -1,24 +1,30 @@
-import type { ExamQuestion } from "@shared/exams/question-model";
+import type { ExamQuestion, QuestionOption, RichContent } from "@shared/exams/question-model";
 import { formulaOptions, math, parts, text } from "./pilotExamQuestionFactory";
 
 export { formulaOptions, math, parts, text };
 
 export const AGP_EXAM_ID = "MATH-AGP-GENERAL-MODEL-02";
 
-const trueFalseOptions = [
+const trueFalseOptions: QuestionOption[] = [
   { id: "T", label: "ص", content: text("صح") },
   { id: "F", label: "خ", content: text("خطأ") },
 ];
 
+export const textOptions = (...values: string[]): QuestionOption[] => values.map((value, index) => ({
+  id: String.fromCharCode(65 + index),
+  label: ["أ", "ب", "ج", "د"][index] ?? String(index + 1),
+  content: text(value),
+}));
+
 export type AgpQuestionSpec = {
   order: number;
   type: "true-false" | "single-choice";
-  stem: ReturnType<typeof text>;
-  options?: ReturnType<typeof formulaOptions>;
+  stem: RichContent;
+  options?: QuestionOption[];
   correctOptionId: string;
   skill: string;
   secondarySkills?: string[];
-  explanation: ReturnType<typeof text>;
+  explanation: RichContent;
   difficulty?: "unrated" | "easy" | "medium" | "hard";
 };
 
