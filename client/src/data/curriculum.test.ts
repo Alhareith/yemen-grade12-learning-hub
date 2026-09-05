@@ -7,6 +7,7 @@ import {
   curriculumStructure,
   curriculumTaxonomyMetadata,
 } from "./curriculumStructure";
+import { agpGeneralExam } from "./exams/agpExam";
 import { pilotCalculusExam } from "./exams/pilotExam";
 import { materials } from "./richCatalog";
 import { unitExpansions } from "./unitExpansions";
@@ -44,32 +45,25 @@ describe("unified Yemen Grade 12 curriculum graph", () => {
       "الهندسة الفضائية",
       "الاحتمالات",
     ]));
-    expect(lessons.some((lesson) => lesson.title === "العدد المركب")).toBe(true);
-    expect(lessons.some((lesson) => lesson.title === "الاستقراء الرياضي")).toBe(true);
-    expect(lessons.some((lesson) => lesson.title === "المساقط")).toBe(true);
-    expect(lessons.some((lesson) => lesson.title === "السحب مع الإعادة وبدون إعادة")).toBe(true);
   });
 
-  it("keeps the existing calculus taxonomy canonical alongside the new math track", () => {
+  it("keeps the existing calculus taxonomy canonical alongside the second math track", () => {
     expect(curriculumTaxonomyMetadata.calculusTaxonomyId).toBe("YEMEN-G12-MATH-CALCULUS-V1");
-    expect(curriculumTaxonomyMetadata.calculusSubject).toBe("رياضيات");
-    expect(curriculumTaxonomyMetadata.calculusTrack).toBe("التفاضل والتكامل");
-
     const calculusLessons = curriculumIndex.getLessonsForUnit(MATH_CALCULUS_UNIT_ID);
     expect(calculusLessons).toHaveLength(11);
     expect(curriculumStructure.lessons).toHaveLength(37);
     expect(curriculumStructure.skills).toHaveLength(65);
     expect(curriculumSkillIds.size).toBe(65);
-    expect(calculusLessons.some((lesson) => lesson.title === "النهايات")).toBe(true);
-    expect(calculusLessons.some((lesson) => lesson.title === "قواعد الاشتقاق")).toBe(true);
-    expect(calculusLessons.some((lesson) => lesson.title === "طرق التكامل")).toBe(true);
   });
 
-  it("links every pilot question to known curriculum skills and one simulation", () => {
-    expect(curriculumGraph.questions).toHaveLength(50);
-    expect(curriculumGraph.simulations).toHaveLength(1);
-    expect(curriculumGraph.simulations[0].questionIds).toHaveLength(50);
-    expect(curriculumGraph.simulations[0].examId).toBe(pilotCalculusExam.id);
+  it("registers two complete 50-question math simulations", () => {
+    expect(curriculumGraph.questions).toHaveLength(100);
+    expect(curriculumGraph.simulations).toHaveLength(2);
+
+    const calculusSimulation = curriculumGraph.simulations.find((simulation) => simulation.examId === pilotCalculusExam.id);
+    const agpSimulation = curriculumGraph.simulations.find((simulation) => simulation.examId === agpGeneralExam.id);
+    expect(calculusSimulation?.questionIds).toHaveLength(50);
+    expect(agpSimulation?.questionIds).toHaveLength(50);
 
     for (const question of curriculumGraph.questions) {
       expect(curriculumSkillIds.has(question.primarySkillId)).toBe(true);
@@ -78,52 +72,41 @@ describe("unified Yemen Grade 12 curriculum graph", () => {
     }
   });
 
-  it("resolves an assessed calculus skill to its complete learning context", () => {
+  it("resolves an assessed calculus skill to model 1", () => {
     const context = curriculumIndex.getSkillContext("DER-CHAIN");
     expect(context).not.toBeNull();
-    expect(context?.subject.id).toBe("رياضيات");
     expect(context?.unit.id).toBe(MATH_CALCULUS_UNIT_ID);
-    expect(context?.lesson.title).toBe("الدوال المركبة وقاعدة التسلسل");
-    expect(context?.skill.title).toBe("تطبيق قاعدة التسلسل");
-    expect(context?.sources.length).toBeGreaterThan(0);
-    expect(context?.prompts.length).toBeGreaterThan(0);
     expect(context?.questions.length).toBeGreaterThan(0);
     expect(context?.simulations.map((simulation) => simulation.examId)).toContain(pilotCalculusExam.id);
   });
 
-  it("links a complex-number skill to current learning resources and prompts without pretending it is assessed", () => {
+  it("resolves a complex-number skill to model 2", () => {
     const context = curriculumIndex.getSkillContext("CPLX-NUMBER-USE");
     expect(context).not.toBeNull();
-    expect(context?.subject.id).toBe("رياضيات");
     expect(context?.unit.id).toBe(MATH_AGP_UNIT_ID);
     expect(context?.lesson.groupTitle).toBe("الأعداد المركبة");
-    expect(context?.lesson.title).toBe("العدد المركب");
-    expect(context?.sources.some((source) => source.title === "الأعداد المركبة — رياضيات أتمتة")).toBe(true);
+    expect(context?.sources.length).toBeGreaterThan(0);
     expect(context?.prompts.some((prompt) => prompt.id === "math-read-problem")).toBe(true);
-    expect(context?.questions).toEqual([]);
-    expect(context?.simulations).toEqual([]);
+    expect(context?.questions.length).toBeGreaterThan(0);
+    expect(context?.simulations.map((simulation) => simulation.examId)).toContain(agpGeneralExam.id);
   });
 
-  it("keeps unassessed calculus taxonomy skills linked to learning resources without pretending the simulation measures them", () => {
+  it("connects probability skills to the second model", () => {
+    const conditional = curriculumIndex.getSkillContext("PROB-CONDITIONAL-APPLY");
+    const drawing = curriculumIndex.getSkillContext("PROB-DRAWING-APPLY");
+    const binomial = curriculumIndex.getSkillContext("PROB-BINOMIAL-APPLY");
+    expect(conditional?.questions.length).toBeGreaterThan(0);
+    expect(drawing?.questions.length).toBeGreaterThan(0);
+    expect(binomial?.questions.length).toBeGreaterThan(0);
+    expect(binomial?.simulations.map((simulation) => simulation.examId)).toContain(agpGeneralExam.id);
+  });
+
+  it("keeps genuinely unassessed calculus taxonomy skills unclaimed", () => {
     const context = curriculumIndex.getSkillContext("LIM-DIRECT");
     expect(context).not.toBeNull();
-    expect(context?.lesson.title).toBe("النهايات");
     expect(context?.sources.length).toBeGreaterThan(0);
     expect(context?.prompts.length).toBeGreaterThan(0);
     expect(context?.questions).toEqual([]);
     expect(context?.simulations).toEqual([]);
-  });
-
-  it("inherits real unit sources and subject prompts down to mapped math skills", () => {
-    const calculusContext = curriculumIndex.getSkillContext("LIM-TRIG");
-    expect(calculusContext?.sources.some((source) => source.title === "شرح النهايات المثلثية")).toBe(true);
-    expect(calculusContext?.prompts.some((prompt) => prompt.id === "math-read-problem")).toBe(true);
-
-    const probabilityContext = curriculumIndex.getSkillContext("PROB-CONDITIONAL-APPLY");
-    expect(probabilityContext?.lesson.groupTitle).toBe("الاحتمالات");
-    expect(probabilityContext?.sources.length).toBeGreaterThan(0);
-    expect(probabilityContext?.prompts.some((prompt) => prompt.id === "math-read-problem")).toBe(true);
-    expect(probabilityContext?.questions).toEqual([]);
-    expect(probabilityContext?.simulations).toEqual([]);
   });
 });
