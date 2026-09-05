@@ -1,21 +1,31 @@
 /**
  * Product shell — prompts and simulation are the primary student paths.
+ * Keep the first paint deliberately small; heavy exam code loads only on demand.
  */
-import { useEffect, useState } from "react";
-import ArabicExamTypography from "@/components/ArabicExamTypography";
-import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import ExamPilot from "./pages/ExamPilot";
 import HomeV4 from "./pages/HomeV4";
 import "./v2.css";
 import "./polish.css";
+
+const ExamPilot = lazy(() => import("./pages/ExamPilot"));
+const ArabicExamTypography = lazy(() => import("@/components/ArabicExamTypography"));
 
 type AppRoute = "home" | "exam-pilot";
 
 function readRoute(): AppRoute {
   return window.location.hash === "#exam-pilot" ? "exam-pilot" : "home";
+}
+
+function RouteLoading() {
+  return (
+    <div dir="rtl" className="flex min-h-[45vh] items-center justify-center px-4 text-center">
+      <div>
+        <span className="mx-auto block h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-700" />
+        <p className="mt-3 text-xs font-bold text-slate-500">جاري فتح المحاكاة…</p>
+      </div>
+    </div>
+  );
 }
 
 export default function App() {
@@ -35,19 +45,16 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <ThemeProvider defaultTheme="light">
-        <TooltipProvider>
-          {route === "exam-pilot" ? (
-            <div data-arabic-exam dir="rtl" lang="ar">
-              <ArabicExamTypography />
-              <ExamPilot onBack={goHome} />
-            </div>
-          ) : (
-            <HomeV4 />
-          )}
-          <Toaster position="top-center" richColors />
-        </TooltipProvider>
-      </ThemeProvider>
+      {route === "exam-pilot" ? (
+        <Suspense fallback={<RouteLoading />}>
+          <div data-arabic-exam dir="rtl" lang="ar">
+            <ArabicExamTypography />
+            <ExamPilot onBack={goHome} />
+          </div>
+        </Suspense>
+      ) : (
+        <HomeV4 />
+      )}
     </ErrorBoundary>
   );
 }
