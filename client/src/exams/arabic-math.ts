@@ -35,6 +35,10 @@ const IDENTIFIERS: Record<string, string> = {
   c: "ج",
   n: "ن",
   k: "ك",
+  r: "ر",
+  h: "هـ",
+  i: "ت",
+  z: "ع",
   e: "هـ",
   C: "ث",
   d: "د",
@@ -402,46 +406,42 @@ function tokenize(source: string): Token[] {
       continue;
     }
 
-    if (source.slice(index, index + 3) === "...") {
+    if (source.startsWith("...", index)) {
       tokens.push({ kind: "symbol", value: "..." });
       index += 3;
       continue;
     }
 
-    if (/[0-9]/.test(char)) {
-      let value = char;
-      index += 1;
-      while (index < source.length && /[0-9.]/.test(source[index])) {
-        value += source[index];
-        index += 1;
-      }
-      tokens.push({ kind: "number", value });
+    const numberMatch = source.slice(index).match(/^\d+(?:\.\d+)?/);
+    if (numberMatch) {
+      tokens.push({ kind: "number", value: numberMatch[0] });
+      index += numberMatch[0].length;
       continue;
     }
 
-    if (/[A-Za-z]/.test(char)) {
-      let value = char;
-      index += 1;
-      while (index < source.length && /[A-Za-z]/.test(source[index])) {
-        value += source[index];
-        index += 1;
-      }
-      tokens.push({ kind: "ident", value });
+    const identMatch = source.slice(index).match(/^[A-Za-z]+/);
+    if (identMatch) {
+      tokens.push({ kind: "ident", value: identMatch[0] });
+      index += identMatch[0].length;
       continue;
     }
 
-    if (/[\u0600-\u06FF]/.test(char) && char !== "،") {
-      let value = char;
-      index += 1;
-      while (index < source.length && /[\u0600-\u06FF\s]/.test(source[index]) && source[index] !== "،") {
-        value += source[index];
-        index += 1;
-      }
-      tokens.push({ kind: "arabic", value: value.trim() });
+    const arabicMatch = source.slice(index).match(/^[\u0600-\u06FF]+/);
+    if (arabicMatch) {
+      tokens.push({ kind: "arabic", value: arabicMatch[0] });
+      index += arabicMatch[0].length;
       continue;
     }
 
-    tokens.push({ kind: "symbol", value: char === "−" ? "-" : char });
+    const twoCharOperator = source.slice(index, index + 2);
+    if (["<=", ">=", "!=", "->"].includes(twoCharOperator)) {
+      const normalized = twoCharOperator === "<=" ? "≤" : twoCharOperator === ">=" ? "≥" : twoCharOperator === "!=" ? "≠" : "→";
+      tokens.push({ kind: "symbol", value: normalized });
+      index += 2;
+      continue;
+    }
+
+    tokens.push({ kind: "symbol", value: char });
     index += 1;
   }
 
@@ -450,78 +450,61 @@ function tokenize(source: string): Token[] {
 
 function startsPrimary(token: Token): boolean {
   if (token.kind === "number" || token.kind === "ident" || token.kind === "arabic") return true;
-  return ["(", "[", "{", "|", "√", "∫", "Σ", "π", "∞"].includes(token.value);
+  return ["(", "[", "{", "|", "√", "∫", "π", "∞", "Σ"].includes(token.value);
 }
 
 function normalizeOperator(value: string): string {
   if (value === "-") return "−";
-  if (value === ",") return "،";
+  if (value === "*") return "×";
   return value;
 }
 
 function localizeNumber(value: string): string {
-  return toArabicDigits(value).replace(/\./g, "٫");
-}
-
-function identifierNode(value: string, word = false): MathNode {
-  return { kind: "identifier", value, word };
-}
-
-function operator(value: string): MathNode {
-  return { kind: "operator", value };
+  return toArabicDigits(value).replace(".", "٫");
 }
 
 function textNode(value: string): MathNode {
   return { kind: "text", value };
 }
 
-function row(...nodes: MathNode[]): MathNode {
-  const children: MathNode[] = [];
-  for (let index = 0; index < nodes.length; index += 1) {
-    const node = nodes[index];
-    if (node.kind === "row") children.push(...node.children);
-    else children.push(node);
+function identifierNode(value: string): MathNode {
+  return { kind: "identifier", value };
+}
+
+function operator(value: string): MathNode {
+  return { kind: "operator", value };
+}
+
+function row(...children: MathNode[]): MathNode {
+  const flat: MathNode[] = [];
+  for (const child of children) {
+    if (child.kind === "row") flat.push(...child.children);
+    else flat.push(child);
   }
-  return { kind: "row", children };
+  return flat.length === 1 ? flat[0] : { kind: "row", children: flat };
 }
 
 function toMathML(node: MathNode): string {
   switch (node.kind) {
-    case "number":
-      return `<mn>${escapeXml(node.value)}</mn>`;
-    case "identifier":
-      return node.word
-        ? `<mtext class="arabic-math-word">${escapeXml(node.value)}</mtext>`
-        : `<mi mathvariant="normal">${escapeXml(node.value)}</mi>`;
-    case "operator":
-      return `<mo>${escapeXml(node.value)}</mo>`;
-    case "text":
-      return `<mtext>${escapeXml(node.value)}</mtext>`;
-    case "row":
-      return `<mrow>${node.children.map(toMathML).join("")}</mrow>`;
-    case "fraction":
-      return `<mfrac>${toMathML(node.numerator)}${toMathML(node.denominator)}</mfrac>`;
-    case "sup":
-      return `<msup>${toMathML(node.base)}${toMathML(node.exponent)}</msup>`;
-    case "sub":
-      return `<msub>${toMathML(node.base)}${toMathML(node.subscript)}</msub>`;
-    case "subsup":
-      return `<msubsup>${toMathML(node.base)}${toMathML(node.subscript)}${toMathML(node.superscript)}</msubsup>`;
-    case "root":
-      return `<msqrt>${toMathML(node.body)}</msqrt>`;
-    case "fenced":
-      return `<mrow><mo fence="true">${escapeXml(node.open)}</mo>${toMathML(node.body)}<mo fence="true">${escapeXml(node.close)}</mo></mrow>`;
-    case "absolute":
-      return `<mrow><mo fence="true">|</mo>${toMathML(node.body)}<mo fence="true">|</mo></mrow>`;
-    case "under":
-      return `<munder>${toMathML(node.base)}${toMathML(node.under)}</munder>`;
+    case "number": return `<mn>${escapeXml(node.value)}</mn>`;
+    case "identifier": return `<mi${node.word ? ' class="arabic-math-word"' : ""}>${escapeXml(node.value)}</mi>`;
+    case "operator": return `<mo>${escapeXml(node.value)}</mo>`;
+    case "text": return `<mtext>${escapeXml(node.value)}</mtext>`;
+    case "row": return `<mrow>${node.children.map(toMathML).join("")}</mrow>`;
+    case "fraction": return `<mfrac>${toMathML(node.numerator)}${toMathML(node.denominator)}</mfrac>`;
+    case "sup": return `<msup>${toMathML(node.base)}${toMathML(node.exponent)}</msup>`;
+    case "sub": return `<msub>${toMathML(node.base)}${toMathML(node.subscript)}</msub>`;
+    case "subsup": return `<msubsup>${toMathML(node.base)}${toMathML(node.subscript)}${toMathML(node.superscript)}</msubsup>`;
+    case "root": return `<msqrt>${toMathML(node.body)}</msqrt>`;
+    case "fenced": return `<mfenced open="${escapeXml(node.open)}" close="${escapeXml(node.close)}">${toMathML(node.body)}</mfenced>`;
+    case "absolute": return `<mrow><mo>|</mo>${toMathML(node.body)}<mo>|</mo></mrow>`;
+    case "under": return `<munder>${toMathML(node.base)}${toMathML(node.under)}</munder>`;
     case "integral": {
-      const integral = node.lower || node.upper
-        ? `<msubsup><mo largeop="true">∫</mo>${node.lower ? toMathML(node.lower) : "<mrow></mrow>"}${node.upper ? toMathML(node.upper) : "<mrow></mrow>"}</msubsup>`
-        : `<mo largeop="true">∫</mo>`;
-      const body = node.body ? toMathML(node.body) : "";
-      const differential = node.differential ? `<mspace width="0.18em"/>${toMathML(node.differential)}` : "";
-      return `<mrow>${integral}${body}${differential}</mrow>`;
+      let symbol = "<mo>∫</mo>";
+      if (node.lower && node.upper) symbol = `<msubsup><mo>∫</mo>${toMathML(node.lower)}${toMathML(node.upper)}</msubsup>`;
+      else if (node.lower) symbol = `<msub><mo>∫</mo>${toMathML(node.lower)}</msub>`;
+      else if (node.upper) symbol = `<msup><mo>∫</mo>${toMathML(node.upper)}</msup>`;
+      return `<mrow>${symbol}${node.body ? toMathML(node.body) : ""}${node.differential ? toMathML(node.differential) : ""}</mrow>`;
     }
   }
 }
@@ -531,6 +514,6 @@ function escapeXml(value: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&apos;");
 }
