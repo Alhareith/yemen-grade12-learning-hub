@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "taxonomyId": "YEMEN-G12-MATH-AGP-V1",
+  "subject": "رياضيات",
+  "track": "الجبر والهندسة والاحتمالات",
+  "granularity": "lesson-level",
+  "purpose": "إضافة خريطة موثقة لدروس الجزء غير التفاضلي من رياضيات الثالث الثانوي اليمني، مع مهارة واسعة واحدة لكل درس دون اختراع تفريعات أدق من فهرس الكتاب.",
+  "groups": [
+    {
+      "id": "AGP-COMPLEX",
+      "title": "الأعداد المركبة",
+      "topics": [
+        { "id": "CPLX-NUMBER", "title": "العدد المركب", "skills": [{ "id": "CPLX-NUMBER-USE", "title": "فهم وتمثيل العدد المركب", "prerequisites": [] }] },
+        { "id": "CPLX-ADD-SUB", "title": "جمع وطرح الأعداد المركبة", "skills": [{ "id": "CPLX-ADD-SUB-APPLY", "title": "إجراء جمع وطرح الأعداد المركبة", "prerequisites": ["CPLX-NUMBER-USE"] }] },
+        { "id": "CPLX-MUL-DIV", "title": "ضرب وقسمة الأعداد المركبة", "skills": [{ "id": "CPLX-MUL-DIV-APPLY", "title": "إجراء ضرب وقسمة الأعداد المركبة", "prerequisites": ["CPLX-NUMBER-USE"] }] },
+        { "id": "CPLX-POLAR", "title": "الصورة القطبية للعدد المركب", "skills": [{ "id": "CPLX-POLAR-USE", "title": "تمثيل العدد المركب بالصورة القطبية", "prerequisites": ["CPLX-NUMBER-USE"] }] },
+        { "id": "CPLX-POWERS-ROOTS", "title": "القوى والجذور", "skills": [{ "id": "CPLX-POWERS-ROOTS-APPLY", "title": "حساب القوى والجذور في الأعداد المركبة", "prerequisites": ["CPLX-POLAR-USE"] }] },
+        { "id": "CPLX-QUADRATIC", "title": "حل معادلات من الدرجة الثانية في م", "skills": [{ "id": "CPLX-QUADRATIC-SOLVE", "title": "حل معادلات الدرجة الثانية في مجموعة الأعداد المركبة", "prerequisites": ["CPLX-NUMBER-USE"] }] }
+      ]
+    },
+    {
+      "id": "AGP-COUNTING",
+      "title": "مبدأ العد ومبرهنة ذات الحدين",
+      "topics": [
+        { "id": "COUNT-PRINCIPLE", "title": "مبدأ العد", "skills": [{ "id": "COUNT-PRINCIPLE-APPLY", "title": "تطبيق مبدأ العد", "prerequisites": [] }] },
+        { "id": "COUNT-PERMUTATIONS", "title": "التباديل", "skills": [{ "id": "COUNT-PERMUTATIONS-APPLY", "title": "تطبيق التباديل", "prerequisites": ["COUNT-PRINCIPLE-APPLY"] }] },
+        { "id": "COUNT-COMBINATIONS", "title": "التوافيق", "skills": [{ "id": "COUNT-COMBINATIONS-APPLY", "title": "تطبيق التوافيق", "prerequisites": ["COUNT-PRINCIPLE-APPLY"] }] },
+        { "id": "COUNT-INDUCTION", "title": "الاستقراء الرياضي", "skills": [{ "id": "COUNT-INDUCTION-APPLY", "title": "استخدام الاستقراء الرياضي في البرهان", "prerequisites": [] }] },
+        { "id": "COUNT-BINOMIAL", "title": "مبرهنة ذات الحدين", "skills": [{ "id": "COUNT-BINOMIAL-APPLY", "title": "استخدام مبرهنة ذات الحدين", "prerequisites": ["COUNT-COMBINATIONS-APPLY"] }] }
+      ]
+    },
+    {
+      "id": "AGP-CONICS",
+      "title": "القطوع المخروطية",
+      "topics": [
+        { "id": "CONIC-PARABOLA", "title": "القطع المكافئ", "skills": [{ "id": "CONIC-PARABOLA-APPLY", "title": "حل مسائل القطع المكافئ", "prerequisites": [] }] },
+        { "id": "CONIC-ELLIPSE", "title": "القطع الناقص", "skills": [{ "id": "CONIC-ELLIPSE-APPLY", "title": "حل مسائل القطع الناقص", "prerequisites": [] }] },
+        { "id": "CONIC-HYPERBOLA", "title": "القطع الزائد", "skills": [{ "id": "CONIC-HYPERBOLA-APPLY", "title": "حل مسائل القطع الزائد", "prerequisites": [] }] },
+        { "id": "CONIC-TRANSLATION", "title": "انسحاب المحاور الإحداثية", "skills": [{ "id": "CONIC-TRANSLATION-APPLY", "title": "استخدام انسحاب المحاور الإحداثية", "prerequisites": [] }] },
+        { "id": "CONIC-ROTATION", "title": "دوران المحاور الإحداثية", "skills": [{ "id": "CONIC-ROTATION-APPLY", "title": "استخدام دوران المحاور الإحداثية", "prerequisites": [] }] }
+      ]
+    },
+    {
+      "id": "AGP-SPACE-GEOMETRY",
+      "title": "الهندسة الفضائية",
+      "topics": [
+        { "id": "SPACE-REVIEW", "title": "مراجعة", "skills": [{ "id": "SPACE-REVIEW-FOUNDATIONS", "title": "استدعاء أساسيات الهندسة اللازمة للوحدة", "prerequisites": [] }] },
+        { "id": "SPACE-PERPENDICULAR", "title": "المستقيم العمودي على المستوى", "skills": [{ "id": "SPACE-PERPENDICULAR-APPLY", "title": "حل مسائل المستقيم العمودي على المستوى", "prerequisites": ["SPACE-REVIEW-FOUNDATIONS"] }] },
+        { "id": "SPACE-PERP-OBLIQUE", "title": "العمود والمائل", "skills": [{ "id": "SPACE-PERP-OBLIQUE-APPLY", "title": "حل مسائل العمود والمائل", "prerequisites": ["SPACE-PERPENDICULAR-APPLY"] }] },
+        { "id": "SPACE-DIHEDRAL", "title": "الزاوية الزوجية", "skills": [{ "id": "SPACE-DIHEDRAL-APPLY", "title": "حل مسائل الزاوية الزوجية", "prerequisites": ["SPACE-PERPENDICULAR-APPLY"] }] },
+        { "id": "SPACE-PROJECTIONS", "title": "المساقط", "skills": [{ "id": "SPACE-PROJECTIONS-APPLY", "title": "استخدام المساقط في مسائل الهندسة الفضائية", "prerequisites": ["SPACE-REVIEW-FOUNDATIONS"] }] }
+      ]
+    },
+    {
+      "id": "AGP-PROBABILITY",
+      "title": "الاحتمالات",
+      "topics": [
+        { "id": "PROB-THEOREMS", "title": "مبرهنات أساسية في الاحتمال", "skills": [{ "id": "PROB-THEOREMS-APPLY", "title": "تطبيق المبرهنات الأساسية في الاحتمال", "prerequisites": [] }] },
+        { "id": "PROB-MODEL", "title": "بناء النموذج الاحتمالي", "skills": [{ "id": "PROB-MODEL-BUILD", "title": "بناء نموذج احتمالي للمسألة", "prerequisites": ["PROB-THEOREMS-APPLY"] }] },
+        { "id": "PROB-CONDITIONAL", "title": "الاحتمال الشرطي وقانون الضرب والحوادث المستقلة", "skills": [{ "id": "PROB-CONDITIONAL-APPLY", "title": "حل مسائل الاحتمال الشرطي والاستقلال وقانون الضرب", "prerequisites": ["PROB-MODEL-BUILD"] }] },
+        { "id": "PROB-BINOMIAL", "title": "متتاليات التكرارات المستقلة وقانون الاحتمال الثنائي", "skills": [{ "id": "PROB-BINOMIAL-APPLY", "title": "حل مسائل التكرارات المستقلة والاحتمال الثنائي", "prerequisites": ["PROB-CONDITIONAL-APPLY"] }] },
+        { "id": "PROB-DRAWING", "title": "السحب مع الإعادة وبدون إعادة", "skills": [{ "id": "PROB-DRAWING-APPLY", "title": "حل مسائل السحب مع الإعادة وبدون إعادة", "prerequisites": ["PROB-CONDITIONAL-APPLY"] }] }
+      ]
+    }
+  ],
+  "sourceAnchors": [
+    "https://sahl.io/ye/book/567/ثالث-ثانوي/رياضيات-التمارين-علمي",
+    "https://www.youtube.com/playlist?list=PLiLqqc43AoR3lQJ1YiLjFq4PRD95lO_rY",
+    "https://t.me/exam3mathYemen"
+  ]
+}
