@@ -4,7 +4,7 @@ import path from "node:path";
 const root = process.cwd();
 const sourceFiles = [
   "client/src/data/richCatalog.ts",
-  "client/src/pages/Home.tsx",
+  "client/src/data/unitExpansions.ts",
 ];
 const reportDir = path.join(root, "reports");
 const maxConcurrent = 8;
@@ -19,7 +19,9 @@ async function fetchStatus(url, method) {
     const response = await fetch(url, {
       method,
       redirect: "follow",
-      headers: method === "GET" ? { Range: "bytes=0-0", "User-Agent": "YemenGrade12LinkVerifier/1.0" } : { "User-Agent": "YemenGrade12LinkVerifier/1.0" },
+      headers: method === "GET"
+        ? { Range: "bytes=0-0", "User-Agent": "YemenGrade12LinkVerifier/1.0" }
+        : { "User-Agent": "YemenGrade12LinkVerifier/1.0" },
       signal: controller.signal,
     });
     return { status: response.status, finalUrl: response.url };
@@ -51,7 +53,7 @@ async function runWithLimit(items, action) {
 }
 
 const contents = await Promise.all(sourceFiles.map((file) => fs.readFile(path.join(root, file), "utf8")));
-const urls = [...new Set(contents.flatMap((content) => [...content.matchAll(/https?:\/\/[^"'`\s]+/g)].map((match) => match[0])))].filter((url) => !url.includes("manus-storage"));
+const urls = [...new Set(contents.flatMap((content) => [...content.matchAll(/https?:\/\/[^"'`\s]+/g)].map((match) => match[0])))];
 const results = await runWithLimit(urls, verify);
 const report = {
   checkedAt: new Date().toISOString(),
@@ -67,4 +69,10 @@ const report = {
 
 await fs.mkdir(reportDir, { recursive: true });
 await fs.writeFile(path.join(reportDir, "link-audit.json"), JSON.stringify(report, null, 2), "utf8");
-console.log(JSON.stringify({ total: report.total, reachable: report.reachable.length, confirmedDead: report.confirmedDead.length, uncertain: report.uncertain.length, dead: report.confirmedDead.map((result) => result.url) }, null, 2));
+console.log(JSON.stringify({
+  total: report.total,
+  reachable: report.reachable.length,
+  confirmedDead: report.confirmedDead.length,
+  uncertain: report.uncertain.length,
+  dead: report.confirmedDead.map((result) => result.url),
+}, null, 2));

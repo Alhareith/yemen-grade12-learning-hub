@@ -4,7 +4,7 @@
  */
 import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
-import HomeV4 from "./pages/HomeV4";
+import Home from "./pages/Home";
 import "./v2.css";
 import "./polish.css";
 
@@ -53,7 +53,7 @@ export default function App() {
           </div>
         </Suspense>
       ) : (
-        <HomeV4 />
+        <Home />
       )}
     </ErrorBoundary>
   );

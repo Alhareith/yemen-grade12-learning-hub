@@ -1,0 +1,136 @@
+name: Browser smoke test
+
+on:
+  push:
+    branches:
+      - "feature/**"
+      - "fix/**"
+      - "refine/**"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Vercel-style static output
+        run: GITHUB_ACTIONS=false pnpm build
+
+      - name: Install isolated browser driver for smoke verification
+        run: |
+          mkdir -p /tmp/yemen-grade12-browser-smoke
+          cd /tmp/yemen-grade12-browser-smoke
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
+
+      - name: Start production preview
+        run: |
+          GITHUB_ACTIONS=false pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/yemen-grade12-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/yemen-grade12-preview.log
+          exit 1
+
+      - name: Verify home and protected exam presentation
+        run: |
+          cd /tmp/yemen-grade12-browser-smoke
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright-core";
+
+          const baseUrl = "http://127.0.0.1:4173/";
+          const evidencePath = `${process.env.GITHUB_WORKSPACE}/exam-question-smoke.png`;
+          const localFailures = [];
+          const pageErrors = [];
+          const consoleErrors = [];
+
+          const browser = await chromium.launch({
+            executablePath: "/usr/bin/google-chrome",
+            headless: true,
+            args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          });
+
+          const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+          page.on("requestfailed", (request) => {
+            if (request.url().startsWith(baseUrl)) {
+              localFailures.push(`${request.url()} :: ${request.failure()?.errorText ?? "failed"}`);
+            }
+          });
+          page.on("pageerror", (error) => pageErrors.push(error.message));
+          page.on("console", (message) => {
+            if (message.type() === "error") consoleErrors.push(message.text());
+          });
+
+          await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+          await page.getByText("دليل الثالث", { exact: false }).first().waitFor();
+          assert.equal(await page.locator("html").getAttribute("dir"), "rtl");
+
+          await page.locator('a[href="#exam-pilot"]').first().click();
+          await page.locator("[data-arabic-exam]").waitFor();
+          await page.getByText("التفاضل والتكامل", { exact: false }).first().waitFor();
+          assert.equal(await page.locator("[data-arabic-exam]").getAttribute("dir"), "rtl");
+          assert.equal(await page.locator("[data-arabic-exam]").getAttribute("lang"), "ar");
+
+          await page.getByRole("button", { name: "بدون مؤقت" }).click();
+          await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
+          await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
+
+          const optionButtons = page.locator('xpath=//button[.//span[contains(@class,"min-w-0") and contains(@class,"flex-1")]]');
+          const optionCount = await optionButtons.count();
+          assert.ok(optionCount >= 2, `Expected at least 2 visible answer options, got ${optionCount}`);
+
+          const mathCount = await page.locator("[data-arabic-exam] math").count();
+          const enhancedMathCount = await page.locator("[data-arabic-exam] .arabic-math-wrap").count();
+          assert.ok(mathCount > 0, "Expected MathML in the first displayed calculus question");
+          assert.ok(enhancedMathCount > 0, "Expected Arabic math enhancement to remain active");
+
+          await page.screenshot({ path: evidencePath, fullPage: false });
+
+          assert.deepEqual(localFailures, [], `Local asset failures: ${localFailures.join(" | ")}`);
+          assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
+          assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
+
+          console.log(JSON.stringify({
+            home: true,
+            examRoute: true,
+            firstQuestion: true,
+            optionCount,
+            mathCount,
+            enhancedMathCount,
+            rtl: true,
+          }, null, 2));
+
+          await browser.close();
+          NODE
+
+      - name: Upload exam formatting evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exam-question-smoke
+          path: exam-question-smoke.png
+          if-no-files-found: ignore
+          retention-days: 14
