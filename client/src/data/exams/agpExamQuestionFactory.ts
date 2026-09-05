@@ -1,9 +1,8 @@
 import type { ExamQuestion, QuestionOption, RichContent } from "@shared/exams/question-model";
 import { formulaOptions, math, parts, text } from "./pilotExamQuestionFactory";
+import { AGP_EXAM_ID, agpExamProvenance } from "./agpExamProvenance";
 
-export { formulaOptions, math, parts, text };
-
-export const AGP_EXAM_ID = "MATH-AGP-GENERAL-MODEL-02";
+export { AGP_EXAM_ID, formulaOptions, math, parts, text };
 
 const trueFalseOptions: QuestionOption[] = [
   { id: "T", label: "ص", content: text("صح") },
@@ -28,9 +27,6 @@ export type AgpQuestionSpec = {
   difficulty?: "unrated" | "easy" | "medium" | "hard";
 };
 
-const SOURCE_URL = "https://sahl.io/ye/book/567/ثالث-ثانوي/رياضيات-التمارين-علمي";
-const VERIFICATION_URL = "https://github.com/Alhareith/yemen-grade12-learning-hub/blob/main/research/exams/05-agp-model-02-verification.md";
-
 export function makeAgpQuestion(spec: AgpQuestionSpec): ExamQuestion {
   return {
     schemaVersion: "1.0",
@@ -47,16 +43,16 @@ export function makeAgpQuestion(spec: AgpQuestionSpec): ExamQuestion {
       points: spec.type === "true-false" ? 1 : 2,
       answerEvidence: {
         type: "independent-verification",
-        sourceUrl: VERIFICATION_URL,
-        locator: `سجل التحقق — النموذج العام ٢ — السؤال ${spec.order}`,
+        sourceUrl: agpExamProvenance.publishedSolution.url,
+        locator: `النموذج الوزاري 2024 رقم (1) — السؤال ${spec.order} — الحل المنشور للنموذج نفسه`,
       },
     },
     source: {
-      sourcePackageUrl: SOURCE_URL,
-      sourceFileName: "فهرس وتمارين مقرر رياضيات الثالث الثانوي اليمني — صياغة تدريبية جديدة",
+      sourcePackageUrl: agpExamProvenance.questionReference.url,
+      sourceFileName: "النموذج الوزاري 2024 رقم (1) — الجبر والهندسة — أمانة العاصمة صنعاء",
       digitizationMethod: "manual",
       relation: "adapted",
-      adaptationNote: "سؤال تدريبي جديد مبني على موضوعات المقرر وخريطة المهارات المعتمدة داخل المشروع، وليس نقلًا حرفيًا لسؤال وزاري.",
+      adaptationNote: `صياغة عربية تعليمية مستنبطة من السؤال رقم ${spec.order} في النموذج المرجعي رقم (1)، مع الحفاظ على الفكرة الرياضية وعدم الادعاء بأنها نقل حرفي.`,
     },
     analysis: {
       primarySkillId: spec.skill,
@@ -78,8 +74,8 @@ export function makeAgpQuestion(spec: AgpQuestionSpec): ExamQuestion {
         skillReviewed: true,
         mediaReviewed: true,
       },
-      reviewedAt: "2026-09-05T21:30:00+03:00",
-      reviewedBy: "OpenAI-assisted mathematical review + automated contract validation",
+      reviewedAt: "2026-09-05T22:10:00+03:00",
+      reviewedBy: "مراجعة عربية ورياضية بمساعدة OpenAI + تحقق آلي لعقد السؤال والمصدر",
       blockingNotes: [],
     },
   };
