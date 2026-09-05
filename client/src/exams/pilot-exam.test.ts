@@ -1,18 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { isExamReadyForStudents, validateExamDefinition } from "@shared/exams/exam-model";
 import { answerQuestion, createExamSession, scoreSession, submitSession } from "@shared/exams/session-engine";
+import { curriculumSkillIds } from "../data/curriculum";
 import { pilotCalculusExam } from "../data/exams/pilotExam";
 import { PILOT_EXAM_ID, pilotExamProvenance } from "../data/exams/pilotExamProvenance";
 
 const questions = pilotCalculusExam.questions;
-const allowedSkillIds = new Set([
-  "LIM-DIRECT", "LIM-FACTOR", "LIM-RATIONALIZE", "LIM-INFINITY", "LIM-TRIG", "CONT-POINT", "CONT-PARAMETER",
-  "DER-RULES", "DER-NTH", "DER-EXP-LOG", "DER-TRIG", "DER-COMPOSITION", "DER-CHAIN", "APP-TANGENT", "APP-NORMAL",
-  "THM-ROLLE-CHECK", "THM-ROLLE-APPLY", "THM-MVT-CHECK", "THM-MVT-APPLY", "VAR-CRITICAL", "VAR-MONOTONICITY",
-  "VAR-EXTREMA", "VAR-INFLECTION", "VAR-FULL-STUDY", "INT-SUM-LAWS", "INT-DEF", "INT-INTEGRABILITY", "INT-COMPARISON",
-  "INT-BOUNDS", "INT-BASIC-RULES", "INT-TRIG", "INT-EXP", "INT-ANTIDERIVATIVE", "INT-MEAN-VALUE", "INT-SUBSTITUTION-RECOGNIZE",
-  "INT-SUBSTITUTION-APPLY", "INT-BY-PARTS-RECOGNIZE", "INT-BY-PARTS-APPLY", "INT-DEFINITE-PROPERTIES",
-]);
 
 describe("stage 4 verified adapted calculus pilot", () => {
   it("keeps the verified 50-question format with the product's one-hour timed mode", () => {
@@ -33,12 +26,12 @@ describe("stage 4 verified adapted calculus pilot", () => {
     expect([...orders].sort((a, b) => a - b)).toEqual(Array.from({ length: 50 }, (_, i) => i + 1));
   });
 
-  it("passes the strict exam and skill publication gate", () => {
-    expect(validateExamDefinition(pilotCalculusExam, allowedSkillIds)).toEqual([]);
+  it("passes the strict exam and curriculum-skill publication gate", () => {
+    expect(validateExamDefinition(pilotCalculusExam, curriculumSkillIds)).toEqual([]);
     expect(questions.every((q) => q.verification.status === "verified")).toBe(true);
-    expect(questions.every((q) => allowedSkillIds.has(q.analysis.primarySkillId))).toBe(true);
-    expect(questions.every((q) => q.analysis.secondarySkillIds.every((id) => allowedSkillIds.has(id)))).toBe(true);
-    expect(isExamReadyForStudents(pilotCalculusExam, allowedSkillIds)).toBe(true);
+    expect(questions.every((q) => curriculumSkillIds.has(q.analysis.primarySkillId))).toBe(true);
+    expect(questions.every((q) => q.analysis.secondarySkillIds.every((id) => curriculumSkillIds.has(id)))).toBe(true);
+    expect(isExamReadyForStudents(pilotCalculusExam, curriculumSkillIds)).toBe(true);
   });
 
   it("scores 80/80 deterministically when every verified key is selected", () => {
