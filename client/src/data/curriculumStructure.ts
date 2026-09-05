@@ -154,7 +154,7 @@ const units: CurriculumUnit[] = unitExpansions.map((unit) => {
 });
 
 export const curriculumStructure: CurriculumStructure = {
-  schemaVersion: "1.1",
+  schemaVersion: "1.0",
   subjects: materials.map((material) => ({
     id: material.id,
     title: material.title,
