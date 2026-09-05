@@ -6,6 +6,7 @@ import {
   type CurriculumStructure,
   type CurriculumUnit,
 } from "@shared/curriculum/curriculum-model";
+import algebraGeometryProbabilitySkillMapJson from "../../../research/curriculum/math-algebra-geometry-probability-skill-map.json";
 import calculusSkillMapJson from "../../../research/exams/calculus-skill-map.json";
 import { getPromptsForSubject, selfStudyPrompts } from "./promptCatalog";
 import { materials } from "./richCatalog";
@@ -13,21 +14,24 @@ import { unitExpansions } from "./unitExpansions";
 
 type RawSkill = { id: string; title: string; prerequisites: string[] };
 type RawTopic = { id: string; title: string; skills: RawSkill[] };
-type RawStrand = { id: string; title: string; topics: RawTopic[] };
-type RawCalculusSkillMap = {
+type RawGroup = { id: string; title: string; topics: RawTopic[] };
+type RawTaxonomy = {
   schemaVersion: string;
   taxonomyId: string;
   subject: string;
   track: string;
-  strands: RawStrand[];
+  strands?: RawGroup[];
+  groups?: RawGroup[];
 };
 
-const calculusSkillMap = calculusSkillMapJson as RawCalculusSkillMap;
+const calculusSkillMap = calculusSkillMapJson as RawTaxonomy;
+const algebraGeometryProbabilitySkillMap = algebraGeometryProbabilitySkillMapJson as RawTaxonomy;
 
+export const MATH_AGP_UNIT_ID = "math-algebra-geometry-probability";
 export const MATH_CALCULUS_UNIT_ID = "math-calculus";
 
 const UNIT_IDS: Record<string, string> = {
-  "رياضيات|الجبر والهندسة والاحتمالات": "math-algebra-geometry-probability",
+  "رياضيات|الجبر والهندسة والاحتمالات": MATH_AGP_UNIT_ID,
   "رياضيات|التفاضل والتكامل": MATH_CALCULUS_UNIT_ID,
   "لغة إنجليزية|قواعد المنهج والمراجعات اللغوية": "english-grammar-review",
   "لغة إنجليزية|الكتاب والتدريب قبل الاختبار": "english-workbook-exam-practice",
@@ -38,6 +42,8 @@ const UNIT_IDS: Record<string, string> = {
   "أحياء|التنظيم العصبي والهرموني": "biology-neural-hormonal-regulation",
   "أحياء|التكاثر والوراثة": "biology-reproduction-genetics",
 };
+
+const DETAILED_UNIT_IDS = new Set([MATH_AGP_UNIT_ID, MATH_CALCULUS_UNIT_ID]);
 
 function unitIdFor(subjectId: string, title: string) {
   const id = UNIT_IDS[`${subjectId}|${title}`];
@@ -77,53 +83,71 @@ const unitLinkSources: CurriculumSourceRef[] = unitExpansions.flatMap((unit) => 
 
 const promptRefs = selfStudyPrompts.map((prompt) => ({ id: prompt.id, title: prompt.title }));
 
-const calculusLessonIds = new Set<string>();
-const calculusLessons: CurriculumLesson[] = [];
-const calculusSkills: CurriculumSkill[] = [];
-const taxonomySkillIds = new Set(
-  calculusSkillMap.strands.flatMap((strand) => strand.topics.flatMap((topic) => topic.skills.map((skill) => skill.id))),
-);
+function taxonomyGroups(taxonomy: RawTaxonomy) {
+  return taxonomy.strands ?? taxonomy.groups ?? [];
+}
 
-for (const strand of calculusSkillMap.strands) {
-  for (const topic of strand.topics) {
-    const lessonId = `${MATH_CALCULUS_UNIT_ID}:${topic.id}`;
-    calculusLessonIds.add(lessonId);
-    calculusLessons.push({
-      id: lessonId,
-      unitId: MATH_CALCULUS_UNIT_ID,
-      title: topic.title,
-      groupId: strand.id,
-      groupTitle: strand.title,
-      skillIds: topic.skills.map((skill) => skill.id),
-      sourceIds: [],
-      promptIds: [],
-    });
+function buildTaxonomyEntries(taxonomy: RawTaxonomy, unitId: string) {
+  const groups = taxonomyGroups(taxonomy);
+  const lessonIds = new Set<string>();
+  const lessons: CurriculumLesson[] = [];
+  const skills: CurriculumSkill[] = [];
+  const taxonomySkillIds = new Set(
+    groups.flatMap((group) => group.topics.flatMap((topic) => topic.skills.map((skill) => skill.id))),
+  );
 
-    for (const skill of topic.skills) {
-      calculusSkills.push({
-        id: skill.id,
-        lessonId,
-        title: skill.title,
-        prerequisites: skill.prerequisites.map((prerequisite) =>
-          taxonomySkillIds.has(prerequisite)
-            ? { type: "skill" as const, skillId: prerequisite }
-            : { type: "knowledge" as const, title: prerequisite },
-        ),
+  for (const group of groups) {
+    for (const topic of group.topics) {
+      const lessonId = `${unitId}:${topic.id}`;
+      lessonIds.add(lessonId);
+      lessons.push({
+        id: lessonId,
+        unitId,
+        title: topic.title,
+        groupId: group.id,
+        groupTitle: group.title,
+        skillIds: topic.skills.map((skill) => skill.id),
         sourceIds: [],
         promptIds: [],
       });
+
+      for (const skill of topic.skills) {
+        skills.push({
+          id: skill.id,
+          lessonId,
+          title: skill.title,
+          prerequisites: skill.prerequisites.map((prerequisite) =>
+            taxonomySkillIds.has(prerequisite)
+              ? { type: "skill" as const, skillId: prerequisite }
+              : { type: "knowledge" as const, title: prerequisite },
+          ),
+          sourceIds: [],
+          promptIds: [],
+        });
+      }
     }
   }
+
+  return { lessonIds, lessons, skills };
 }
+
+const agpTaxonomy = buildTaxonomyEntries(algebraGeometryProbabilitySkillMap, MATH_AGP_UNIT_ID);
+const calculusTaxonomy = buildTaxonomyEntries(calculusSkillMap, MATH_CALCULUS_UNIT_ID);
+
+const lessonIdsByUnit = new Map<string, Set<string>>([
+  [MATH_AGP_UNIT_ID, agpTaxonomy.lessonIds],
+  [MATH_CALCULUS_UNIT_ID, calculusTaxonomy.lessonIds],
+]);
 
 const units: CurriculumUnit[] = unitExpansions.map((unit) => {
   const id = unitIdFor(unit.subjectId, unit.title);
+  const lessonIds = lessonIdsByUnit.get(id);
   return {
     id,
     subjectId: unit.subjectId,
     title: unit.title,
-    mappingStatus: id === MATH_CALCULUS_UNIT_ID ? "lesson-skill" : "unit-only",
-    lessonIds: id === MATH_CALCULUS_UNIT_ID ? Array.from(calculusLessonIds) : [],
+    mappingStatus: DETAILED_UNIT_IDS.has(id) ? "lesson-skill" : "unit-only",
+    lessonIds: lessonIds ? Array.from(lessonIds) : [],
     sourceIds: unit.links.map((_, index) => unitLinkSourceId(id, index)),
     promptIds: [],
   };
@@ -139,8 +163,8 @@ export const curriculumStructure: CurriculumStructure = {
     promptIds: getPromptsForSubject(material.id).map((prompt) => prompt.id),
   })),
   units,
-  lessons: calculusLessons,
-  skills: calculusSkills,
+  lessons: [...agpTaxonomy.lessons, ...calculusTaxonomy.lessons],
+  skills: [...agpTaxonomy.skills, ...calculusTaxonomy.skills],
   sources: [...catalogSources, ...unitLinkSources],
   prompts: promptRefs,
 };
@@ -164,6 +188,9 @@ export function getCurriculumSkillsForLesson(lessonId: string) {
 }
 
 export const curriculumTaxonomyMetadata = {
+  algebraGeometryProbabilityTaxonomyId: algebraGeometryProbabilitySkillMap.taxonomyId,
+  algebraGeometryProbabilitySubject: algebraGeometryProbabilitySkillMap.subject,
+  algebraGeometryProbabilityTrack: algebraGeometryProbabilitySkillMap.track,
   calculusTaxonomyId: calculusSkillMap.taxonomyId,
   calculusSubject: calculusSkillMap.subject,
   calculusTrack: calculusSkillMap.track,
