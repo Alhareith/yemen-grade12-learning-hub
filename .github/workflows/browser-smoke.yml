@@ -102,7 +102,7 @@ jobs:
           await page.getByText("النموذج العام ١", { exact: false }).waitFor();
           await page.getByText("النموذج العام ٢", { exact: false }).waitFor();
 
-          await page.locator('[data-exam-model="MATH-CALC-2020-SIM"]').click();
+          await page.locator('[data-exam-model="MATH-CALC-2020-ADAPTED-PILOT-01"]').click();
           await page.getByRole("button", { name: "بدون مؤقت" }).click();
           await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
