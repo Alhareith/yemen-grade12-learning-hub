@@ -1,43 +1,45 @@
 import { createCurriculumIndex, type CurriculumGraph } from "@shared/curriculum/curriculum-model";
+import { agpGeneralExam } from "./exams/agpExam";
 import { pilotCalculusExam } from "./exams/pilotExam";
 import {
+  MATH_AGP_UNIT_ID,
   MATH_CALCULUS_UNIT_ID,
   curriculumStructure,
 } from "./curriculumStructure";
 
-const pilotSimulationId = `simulation:${pilotCalculusExam.id}`;
-const pilotSourceId = `simulation-source:${pilotCalculusExam.id}`;
+const examEntries = [
+  { exam: pilotCalculusExam, unitId: MATH_CALCULUS_UNIT_ID },
+  { exam: agpGeneralExam, unitId: MATH_AGP_UNIT_ID },
+] as const;
 
 export const curriculumGraph: CurriculumGraph = {
   ...curriculumStructure,
   sources: [
     ...curriculumStructure.sources,
-    {
-      id: pilotSourceId,
-      title: pilotCalculusExam.source.title,
-      url: pilotCalculusExam.source.primaryUrl,
-      kind: "simulation-source",
-      subjectId: pilotCalculusExam.subject,
-      unitId: MATH_CALCULUS_UNIT_ID,
-    },
+    ...examEntries.map(({ exam, unitId }) => ({
+      id: `simulation-source:${exam.id}`,
+      title: exam.source.title,
+      url: exam.source.primaryUrl,
+      kind: "simulation-source" as const,
+      subjectId: exam.subject,
+      unitId,
+    })),
   ],
-  questions: pilotCalculusExam.questions.map((question) => ({
+  questions: examEntries.flatMap(({ exam }) => exam.questions.map((question) => ({
     id: question.id,
     examId: question.examId,
     primarySkillId: question.analysis.primarySkillId,
     secondarySkillIds: [...question.analysis.secondarySkillIds],
+  }))),
+  simulations: examEntries.map(({ exam, unitId }) => ({
+    id: `simulation:${exam.id}`,
+    examId: exam.id,
+    title: exam.title,
+    subjectId: exam.subject,
+    unitId,
+    questionIds: exam.questions.map((question) => question.id),
+    sourceId: `simulation-source:${exam.id}`,
   })),
-  simulations: [
-    {
-      id: pilotSimulationId,
-      examId: pilotCalculusExam.id,
-      title: pilotCalculusExam.title,
-      subjectId: pilotCalculusExam.subject,
-      unitId: MATH_CALCULUS_UNIT_ID,
-      questionIds: pilotCalculusExam.questions.map((question) => question.id),
-      sourceId: pilotSourceId,
-    },
-  ],
 };
 
 export const curriculumIndex = createCurriculumIndex(curriculumGraph);
