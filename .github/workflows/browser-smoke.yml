@@ -141,11 +141,17 @@ jobs:
 
           const firstRoundIds = await answerRound();
           assert.equal(new Set(firstRoundIds).size, 5, "First practice round should contain five unique questions");
+          await page.locator("[data-practice-diagnostic]").waitFor();
+          const deepeningButton = page.locator("[data-practice-deepening-prompt]");
+          await deepeningButton.waitFor();
+          assert.ok((await deepeningButton.innerText()).includes("تعميق الفهم بناءً على نتيجتك"), "Expected result-based deepening prompt action for lesson 01");
           await page.locator("[data-practice-next-round]").click();
           const secondRoundIds = await answerRound();
           assert.equal(new Set(secondRoundIds).size, 5, "Second practice round should contain five unique questions");
           assert.deepEqual(firstRoundIds.filter((id) => secondRoundIds.includes(id)), [], "Second practice round must not repeat first-round questions");
           await page.getByText("أكملت جولتين دون تكرار مباشر", { exact: true }).waitFor();
+          await page.locator("[data-practice-diagnostic]").waitFor();
+          await page.locator("[data-practice-deepening-prompt]").waitFor();
           await page.screenshot({ path: practiceEvidencePath, fullPage: false });
 
           await page.goto(`${baseUrl}#exam-pilot`, { waitUntil: "domcontentloaded" });
@@ -182,7 +188,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, promptRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, promptRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 
