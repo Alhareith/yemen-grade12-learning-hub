@@ -1,0 +1,144 @@
+name: Complex add-sub lesson smoke
+
+on:
+  push:
+    branches:
+      - "feature/math-lesson-02-complex-add-sub"
+  pull_request:
+    paths:
+      - "client/src/data/mathComplexAddSubPractice.ts"
+      - "client/src/data/mathLessonPracticeDiagnostics.ts"
+      - "client/src/data/practiceBank.ts"
+      - "client/src/pages/SkillPractice.tsx"
+      - "shared/practice/**"
+      - "research/exams/2025-agp-complex-add-sub-source.md"
+      - ".github/workflows/complex-add-sub-browser-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Vercel-style static output
+        run: GITHUB_ACTIONS=false pnpm build
+
+      - name: Install isolated browser driver
+        run: |
+          mkdir -p /tmp/yemen-grade12-lesson-smoke
+          cd /tmp/yemen-grade12-lesson-smoke
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
+
+      - name: Start production preview
+        run: |
+          GITHUB_ACTIONS=false pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/yemen-grade12-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/yemen-grade12-preview.log
+          exit 1
+
+      - name: Verify lesson 02 mobile learning loop
+        run: |
+          cd /tmp/yemen-grade12-lesson-smoke
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright-core";
+
+          const baseUrl = "http://127.0.0.1:4173/";
+          const evidencePath = `${process.env.GITHUB_WORKSPACE}/complex-add-sub-practice-mobile.png`;
+          const browser = await chromium.launch({
+            executablePath: "/usr/bin/google-chrome",
+            headless: true,
+            args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          });
+          const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+          const pageErrors = [];
+          const consoleErrors = [];
+          const localFailures = [];
+          page.on("pageerror", (error) => pageErrors.push(error.message));
+          page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text()); });
+          page.on("requestfailed", (request) => {
+            if (request.url().startsWith(baseUrl)) localFailures.push(`${request.url()} :: ${request.failure()?.errorText ?? "failed"}`);
+          });
+
+          await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+          await page.locator("[data-curriculum-explorer]").waitFor();
+          await page.getByRole("button", { name: "جمع وطرح الأعداد المركبة", exact: true }).click();
+          await page.locator('[data-curriculum-skill="CPLX-ADD-SUB-APPLY"]').waitFor();
+          await page.getByText("إجراء جمع وطرح الأعداد المركبة", { exact: true }).first().waitFor();
+          const practiceAction = page.locator("[data-skill-practice-action]");
+          await practiceAction.waitFor();
+          assert.ok((await practiceAction.innerText()).includes("تدرّب على هذه المهارة"));
+          await practiceAction.click();
+
+          await page.locator("[data-practice-page]").waitFor();
+          await page.getByText("إجراء جمع وطرح الأعداد المركبة", { exact: true }).first().waitFor();
+          assert.equal(await page.locator("[data-practice-page]").getAttribute("dir"), "rtl");
+          await page.locator("[data-practice-start]").click();
+
+          const answerRound = async () => {
+            const ids = [];
+            for (let index = 0; index < 5; index += 1) {
+              const card = page.locator("[data-practice-question]");
+              await card.waitFor();
+              const id = await card.getAttribute("data-question-id");
+              assert.ok(id?.startsWith("practice:CPLX-ADD-SUB-APPLY:"), `Unexpected lesson question id: ${id}`);
+              ids.push(id);
+              await page.locator("[data-practice-option]").first().click();
+              await page.locator("[data-practice-feedback]").waitFor();
+              await page.locator("[data-practice-next]").click();
+            }
+            await page.locator("[data-practice-round-result]").waitFor();
+            await page.locator("[data-practice-diagnostic]").waitFor();
+            await page.locator("[data-practice-deepening-prompt]").waitFor();
+            return ids;
+          };
+
+          const firstRound = await answerRound();
+          assert.equal(new Set(firstRound).size, 5, "First lesson round must use five different questions");
+          assert.ok((await page.locator("[data-practice-deepening-prompt]").innerText()).includes("تعميق الفهم بناءً على نتيجتك"));
+          await page.locator("[data-practice-next-round]").click();
+          const secondRound = await answerRound();
+          assert.equal(new Set(secondRound).size, 5, "Second lesson round must use five different questions");
+          assert.deepEqual(firstRound.filter((id) => secondRound.includes(id)), [], "The second lesson round must be fresh");
+          await page.getByText("أكملت جولتين دون تكرار مباشر", { exact: true }).waitFor();
+          await page.screenshot({ path: evidencePath, fullPage: false });
+
+          assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
+          assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
+          assert.deepEqual(localFailures, [], `Local request failures: ${localFailures.join(" | ")}`);
+          console.log(JSON.stringify({ lesson: "جمع وطرح الأعداد المركبة", firstRound, secondRound, mobile: "390x844", diagnostics: true, deepeningPrompt: true }, null, 2));
+          await browser.close();
+          NODE
+
+      - name: Upload lesson evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: complex-add-sub-lesson-smoke
+          path: complex-add-sub-practice-mobile.png
+          if-no-files-found: ignore
+          retention-days: 14
