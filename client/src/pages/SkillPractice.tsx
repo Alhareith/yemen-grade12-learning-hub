@@ -3,17 +3,23 @@ import {
   ArrowRight,
   CheckCircle2,
   ChevronLeft,
+  Copy,
   Dumbbell,
   RotateCcw,
   XCircle,
 } from "lucide-react";
 import ArabicRichContent from "@/components/ArabicRichContent";
 import { curriculumIndex } from "@/data/curriculum";
+import { getPracticeDiagnosticRulesForSkill } from "@/data/mathLessonPracticeDiagnostics";
 import {
   getReadyPracticeSetForSkill,
   practiceBank,
   practiceIndex,
 } from "@/data/practiceBank";
+import {
+  buildPracticeDiagnosticProfile,
+  buildPracticeDeepeningPrompt,
+} from "@shared/practice/practice-diagnostics";
 import {
   buildPracticeSessionResult,
   completePracticeSession,
@@ -23,6 +29,7 @@ import {
   type PracticeSessionResult,
 } from "@shared/practice/practice-engine";
 import { buildSkillPracticeEvidence } from "@shared/practice/practice-evidence";
+import { buildArabicOutputPolicy } from "@shared/prompts/arabic-output-policy";
 
 export default function SkillPractice({ skillId, onBack }: { skillId: string; onBack: () => void }) {
   const skillContext = curriculumIndex.getSkillContext(skillId);
@@ -31,11 +38,36 @@ export default function SkillPractice({ skillId, onBack }: { skillId: string; on
   const [completedSessions, setCompletedSessions] = useState<PracticeSession[]>([]);
   const [result, setResult] = useState<PracticeSessionResult | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [deepeningCopied, setDeepeningCopied] = useState(false);
 
   const evidence = useMemo(
     () => buildSkillPracticeEvidence(completedSessions, practiceBank, skillId),
     [completedSessions, skillId],
   );
+  const completedResults = useMemo(
+    () => completedSessions.map((item) => buildPracticeSessionResult(item, practiceBank)),
+    [completedSessions],
+  );
+  const diagnosticRules = useMemo(
+    () => getPracticeDiagnosticRulesForSkill(skillId),
+    [skillId],
+  );
+  const diagnostic = useMemo(
+    () => buildPracticeDiagnosticProfile(skillId, completedResults, diagnosticRules),
+    [skillId, completedResults, diagnosticRules],
+  );
+  const deepeningPrompt = useMemo(() => {
+    if (!skillContext || diagnosticRules.length === 0 || diagnostic.answeredCount === 0) return "";
+    const personalized = buildPracticeDeepeningPrompt({
+      subject: skillContext.subject.title,
+      unit: skillContext.unit.title,
+      lesson: skillContext.lesson.title,
+      skill: skillContext.skill.title,
+      evidence,
+      diagnostic,
+    });
+    return `${personalized}\n\n${buildArabicOutputPolicy(skillContext.subject.title)}`;
+  }, [skillContext, diagnosticRules.length, diagnostic, evidence]);
 
   if (!skillContext || !set) {
     return (
@@ -67,6 +99,7 @@ export default function SkillPractice({ skillId, onBack }: { skillId: string; on
     setSession(next);
     setCurrentIndex(0);
     setResult(null);
+    setDeepeningCopied(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -76,6 +109,7 @@ export default function SkillPractice({ skillId, onBack }: { skillId: string; on
     setSession(finished);
     setCompletedSessions((current) => [...current, finished]);
     setResult(nextResult);
+    setDeepeningCopied(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -97,6 +131,24 @@ export default function SkillPractice({ skillId, onBack }: { skillId: string; on
       return;
     }
     finishRound(session);
+  };
+
+  const copyDeepeningPrompt = async () => {
+    if (!deepeningPrompt) return;
+    try {
+      await navigator.clipboard.writeText(deepeningPrompt);
+    } catch {
+      const textarea = document.createElement("textarea");
+      textarea.value = deepeningPrompt;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textarea);
+    }
+    setDeepeningCopied(true);
+    window.setTimeout(() => setDeepeningCopied(false), 1800);
   };
 
   const currentQuestionId = session?.questionIds[currentIndex];
@@ -214,6 +266,35 @@ export default function SkillPractice({ skillId, onBack }: { skillId: string; on
                 <p className="mt-1 text-xs font-medium leading-6 text-violet-900">{evidence.confidenceLabel}</p>
                 <p className="mt-2 text-xs font-bold leading-6 text-slate-700">{evidence.recommendation}</p>
               </div>
+
+              {diagnosticRules.length > 0 && diagnostic.answeredCount > 0 && (
+                <div data-practice-diagnostic className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <span className="text-[10px] font-extrabold text-slate-500">تحليل ما يحتاج تعميقًا</span>
+                  {diagnostic.weakFocuses.length > 0 ? (
+                    <div className="mt-2 space-y-2">
+                      {diagnostic.weakFocuses.map((focus) => (
+                        <div key={focus.focusId} className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                          <strong className="block text-xs font-black leading-6 text-slate-900">{focus.focusLabel}</strong>
+                          <span className="mt-0.5 block text-[10px] font-bold leading-5 text-rose-700">أخطأت في {focus.missCount} من {focus.askedCount} سؤال/أسئلة ظهرت في هذه النقطة.</span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="mt-2 text-xs font-bold leading-6 text-emerald-800">لم تظهر نقطة ضعف واضحة في الأسئلة التي أجبت عنها؛ سيطلب الأمر التالي تعميق الفهم بمسائل أصعب قليلًا داخل نفس الدرس.</p>
+                  )}
+
+                  <button
+                    data-practice-deepening-prompt
+                    type="button"
+                    onClick={copyDeepeningPrompt}
+                    className={`mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-3 text-center text-xs font-black text-white ${deepeningCopied ? "bg-emerald-600" : "bg-slate-950"}`}
+                  >
+                    <Copy className="h-4 w-4" />
+                    {deepeningCopied ? "تم نسخ أمر تعميق الفهم" : "انسخ أمر تعميق الفهم بناءً على نتيجتك"}
+                  </button>
+                  <p className="mt-2 text-[9px] font-medium leading-5 text-slate-500">الأمر المنسوخ يصف النتيجة ونقاط الضعف التعليمية فقط، ثم يطلب شرحًا وأمثلة وتحققًا مناسبًا لها.</p>
+                </div>
+              )}
 
               {completedSessions.length < 2 ? (
                 <button data-practice-next-round type="button" onClick={startRound} className="mt-4 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-violet-700 px-4 text-sm font-black text-white">
