@@ -2,19 +2,19 @@ import { curriculumSkillIds } from "./curriculum";
 import { agpGeneralExam } from "./exams/agpExam";
 import { pilotCalculusExam } from "./exams/pilotExam";
 import {
+  mathPracticePilotQuestions,
+  mathPracticePilotSets,
+} from "./mathPracticePilot";
+import {
   createPracticeBankIndex,
   validatePracticeBank,
   type PracticeBank,
 } from "@shared/practice/practice-model";
 
-/**
- * The live training registry starts empty on purpose.
- * Practice questions are added only after the domain contract and review workflow are stable.
- */
 export const practiceBank: PracticeBank = {
   schemaVersion: "1.0",
-  questions: [],
-  sets: [],
+  questions: mathPracticePilotQuestions,
+  sets: mathPracticePilotSets,
 };
 
 export const reservedExamQuestionIds: ReadonlySet<string> = new Set([
@@ -33,3 +33,7 @@ if (practiceBankErrors.length > 0) {
 }
 
 export const practiceIndex = createPracticeBankIndex(practiceBank);
+
+export function getReadyPracticeSetForSkill(skillId: string) {
+  return practiceIndex.getSetsForSkill(skillId).find((set) => set.status === "ready") ?? null;
+}
