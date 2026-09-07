@@ -6,17 +6,23 @@ import {
   reservedExamQuestionIds,
 } from "@/data/practiceBank";
 import { complexAddSubPracticeSkillId } from "@/data/mathComplexAddSubPractice";
+import { complexMulDivPracticeSkillId } from "@/data/mathComplexMulDivPractice";
 import { pilotPracticeSkillIds } from "@/data/mathPracticePilot";
 import { validatePracticeBank } from "@shared/practice/practice-model";
 
 describe("live practice registry", () => {
-  it("publishes the six-skill pilot plus the independently completed lesson 02", () => {
-    expect(practiceBank.questions).toHaveLength(70);
-    expect(practiceBank.sets).toHaveLength(7);
+  it("publishes the six-skill pilot plus independently completed complex-number lessons", () => {
+    expect(practiceBank.questions).toHaveLength(80);
+    expect(practiceBank.sets).toHaveLength(8);
     expect(new Set(pilotPracticeSkillIds).size).toBe(6);
     expect(pilotPracticeSkillIds).not.toContain(complexAddSubPracticeSkillId);
+    expect(pilotPracticeSkillIds).not.toContain(complexMulDivPracticeSkillId);
 
-    for (const skillId of [...pilotPracticeSkillIds, complexAddSubPracticeSkillId]) {
+    for (const skillId of [
+      ...pilotPracticeSkillIds,
+      complexAddSubPracticeSkillId,
+      complexMulDivPracticeSkillId,
+    ]) {
       const sets = practiceIndex.getSetsForSkill(skillId);
       expect(sets).toHaveLength(1);
       expect(sets[0]?.status).toBe("ready");
