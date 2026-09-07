@@ -2,6 +2,10 @@ import { curriculumSkillIds } from "./curriculum";
 import { agpGeneralExam } from "./exams/agpExam";
 import { pilotCalculusExam } from "./exams/pilotExam";
 import {
+  complexAddSubPracticeQuestions,
+  complexAddSubPracticeSet,
+} from "./mathComplexAddSubPractice";
+import {
   mathPracticePilotQuestions,
   mathPracticePilotSets,
 } from "./mathPracticePilot";
@@ -13,8 +17,14 @@ import {
 
 export const practiceBank: PracticeBank = {
   schemaVersion: "1.0",
-  questions: mathPracticePilotQuestions,
-  sets: mathPracticePilotSets,
+  questions: [
+    ...mathPracticePilotQuestions,
+    ...complexAddSubPracticeQuestions,
+  ],
+  sets: [
+    ...mathPracticePilotSets,
+    complexAddSubPracticeSet,
+  ],
 };
 
 export const reservedExamQuestionIds: ReadonlySet<string> = new Set([
