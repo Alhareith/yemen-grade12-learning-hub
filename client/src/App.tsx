@@ -1,6 +1,5 @@
 /**
- * Product shell — prompts, curriculum navigation and simulation are the primary student paths.
- * Keep the first paint deliberately small; heavy routes load only on demand.
+ * Product shell — prompts, curriculum navigation, skill practice and simulations are loaded on demand.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -10,14 +9,25 @@ import "./polish.css";
 
 const ExamPilot = lazy(() => import("./pages/ExamPilot"));
 const CurriculumExplorer = lazy(() => import("./pages/CurriculumExplorer"));
+const SkillPractice = lazy(() => import("./pages/SkillPractice"));
 const ArabicExamTypography = lazy(() => import("@/components/ArabicExamTypography"));
 
-type AppRoute = "home" | "curriculum" | "exam-pilot";
+type AppRoute = "home" | "curriculum" | "practice" | "exam-pilot";
 
 function readRoute(): AppRoute {
   if (window.location.hash === "#exam-pilot") return "exam-pilot";
+  if (window.location.hash.startsWith("#practice/")) return "practice";
   if (window.location.hash === "#curriculum") return "curriculum";
   return "home";
+}
+
+function readPracticeSkillId() {
+  if (!window.location.hash.startsWith("#practice/")) return "";
+  try {
+    return decodeURIComponent(window.location.hash.slice("#practice/".length));
+  } catch {
+    return "";
+  }
 }
 
 function RouteLoading() {
@@ -46,6 +56,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const goCurriculum = () => {
+    window.location.hash = "#curriculum";
+    setRoute("curriculum");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <ErrorBoundary>
       {route === "exam-pilot" ? (
@@ -54,6 +70,10 @@ export default function App() {
             <ArabicExamTypography />
             <ExamPilot onBack={goHome} />
           </div>
+        </Suspense>
+      ) : route === "practice" ? (
+        <Suspense fallback={<RouteLoading />}>
+          <SkillPractice skillId={readPracticeSkillId()} onBack={goCurriculum} />
         </Suspense>
       ) : route === "curriculum" ? (
         <Suspense fallback={<RouteLoading />}>

@@ -54,7 +54,7 @@ jobs:
           cat /tmp/yemen-grade12-preview.log
           exit 1
 
-      - name: Verify mobile prompts, curriculum and both math models
+      - name: Verify mobile prompts, curriculum, skill practice and both math models
         run: |
           cd /tmp/yemen-grade12-browser-smoke
           node --input-type=module <<'NODE'
@@ -64,6 +64,7 @@ jobs:
           const baseUrl = "http://127.0.0.1:4173/";
           const promptEvidencePath = `${process.env.GITHUB_WORKSPACE}/prompt-mobile-smoke.png`;
           const curriculumEvidencePath = `${process.env.GITHUB_WORKSPACE}/curriculum-smoke.png`;
+          const practiceEvidencePath = `${process.env.GITHUB_WORKSPACE}/skill-practice-smoke.png`;
           const exam1EvidencePath = `${process.env.GITHUB_WORKSPACE}/exam-model-1-smoke.png`;
           const exam2EvidencePath = `${process.env.GITHUB_WORKSPACE}/exam-model-2-smoke.png`;
           const localFailures = [];
@@ -109,12 +110,43 @@ jobs:
           assert.ok(skillCount > 0, "Expected visible curriculum skills");
           await page.locator("[data-skill-detail]").waitFor();
           await page.locator("[data-skill-prompt-action]").waitFor();
+          await page.locator("[data-skill-practice-action]").waitFor();
           assert.equal(await page.locator("[data-skill-detail]").getByText("برومبتات", { exact: true }).count(), 0, "Skill metric dashboard should be removed");
-          assert.equal(await page.locator("[data-skill-detail]").getByText("محاكاة", { exact: true }).count(), 0, "Skill simulation metric/action should be removed");
-          assert.equal(await page.getByText("اختبر هذه المهارة داخل المحاكاة", { exact: true }).count(), 0, "Per-skill exam action should be removed");
+          assert.equal(await page.getByText("اختبر هذه المهارة داخل المحاكاة", { exact: true }).count(), 0, "Per-skill general exam action should remain removed");
           assert.equal(await page.getByText("CPLX-NUMBER-USE", { exact: true }).count(), 0, "Technical skill id should not be student-visible");
           assert.ok((await page.locator("[data-skill-prompt-action]").innerText()).includes("انسخ الأمر واسأل به أي ذكاء اصطناعي"));
+          assert.ok((await page.locator("[data-skill-practice-action]").innerText()).includes("تدرّب على هذه المهارة"));
           await page.screenshot({ path: curriculumEvidencePath, fullPage: false });
+
+          await page.locator("[data-skill-practice-action]").click();
+          await page.locator("[data-practice-page]").waitFor();
+          await page.getByText("فهم وتمثيل العدد المركب", { exact: false }).first().waitFor();
+          await page.locator("[data-practice-start]").click();
+
+          const answerRound = async () => {
+            const ids = [];
+            for (let index = 0; index < 5; index += 1) {
+              const card = page.locator("[data-practice-question]");
+              await card.waitFor();
+              const questionId = await card.getAttribute("data-question-id");
+              assert.ok(questionId, "Practice question should expose a stable id for smoke verification");
+              ids.push(questionId);
+              await page.locator("[data-practice-option]").first().click();
+              await page.locator("[data-practice-feedback]").waitFor();
+              await page.locator("[data-practice-next]").click();
+            }
+            await page.locator("[data-practice-round-result]").waitFor();
+            return ids;
+          };
+
+          const firstRoundIds = await answerRound();
+          assert.equal(new Set(firstRoundIds).size, 5, "First practice round should contain five unique questions");
+          await page.locator("[data-practice-next-round]").click();
+          const secondRoundIds = await answerRound();
+          assert.equal(new Set(secondRoundIds).size, 5, "Second practice round should contain five unique questions");
+          assert.deepEqual(firstRoundIds.filter((id) => secondRoundIds.includes(id)), [], "Second practice round must not repeat first-round questions");
+          await page.getByText("أكملت جولتين دون تكرار مباشر", { exact: true }).waitFor();
+          await page.screenshot({ path: practiceEvidencePath, fullPage: false });
 
           await page.goto(`${baseUrl}#exam-pilot`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-arabic-exam]").waitFor();
@@ -150,7 +182,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, promptRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, skillDashboardRemoved: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, promptRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 
@@ -162,6 +194,7 @@ jobs:
           path: |
             prompt-mobile-smoke.png
             curriculum-smoke.png
+            skill-practice-smoke.png
             exam-model-1-smoke.png
             exam-model-2-smoke.png
           if-no-files-found: ignore

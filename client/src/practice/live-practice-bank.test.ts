@@ -5,16 +5,25 @@ import {
   practiceIndex,
   reservedExamQuestionIds,
 } from "@/data/practiceBank";
+import { pilotPracticeSkillIds } from "@/data/mathPracticePilot";
 import { validatePracticeBank } from "@shared/practice/practice-model";
 
 describe("live practice registry", () => {
-  it("starts empty until reviewed training content is added", () => {
-    expect(practiceBank.questions).toEqual([]);
-    expect(practiceBank.sets).toEqual([]);
-    expect(practiceIndex.getSetsForSkill("DER-CHAIN")).toEqual([]);
+  it("publishes exactly the reviewed six-skill pilot", () => {
+    expect(practiceBank.questions).toHaveLength(60);
+    expect(practiceBank.sets).toHaveLength(6);
+    expect(new Set(pilotPracticeSkillIds).size).toBe(6);
+
+    for (const skillId of pilotPracticeSkillIds) {
+      const sets = practiceIndex.getSetsForSkill(skillId);
+      expect(sets).toHaveLength(1);
+      expect(sets[0]?.status).toBe("ready");
+      expect(sets[0]?.roundSize).toBe(5);
+      expect(sets[0]?.questionIds).toHaveLength(10);
+    }
   });
 
-  it("is already wired to curriculum skills and reserved simulation ids", () => {
+  it("remains wired to curriculum skills and protected from simulation id collisions", () => {
     expect(curriculumSkillIds.size).toBeGreaterThan(0);
     expect(reservedExamQuestionIds.size).toBeGreaterThan(0);
     expect(validatePracticeBank(practiceBank, curriculumSkillIds, reservedExamQuestionIds)).toEqual([]);
