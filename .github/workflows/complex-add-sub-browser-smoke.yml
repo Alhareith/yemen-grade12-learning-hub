@@ -86,7 +86,9 @@ jobs:
 
           await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-curriculum-explorer]").waitFor();
-          await page.getByRole("button", { name: "جمع وطرح الأعداد المركبة", exact: true }).click();
+          const lessonTitle = page.getByText("جمع وطرح الأعداد المركبة", { exact: true }).first();
+          await lessonTitle.waitFor();
+          await lessonTitle.click();
           await page.locator('[data-curriculum-skill="CPLX-ADD-SUB-APPLY"]').waitFor();
           await page.getByText("إجراء جمع وطرح الأعداد المركبة", { exact: true }).first().waitFor();
           const practiceAction = page.locator("[data-skill-practice-action]");
