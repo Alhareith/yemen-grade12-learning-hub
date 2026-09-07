@@ -4,12 +4,14 @@ import {
   BookOpenCheck,
   ChevronLeft,
   Copy,
+  Dumbbell,
   ExternalLink,
   Layers3,
   Library,
   Sigma,
 } from "lucide-react";
 import { curriculumGraph, curriculumIndex } from "@/data/curriculum";
+import { getReadyPracticeSetForSkill } from "@/data/practiceBank";
 import { selfStudyPrompts } from "@/data/promptCatalog";
 import { buildArabicOutputPolicy } from "@shared/prompts/arabic-output-policy";
 
@@ -32,6 +34,7 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
   const [skillId, setSkillId] = useState(() => skills[0]?.id ?? "");
   const activeSkill = curriculumIndex.skills.get(skillId) ?? skills[0];
   const skillContext = activeSkill ? curriculumIndex.getSkillContext(activeSkill.id) : null;
+  const practiceSet = activeSkill ? getReadyPracticeSetForSkill(activeSkill.id) : null;
   const [copied, setCopied] = useState(false);
 
   const chooseSubject = (nextSubjectId: string) => {
@@ -106,7 +109,7 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
         <section className="mt-4 overflow-hidden rounded-[28px] bg-slate-950 p-5 text-white sm:p-7">
           <span className="text-[10px] font-extrabold text-violet-300">ابدأ من مكانك الحقيقي في المنهج</span>
           <h1 className="mt-2 text-2xl font-black leading-10 sm:text-3xl">المادة ← الوحدة ← الدرس ← المهارة</h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-slate-300">اختر ما تدرسه، وسيعرض لك الموقع أمرًا جاهزًا للشرح والمصادر المرتبطة بهذه المهارة بوضوح.</p>
+          <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-slate-300">اختر ما تدرسه، وسيعرض لك الموقع أمرًا جاهزًا للشرح والمصادر المرتبطة، والتدريب عندما يكون له بنك مراجع فعليًا.</p>
         </section>
 
         <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
@@ -178,11 +181,17 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
                 </div>
 
                 <div className="p-4 sm:p-5">
-                  <p className="text-xs font-medium leading-6 text-slate-500">الأمر يضيف المادة والوحدة والدرس والمهارة تلقائيًا، ويطلب شرحًا عربيًا منسقًا يناسب الثالث الثانوي.</p>
+                  <p className="text-xs font-medium leading-6 text-slate-500">ابدأ بالأمر إذا احتجت شرحًا. وإذا ظهر زر التدريب، فهناك بنك مراجع خاص بهذه المهارة وليس محاكاة عامة.</p>
 
                   <button data-skill-prompt-action type="button" onClick={copySkillPrompt} className={`mt-4 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl px-4 text-center text-sm font-black text-white ${copied ? "bg-emerald-600" : "bg-violet-700"}`}>
                     <Copy className="h-4 w-4 shrink-0" /> {copied ? "تم نسخ الأمر" : "انسخ الأمر واسأل به أي ذكاء اصطناعي"}
                   </button>
+
+                  {practiceSet && (
+                    <a data-skill-practice-action href={`#practice/${encodeURIComponent(skillContext.skill.id)}`} className="mt-2 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-center text-sm font-black text-white">
+                      <Dumbbell className="h-4 w-4" /> تدرّب على هذه المهارة
+                    </a>
+                  )}
 
                   <div className="mt-6">
                     <span className="text-[11px] font-extrabold text-slate-400">مصادر مرتبطة بهذه المهارة</span>
