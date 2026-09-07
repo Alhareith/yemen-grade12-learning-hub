@@ -126,9 +126,73 @@ const complexAddSubRules: PracticeDiagnosticRule[] = [
   },
 ];
 
+const complexMulDivRules: PracticeDiagnosticRule[] = [
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:01",
+    focusId: "complex-conjugate-product",
+    focusLabel: "ضرب العدد المركب في مرافقه",
+    deepeningGoal: "أن أفهم لماذا ع × ع̄ يساوي أ² + ب² وأطبق ذلك حتى عندما يحتوي المعامل على جذر.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:02",
+    focusId: "complex-conjugate-product",
+    focusLabel: "ضرب العدد المركب في مرافقه",
+    deepeningGoal: "أن أستخدم المرافق لإلغاء الحدين التخيليين وأحسب أ² + ب² دون أخطاء حسابية.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:03",
+    focusId: "complex-conjugate-product",
+    focusLabel: "ضرب العدد المركب في مرافقه",
+    deepeningGoal: "أن أفرق بين تربيع المعامل وتغيير إشارة الجزء التخيلي عند تكوين المرافق.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:04",
+    focusId: "complex-conjugate-product",
+    focusLabel: "ضرب العدد المركب في مرافقه",
+    deepeningGoal: "أن أحسب حاصل ضرب العدد في مرافقه من مربعي الجزأين الحقيقي والتخيلي بثبات.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:05",
+    focusId: "complex-radical-square",
+    focusLabel: "تربيع معاملات الجذور في الضرب",
+    deepeningGoal: "أن أتذكر أن (√أ)² = أ ثم أكمل قاعدة الضرب في المرافق دون ترك الجذر كما هو.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:06",
+    focusId: "complex-division-conjugate",
+    focusLabel: "استخدام مرافق المقام في قسمة الأعداد المركبة",
+    deepeningGoal: "أن أضرب البسط والمقام في مرافق المقام وأحول المقام إلى عدد حقيقي قبل التبسيط.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:07",
+    focusId: "complex-division-conjugate",
+    focusLabel: "استخدام مرافق المقام في قسمة الأعداد المركبة",
+    deepeningGoal: "أن أختار مرافق المقام الصحيح وأحافظ على إشارات البسط أثناء التربيع والتبسيط.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:08",
+    focusId: "complex-division-cancellation",
+    focusLabel: "ملاحظة إلغاء الجزء الحقيقي بعد ترشيد المقام",
+    deepeningGoal: "أن أوسع حاصل الضرب بعد استخدام المرافق وألاحظ متى تتلاشى الحدود الحقيقية فيتبقى ت فقط.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:09",
+    focusId: "complex-division-conjugate",
+    focusLabel: "استخدام مرافق المقام في قسمة الأعداد المركبة",
+    deepeningGoal: "أن أطبق طريقة المرافق على معاملات جذرية متساوية وأبسّط الناتج النهائي بدقة.",
+  },
+  {
+    questionId: "practice:CPLX-MUL-DIV-APPLY:10",
+    focusId: "complex-division-cancellation",
+    focusLabel: "ملاحظة إلغاء الجزء الحقيقي بعد ترشيد المقام",
+    deepeningGoal: "أن أتعرف على نمط البسط والمقام المتعامد الذي يؤدي بعد الترشيد إلى ناتج تخيلي خالص.",
+  },
+];
+
 const diagnosticRulesBySkill: Record<string, readonly PracticeDiagnosticRule[]> = {
   "CPLX-NUMBER-USE": complexNumberRules,
   "CPLX-ADD-SUB-APPLY": complexAddSubRules,
+  "CPLX-MUL-DIV-APPLY": complexMulDivRules,
 };
 
 export function getPracticeDiagnosticRulesForSkill(skillId: string): readonly PracticeDiagnosticRule[] {
