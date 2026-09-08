@@ -252,11 +252,75 @@ const complexPolarRules: PracticeDiagnosticRule[] = [
   },
 ];
 
+const complexPowersRootsRules: PracticeDiagnosticRule[] = [
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:01",
+    focusId: "complex-power-ratio-cycle",
+    focusLabel: "تحويل النسبة المركبة إلى قوة من قوى ت ثم استخدام الدورة",
+    deepeningGoal: "أن أبسط (١ + ت) ÷ (١ − ت) إلى ت أولًا، ثم أجمع الأسس وأختزل الأس النهائي بترديد ٤ دون خطوات زائدة.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:02",
+    focusId: "complex-root-square",
+    focusLabel: "استرجاع العدد المركب من أحد جذريه بالتربيع",
+    deepeningGoal: "أن أوسع مربع (أ + ب ت) مع الحد الأوسط ٢أب ت وأستخدم ت² = −١ بصورة صحيحة.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:03",
+    focusId: "complex-power-ratio-cycle",
+    focusLabel: "تحويل النسبة المركبة إلى قوة من قوى ت ثم استخدام الدورة",
+    deepeningGoal: "أن أتعرف على قيمة (ت − ١) ÷ (ت + ١) ثم أختزل الأس الكبير اعتمادًا على دورة ت كل أربع قوى.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:04",
+    focusId: "complex-root-signs",
+    focusLabel: "ضبط الإشارات عند تربيع جذر مركب",
+    deepeningGoal: "أن أطبق (أ − ب ت)² = أ² − ٢أب ت + ب²ت² دون تحويل إشارة الحد الأوسط أو ت² بصورة خاطئة.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:05",
+    focusId: "complex-power-negative-i",
+    focusLabel: "دورة قوى −ت والأسس الكبيرة",
+    deepeningGoal: "أن أبسط النسبة إلى −ت وأتعرف على أن الأس المضاعف لـ٤ يعيد القيمة إلى ١ قبل ضرب العامل الخارجي.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:06",
+    focusId: "complex-power-ratio-cycle",
+    focusLabel: "تحويل النسبة المركبة إلى قوة من قوى ت ثم استخدام الدورة",
+    deepeningGoal: "أن أجمع الأس الخارجي مع أس النسبة بعد تبسيطها إلى ت ثم أستخدم باقي القسمة على ٤ للوصول للناتج مباشرة.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:07",
+    focusId: "complex-root-radicals",
+    focusLabel: "تربيع عدد مركب بمعاملات جذرية",
+    deepeningGoal: "أن أربيع معاملات الجذور وأحسب الحد الأوسط بدقة ثم أستخدم ت² = −١ قبل جمع الجزء الحقيقي.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:08",
+    focusId: "complex-power-ratio-cycle",
+    focusLabel: "تحويل النسبة المركبة إلى قوة من قوى ت ثم استخدام الدورة",
+    deepeningGoal: "أن أختزل الأس الكلي إلى أحد البواقي ٠،١،٢،٣ بعد تحويل النسبة إلى ت، وأربط كل باقٍ بالقيمة الصحيحة.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:09",
+    focusId: "complex-root-radicals",
+    focusLabel: "تربيع عدد مركب بمعاملات جذرية",
+    deepeningGoal: "أن أحسب (√٢ ت)² على أنه −٢، وأحافظ على الحد الأوسط ٢√٢ ت عند استرجاع العدد المركب.",
+  },
+  {
+    questionId: "practice:CPLX-POWERS-ROOTS-APPLY:10",
+    focusId: "complex-root-radicals",
+    focusLabel: "تربيع عدد مركب بمعاملات جذرية",
+    deepeningGoal: "أن أحسب حاصل ضرب √٣ و√٢ داخل الحد الأوسط على أنه √٦، ثم أطبق الإشارة و ت² = −١ دون خلط.",
+  },
+];
+
 const diagnosticRulesBySkill: Record<string, readonly PracticeDiagnosticRule[]> = {
   "CPLX-NUMBER-USE": complexNumberRules,
   "CPLX-ADD-SUB-APPLY": complexAddSubRules,
   "CPLX-MUL-DIV-APPLY": complexMulDivRules,
   "CPLX-POLAR-USE": complexPolarRules,
+  "CPLX-POWERS-ROOTS-APPLY": complexPowersRootsRules,
 };
 
 export function getPracticeDiagnosticRulesForSkill(skillId: string): readonly PracticeDiagnosticRule[] {
