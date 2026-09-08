@@ -10,6 +10,10 @@ import {
   complexMulDivPracticeSet,
 } from "./mathComplexMulDivPractice";
 import {
+  complexPolarPracticeQuestions,
+  complexPolarPracticeSet,
+} from "./mathComplexPolarPractice";
+import {
   mathPracticePilotQuestions,
   mathPracticePilotSets,
 } from "./mathPracticePilot";
@@ -25,11 +29,13 @@ export const practiceBank: PracticeBank = {
     ...mathPracticePilotQuestions,
     ...complexAddSubPracticeQuestions,
     ...complexMulDivPracticeQuestions,
+    ...complexPolarPracticeQuestions,
   ],
   sets: [
     ...mathPracticePilotSets,
     complexAddSubPracticeSet,
     complexMulDivPracticeSet,
+    complexPolarPracticeSet,
   ],
 };
 
