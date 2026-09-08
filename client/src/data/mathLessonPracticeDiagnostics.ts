@@ -189,10 +189,74 @@ const complexMulDivRules: PracticeDiagnosticRule[] = [
   },
 ];
 
+const complexPolarRules: PracticeDiagnosticRule[] = [
+  {
+    questionId: "practice:CPLX-POLAR-USE:01",
+    focusId: "polar-first-quadrant",
+    focusLabel: "حساب المقياس والزاوية في الربع الأول",
+    deepeningGoal: "أن أحسب ر من √(أ² + ب²) وأتعرف على الزوايا الخاصة في الربع الأول دون خلط بين π⁄٦ وπ⁄٣.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:02",
+    focusId: "polar-third-quadrant",
+    focusLabel: "تحديد الزاوية الصحيحة في الربع الثالث",
+    deepeningGoal: "أن أحدد الربع الثالث من إشارتَي الجزأين ثم أضيف π إلى الزاوية المرجعية بدل اختيار زاوية من ربع آخر.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:03",
+    focusId: "polar-second-quadrant",
+    focusLabel: "تحديد الزاوية الصحيحة في الربع الثاني",
+    deepeningGoal: "أن أستخدم θ = π − الزاوية المرجعية عندما يكون الجزء الحقيقي سالبًا والتخيلي موجبًا.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:04",
+    focusId: "polar-fourth-quadrant",
+    focusLabel: "تحديد الزاوية الصحيحة في الربع الرابع",
+    deepeningGoal: "أن أتعرف على الربع الرابع وأستخدم زاوية سالبة مناسبة أو ما يكافئها دون تغيير المقياس.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:05",
+    focusId: "polar-first-quadrant",
+    focusLabel: "حساب المقياس والزاوية في الربع الأول",
+    deepeningGoal: "أن أميز من النسبة بين الجزأين هل الزاوية π⁄٦ أم π⁄٣ بعد حساب المقياس.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:06",
+    focusId: "polar-third-quadrant",
+    focusLabel: "تحديد الزاوية الصحيحة في الربع الثالث",
+    deepeningGoal: "أن أربط الزاوية المرجعية π⁄٦ بالربع الثالث فأصل إلى ٧π⁄٦ بثبات.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:07",
+    focusId: "polar-second-quadrant",
+    focusLabel: "تحديد الزاوية الصحيحة في الربع الثاني",
+    deepeningGoal: "أن أربط الزاوية المرجعية π⁄٦ بالربع الثاني فأصل إلى ٥π⁄٦ دون عكس الإشارات.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:08",
+    focusId: "polar-fourth-quadrant",
+    focusLabel: "تحديد الزاوية الصحيحة في الربع الرابع",
+    deepeningGoal: "أن أميز عندما تكون الزاوية المرجعية π⁄٣ في الربع الرابع فأكتب −π⁄٣ أو زاويتها الموجبة المكافئة.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:09",
+    focusId: "polar-equal-components",
+    focusLabel: "التعرف على زاوية π⁄٤ عند تساوي الجزأين",
+    deepeningGoal: "أن أتعرف فورًا على زاوية π⁄٤ عندما يكون الجزآن الحقيقي والتخيلي متساويين وموجبين، مع حساب المقياس بصورة صحيحة.",
+  },
+  {
+    questionId: "practice:CPLX-POLAR-USE:10",
+    focusId: "polar-third-quadrant",
+    focusLabel: "تحديد الزاوية الصحيحة في الربع الثالث",
+    deepeningGoal: "أن أتعرف على الزاوية المرجعية π⁄٣ ثم أنقلها إلى الربع الثالث لأحصل على ٤π⁄٣.",
+  },
+];
+
 const diagnosticRulesBySkill: Record<string, readonly PracticeDiagnosticRule[]> = {
   "CPLX-NUMBER-USE": complexNumberRules,
   "CPLX-ADD-SUB-APPLY": complexAddSubRules,
   "CPLX-MUL-DIV-APPLY": complexMulDivRules,
+  "CPLX-POLAR-USE": complexPolarRules,
 };
 
 export function getPracticeDiagnosticRulesForSkill(skillId: string): readonly PracticeDiagnosticRule[] {
