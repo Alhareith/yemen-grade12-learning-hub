@@ -18,6 +18,10 @@ import {
   complexPowersRootsPracticeSet,
 } from "./mathComplexPowersRootsPractice";
 import {
+  complexQuadraticPracticeQuestions,
+  complexQuadraticPracticeSet,
+} from "./mathComplexQuadraticPractice";
+import {
   mathPracticePilotQuestions,
   mathPracticePilotSets,
 } from "./mathPracticePilot";
@@ -35,6 +39,7 @@ export const practiceBank: PracticeBank = {
     ...complexMulDivPracticeQuestions,
     ...complexPolarPracticeQuestions,
     ...complexPowersRootsPracticeQuestions,
+    ...complexQuadraticPracticeQuestions,
   ],
   sets: [
     ...mathPracticePilotSets,
@@ -42,6 +47,7 @@ export const practiceBank: PracticeBank = {
     complexMulDivPracticeSet,
     complexPolarPracticeSet,
     complexPowersRootsPracticeSet,
+    complexQuadraticPracticeSet,
   ],
 };
 
