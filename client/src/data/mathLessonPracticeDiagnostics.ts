@@ -1,4 +1,5 @@
 import type { PracticeDiagnosticRule } from "@shared/practice/practice-diagnostics";
+import { countingPrincipleDiagnosticRules } from "./mathCountingPrincipleDiagnostics";
 
 const complexNumberRules: PracticeDiagnosticRule[] = [
   {
@@ -385,6 +386,7 @@ const diagnosticRulesBySkill: Record<string, readonly PracticeDiagnosticRule[]> 
   "CPLX-POLAR-USE": complexPolarRules,
   "CPLX-POWERS-ROOTS-APPLY": complexPowersRootsRules,
   "CPLX-QUADRATIC-SOLVE": complexQuadraticRules,
+  "COUNT-PRINCIPLE-APPLY": countingPrincipleDiagnosticRules,
 };
 
 export function getPracticeDiagnosticRulesForSkill(skillId: string): readonly PracticeDiagnosticRule[] {
