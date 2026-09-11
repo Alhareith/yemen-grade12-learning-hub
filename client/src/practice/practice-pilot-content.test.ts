@@ -5,6 +5,7 @@ import {
   mathPracticePilotSets,
   pilotPracticeSkillIds,
 } from "@/data/mathPracticePilot";
+import { combinationsPracticeSet } from "@/data/mathCombinationsPractice";
 import {
   practiceBank,
   reservedExamQuestionIds,
@@ -25,8 +26,10 @@ function studentText(question: (typeof mathPracticePilotQuestions)[number]) {
   return segments.map((segment) => segment.type === "text" ? segment.text : segment.altText).join(" ");
 }
 
+const GRADUATED_PILOT_SKILL_IDS = new Set(["COUNT-COMBINATIONS-APPLY"]);
+
 describe("math skill practice pilot content", () => {
-  it("covers six representative curriculum skills with ten reviewed questions each", () => {
+  it("retains the original six-skill pilot source content for regression coverage", () => {
     expect(pilotPracticeSkillIds).toEqual([
       "CPLX-NUMBER-USE",
       "COUNT-COMBINATIONS-APPLY",
@@ -56,8 +59,12 @@ describe("math skill practice pilot content", () => {
     }
   });
 
-  it("supports two complete five-question rounds without direct repetition for every skill", () => {
+  it("keeps active pilot skills live while recognizing graduated lessons", () => {
     for (const set of mathPracticePilotSets) {
+      if (GRADUATED_PILOT_SKILL_IDS.has(set.skillId)) {
+        expect(practiceBank.sets.some((liveSet) => liveSet.id === set.id)).toBe(false);
+        continue;
+      }
       expect(isPracticeSetReadyForStudents(practiceBank, set.id, curriculumSkillIds)).toBe(true);
       const first = selectFreshPracticeQuestionIds(practiceBank, set.id, { seed: `${set.id}:round-1` });
       const second = selectFreshPracticeQuestionIds(practiceBank, set.id, {
@@ -69,13 +76,16 @@ describe("math skill practice pilot content", () => {
       expect(first.filter((id) => second.includes(id))).toEqual([]);
       expect(new Set([...first, ...second]).size).toBe(10);
     }
+
+    expect(isPracticeSetReadyForStudents(practiceBank, combinationsPracticeSet.id, curriculumSkillIds)).toBe(true);
+    expect(practiceBank.sets.filter((set) => set.skillId === "COUNT-COMBINATIONS-APPLY")).toEqual([combinationsPracticeSet]);
   });
 
   it("keeps the full live bank valid", () => {
     expect(validatePracticeBank(practiceBank, curriculumSkillIds, reservedExamQuestionIds)).toEqual([]);
   });
 
-  it("locks representative reviewed answers for mathematical regression protection", () => {
+  it("locks representative reviewed answers for historical pilot regression protection", () => {
     const byId = new Map(mathPracticePilotQuestions.map((question) => [question.id, question]));
     expect(byId.get("practice:CPLX-NUMBER-USE:06")?.options.find((option) => option.id === byId.get("practice:CPLX-NUMBER-USE:06")?.answer.correctOptionId)?.content[0]).toMatchObject({ type: "text", text: "٥" });
     expect(byId.get("practice:COUNT-COMBINATIONS-APPLY:09")?.options.find((option) => option.id === byId.get("practice:COUNT-COMBINATIONS-APPLY:09")?.answer.correctOptionId)?.content[0]).toMatchObject({ type: "text", text: "٨٤" });
