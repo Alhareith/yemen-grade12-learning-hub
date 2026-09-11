@@ -9,7 +9,8 @@
     "preview": "vite preview --host",
     "check": "tsc --noEmit",
     "test": "vitest run",
-    "verify": "pnpm check && pnpm test && pnpm build",
+    "validate:agp-transcriptions": "node scripts/validate-agp-verified-transcriptions.mjs",
+    "verify": "pnpm check && pnpm test && pnpm validate:agp-transcriptions && pnpm build",
     "check:links": "node scripts/check-live-links.mjs",
     "format": "prettier --write ."
   },
