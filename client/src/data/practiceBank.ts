@@ -26,6 +26,10 @@ import {
   countingPrinciplePracticeSet,
 } from "./mathCountingPrinciplePractice";
 import {
+  permutationsPracticeQuestions,
+  permutationsPracticeSet,
+} from "./mathPermutationsPractice";
+import {
   mathPracticePilotQuestions,
   mathPracticePilotSets,
 } from "./mathPracticePilot";
@@ -45,6 +49,7 @@ export const practiceBank: PracticeBank = {
     ...complexPowersRootsPracticeQuestions,
     ...complexQuadraticPracticeQuestions,
     ...countingPrinciplePracticeQuestions,
+    ...permutationsPracticeQuestions,
   ],
   sets: [
     ...mathPracticePilotSets,
@@ -54,6 +59,7 @@ export const practiceBank: PracticeBank = {
     complexPowersRootsPracticeSet,
     complexQuadraticPracticeSet,
     countingPrinciplePracticeSet,
+    permutationsPracticeSet,
   ],
 };
 
