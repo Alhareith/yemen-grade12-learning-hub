@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0",
+  "sourceTitle": "نماذج الجبر والهندسة ثالث ثانوي 2025م",
+  "sourceYear": 2025,
+  "sourcePdfPages": 77,
+  "totalModels": 24,
+  "questionsPerModel": 40,
+  "totalQuestionSlots": 960,
+  "answerIndex": "../2025-agp-answer-index.json",
+  "usagePolicy": {
+    "allowedForAutomaticUse": "status=verified only",
+    "blockedForAutomaticUse": ["needs-visual-review", "source-anomaly"],
+    "rule": "لا يُستخدم سؤال في التدريب أو البرومبت أو المحاكاة ما لم يكن نصه verified. وجود مفتاح إجابة وحده لا يكفي."
+  },
+  "transcribedModels": [
+    {
+      "model": 1,
+      "file": "model-01.json",
+      "questionSlots": 40,
+      "verifiedTextQuestions": 25,
+      "needsVisualReview": 15,
+      "answerKeyPage": 8
+    },
+    {
+      "model": 2,
+      "file": "model-02.json",
+      "questionSlots": 40,
+      "verifiedTextQuestions": 15,
+      "needsVisualReview": 25,
+      "answerKeyPage": 11
+    },
+    {
+      "model": 3,
+      "file": "model-03.json",
+      "questionSlots": 40,
+      "verifiedTextQuestions": 25,
+      "needsVisualReview": 15,
+      "answerKeyPage": 14
+    }
+  ],
+  "progress": {
+    "modelsWithStructuredFiles": 3,
+    "structuredQuestionSlots": 120,
+    "verifiedTextQuestions": 65,
+    "remainingStructuredSlotsNeedingVisualReview": 55,
+    "modelsNotYetStructured": 21
+  }
+}
