@@ -13,6 +13,7 @@
 
 - `CPLX-QUADRATIC-SOLVE` → `2025-agp-complex-quadratic-source.md`.
 - `COUNT-PRINCIPLE-APPLY` → `2025-agp-counting-principle-source.md`.
+- `COUNT-PERMUTATIONS-APPLY` → `2025-agp-permutations-source.md`.
 
 ## حالات النص
 
