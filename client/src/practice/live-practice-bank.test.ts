@@ -12,13 +12,14 @@ import { complexPowersRootsPracticeSkillId } from "@/data/mathComplexPowersRoots
 import { complexQuadraticPracticeSkillId } from "@/data/mathComplexQuadraticPractice";
 import { countingPrinciplePracticeSkillId } from "@/data/mathCountingPrinciplePractice";
 import { permutationsPracticeSkillId } from "@/data/mathPermutationsPractice";
+import { combinationsPracticeSkillId } from "@/data/mathCombinationsPractice";
 import { pilotPracticeSkillIds } from "@/data/mathPracticePilot";
 import { validatePracticeBank } from "@shared/practice/practice-model";
 
 describe("live practice registry", () => {
   it("publishes the six-skill pilot plus independently completed math lessons", () => {
-    expect(practiceBank.questions).toHaveLength(130);
-    expect(practiceBank.sets).toHaveLength(13);
+    expect(practiceBank.questions).toHaveLength(140);
+    expect(practiceBank.sets).toHaveLength(14);
     expect(new Set(pilotPracticeSkillIds).size).toBe(6);
     expect(pilotPracticeSkillIds).not.toContain(complexAddSubPracticeSkillId);
     expect(pilotPracticeSkillIds).not.toContain(complexMulDivPracticeSkillId);
@@ -27,6 +28,7 @@ describe("live practice registry", () => {
     expect(pilotPracticeSkillIds).not.toContain(complexQuadraticPracticeSkillId);
     expect(pilotPracticeSkillIds).not.toContain(countingPrinciplePracticeSkillId);
     expect(pilotPracticeSkillIds).not.toContain(permutationsPracticeSkillId);
+    expect(pilotPracticeSkillIds).not.toContain(combinationsPracticeSkillId);
 
     for (const skillId of [
       ...pilotPracticeSkillIds,
@@ -37,6 +39,7 @@ describe("live practice registry", () => {
       complexQuadraticPracticeSkillId,
       countingPrinciplePracticeSkillId,
       permutationsPracticeSkillId,
+      combinationsPracticeSkillId,
     ]) {
       const sets = practiceIndex.getSetsForSkill(skillId);
       expect(sets).toHaveLength(1);
