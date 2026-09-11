@@ -30,12 +30,12 @@ function makeResult(entries: Array<[number, boolean]>): PracticeSessionResult {
 }
 
 describe("lesson 01 complex-number practice diagnostics", () => {
-  it("classifies all ten lesson questions without leaking diagnostics to unfinished lessons", () => {
+  it("classifies all ten lesson questions without leaking diagnostics to the next unfinished lesson", () => {
     const rules = getPracticeDiagnosticRulesForSkill(SKILL_ID);
     expect(rules).toHaveLength(10);
     expect(new Set(rules.map((rule) => rule.questionId)).size).toBe(10);
     expect(rules.every((rule) => rule.questionId.startsWith(`practice:${SKILL_ID}:`))).toBe(true);
-    expect(getPracticeDiagnosticRulesForSkill("COUNT-COMBINATIONS-APPLY")).toEqual([]);
+    expect(getPracticeDiagnosticRulesForSkill("COUNT-INDUCTION-APPLY")).toEqual([]);
   });
 
   it("turns actual misses into ranked weak points and a targeted deepening prompt", () => {
