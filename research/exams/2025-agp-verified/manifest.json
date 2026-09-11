@@ -36,13 +36,29 @@
       "verifiedTextQuestions": 25,
       "needsVisualReview": 15,
       "answerKeyPage": 14
+    },
+    {
+      "model": 4,
+      "file": "model-04.json",
+      "questionSlots": 40,
+      "verifiedTextQuestions": 21,
+      "needsVisualReview": 19,
+      "answerKeyPage": 17
+    },
+    {
+      "model": 5,
+      "file": "model-05.json",
+      "questionSlots": 40,
+      "verifiedTextQuestions": 25,
+      "needsVisualReview": 15,
+      "answerKeyPage": 20
     }
   ],
   "progress": {
-    "modelsWithStructuredFiles": 3,
-    "structuredQuestionSlots": 120,
-    "verifiedTextQuestions": 65,
-    "remainingStructuredSlotsNeedingVisualReview": 55,
-    "modelsNotYetStructured": 21
+    "modelsWithStructuredFiles": 5,
+    "structuredQuestionSlots": 200,
+    "verifiedTextQuestions": 111,
+    "remainingStructuredSlotsNeedingVisualReview": 89,
+    "modelsNotYetStructured": 19
   }
 }
