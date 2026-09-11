@@ -12,14 +12,14 @@ import { complexPowersRootsPracticeSkillId } from "@/data/mathComplexPowersRoots
 import { complexQuadraticPracticeSkillId } from "@/data/mathComplexQuadraticPractice";
 import { countingPrinciplePracticeSkillId } from "@/data/mathCountingPrinciplePractice";
 import { permutationsPracticeSkillId } from "@/data/mathPermutationsPractice";
-import { combinationsPracticeSkillId } from "@/data/mathCombinationsPractice";
+import { combinationsPracticeSkillId, combinationsPracticeSet } from "@/data/mathCombinationsPractice";
 import { pilotPracticeSkillIds } from "@/data/mathPracticePilot";
 import { validatePracticeBank } from "@shared/practice/practice-model";
 
 describe("live practice registry", () => {
-  it("publishes the six-skill pilot plus independently completed math lessons", () => {
-    expect(practiceBank.questions).toHaveLength(140);
-    expect(practiceBank.sets).toHaveLength(14);
+  it("publishes one ready set per live skill and graduates combinations from the pilot copy", () => {
+    expect(practiceBank.questions).toHaveLength(130);
+    expect(practiceBank.sets).toHaveLength(13);
     expect(new Set(pilotPracticeSkillIds).size).toBe(6);
     expect(pilotPracticeSkillIds).not.toContain(complexAddSubPracticeSkillId);
     expect(pilotPracticeSkillIds).not.toContain(complexMulDivPracticeSkillId);
@@ -28,24 +28,17 @@ describe("live practice registry", () => {
     expect(pilotPracticeSkillIds).not.toContain(complexQuadraticPracticeSkillId);
     expect(pilotPracticeSkillIds).not.toContain(countingPrinciplePracticeSkillId);
     expect(pilotPracticeSkillIds).not.toContain(permutationsPracticeSkillId);
-    expect(pilotPracticeSkillIds).not.toContain(combinationsPracticeSkillId);
+    expect(pilotPracticeSkillIds).toContain(combinationsPracticeSkillId);
 
-    for (const skillId of [
-      ...pilotPracticeSkillIds,
-      complexAddSubPracticeSkillId,
-      complexMulDivPracticeSkillId,
-      complexPolarPracticeSkillId,
-      complexPowersRootsPracticeSkillId,
-      complexQuadraticPracticeSkillId,
-      countingPrinciplePracticeSkillId,
-      permutationsPracticeSkillId,
-      combinationsPracticeSkillId,
-    ]) {
-      const sets = practiceIndex.getSetsForSkill(skillId);
-      expect(sets).toHaveLength(1);
-      expect(sets[0]?.status).toBe("ready");
-      expect(sets[0]?.roundSize).toBe(5);
-      expect(sets[0]?.questionIds).toHaveLength(10);
+    const liveSkillIds = new Set(practiceBank.sets.map((set) => set.skillId));
+    expect(liveSkillIds.size).toBe(practiceBank.sets.length);
+    expect(practiceIndex.getSetsForSkill(combinationsPracticeSkillId)).toEqual([combinationsPracticeSet]);
+    expect(combinationsPracticeSet.id).toBe("practice-set:COUNT-COMBINATIONS-APPLY:reviewed-v1");
+
+    for (const set of practiceBank.sets) {
+      expect(set.status).toBe("ready");
+      expect(set.roundSize).toBe(5);
+      expect(set.questionIds).toHaveLength(10);
     }
   });
 
