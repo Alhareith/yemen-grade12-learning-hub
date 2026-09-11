@@ -32,6 +32,7 @@ import {
 import {
   combinationsPracticeQuestions,
   combinationsPracticeSet,
+  combinationsPracticeSkillId,
 } from "./mathCombinationsPractice";
 import {
   mathPracticePilotQuestions,
@@ -43,10 +44,17 @@ import {
   type PracticeBank,
 } from "@shared/practice/practice-model";
 
+const activePilotPracticeQuestions = mathPracticePilotQuestions.filter(
+  (question) => question.skillId !== combinationsPracticeSkillId,
+);
+const activePilotPracticeSets = mathPracticePilotSets.filter(
+  (set) => set.skillId !== combinationsPracticeSkillId,
+);
+
 export const practiceBank: PracticeBank = {
   schemaVersion: "1.0",
   questions: [
-    ...mathPracticePilotQuestions,
+    ...activePilotPracticeQuestions,
     ...complexAddSubPracticeQuestions,
     ...complexMulDivPracticeQuestions,
     ...complexPolarPracticeQuestions,
@@ -57,7 +65,7 @@ export const practiceBank: PracticeBank = {
     ...combinationsPracticeQuestions,
   ],
   sets: [
-    ...mathPracticePilotSets,
+    ...activePilotPracticeSets,
     complexAddSubPracticeSet,
     complexMulDivPracticeSet,
     complexPolarPracticeSet,
