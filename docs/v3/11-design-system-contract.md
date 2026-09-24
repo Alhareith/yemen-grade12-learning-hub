@@ -375,7 +375,7 @@ Approved composites:
 Two deliberate variants:
 
 - `compact` → Home-style card;
-- `actionable` → Curriculum-style card with full-width CTA.
+- `actionable` → Curriculum-style card with full-width CTA and a required action handler.
 
 Do not force both contexts into one identical visual composition.
 
@@ -387,11 +387,14 @@ Approved tones:
 - practice
 - curriculum
 
+The card is an interactive button, so an action handler is required.
+
 ### SimulationBanner
 
 - warm simulation surface;
 - real simulation artwork is visually dominant;
 - functional Lucide icon is secondary;
+- its visible CTA requires an action handler;
 - simulation ultimately opens an independent external simulation site in the later integration stage.
 
 ### MobileBottomNav
@@ -487,12 +490,12 @@ Current Stage 3 guardrails:
 - CLS lab alarm ≤ 0.1;
 - local CI LCP alarm ≤ 3500ms when reported.
 
-Latest validated Stage 3K measurements:
+Latest validated Stage 3M measurements:
 
 - font build payload: 360,316 bytes;
 - WebP build payload: 96,524 bytes;
 - largest font asset: 46,924 bytes;
-- largest WebP: 8,942 bytes;
+- largest WebP: 11,354 bytes;
 - browser font requests on V3 preview: 4;
 - browser external WebP requests on V3 preview: 12 (one small asset may be inlined by Vite);
 - CLS: ~0.00085;

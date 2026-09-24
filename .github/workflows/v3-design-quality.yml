@@ -3,6 +3,7 @@ name: V3 accessibility performance regression
 on:
   push:
     branches:
+      - "main"
       - "feature/v3-design-system"
   pull_request:
   workflow_dispatch:

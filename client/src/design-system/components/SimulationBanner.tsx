@@ -7,7 +7,7 @@ export type SimulationBannerProps = {
   illustrationAlt?: string;
   actionLabel?: string;
   external?: boolean;
-  onAction?: () => void;
+  onAction: () => void;
 };
 
 export function SimulationBanner({

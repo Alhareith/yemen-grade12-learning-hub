@@ -1,3 +1,7 @@
+import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
+import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
+import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
+import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 import { useState } from "react";
 import { functionalIcons } from "../icons/icon-system";
 import { Button, Chip, IconButton, SearchField, Surface } from "../primitives";

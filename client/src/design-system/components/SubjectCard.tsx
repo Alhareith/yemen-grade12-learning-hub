@@ -10,29 +10,41 @@ export type SubjectTone =
   | "islamic"
   | "social";
 
-export type SubjectCardProps = {
+type SubjectCardCommonProps = {
   title: string;
   meta: string;
   illustrationSrc?: string;
   illustrationAlt?: string;
   tone: SubjectTone;
-  variant?: "compact" | "actionable";
-  actionLabel?: string;
-  onAction?: () => void;
   badge?: ReactNode;
 };
 
-export function SubjectCard({
-  title,
-  meta,
-  illustrationSrc,
-  illustrationAlt = "",
-  tone,
-  variant = "compact",
-  actionLabel = "استكشف المادة",
-  onAction,
-  badge,
-}: SubjectCardProps) {
+type CompactSubjectCardProps = {
+  variant?: "compact";
+  actionLabel?: never;
+  onAction?: never;
+};
+
+type ActionableSubjectCardProps = {
+  variant: "actionable";
+  actionLabel?: string;
+  onAction: () => void;
+};
+
+export type SubjectCardProps = SubjectCardCommonProps &
+  (CompactSubjectCardProps | ActionableSubjectCardProps);
+
+export function SubjectCard(props: SubjectCardProps) {
+  const {
+    title,
+    meta,
+    illustrationSrc,
+    illustrationAlt = "",
+    tone,
+    badge,
+  } = props;
+  const variant = props.variant ?? "compact";
+
   return (
     <article
       className={`v3-subject-card v3-subject-card--${variant} v3-subject-card--${tone}`}
@@ -61,9 +73,9 @@ export function SubjectCard({
           />
         )}
       </div>
-      {variant === "actionable" ? (
-        <button className="v3-subject-card__cta" onClick={onAction} type="button">
-          {actionLabel}
+      {props.variant === "actionable" ? (
+        <button className="v3-subject-card__cta" onClick={props.onAction} type="button">
+          {props.actionLabel ?? "استكشف المادة"}
         </button>
       ) : null}
     </article>

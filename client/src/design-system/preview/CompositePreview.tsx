@@ -52,13 +52,14 @@ export function CompositePreview() {
         <SimulationBanner
           description="اختبر نفسك في تجربة مستقلة ثم ارجع للتحليل والتدريب."
           illustrationSrc={v3AssetPaths.simulation}
+          onAction={() => setActive("practice")}
           title="محاكاة الاختبار النهائي"
         />
 
         <section className="v3-composite-preview__quick-grid" data-v3-quick-grid>
-          <QuickActionCard illustrationSrc={v3AssetPaths.actions.prompts} title="مولد الأوامر" tone="prompts" />
-          <QuickActionCard illustrationSrc={v3AssetPaths.actions.practice} title="ابدأ التدريب" tone="practice" />
-          <QuickActionCard illustrationSrc={v3AssetPaths.actions.curriculum} title="تصفح المنهج" tone="curriculum" />
+          <QuickActionCard illustrationSrc={v3AssetPaths.actions.prompts} onClick={() => setActive("prompts")} title="مولد الأوامر" tone="prompts" />
+          <QuickActionCard illustrationSrc={v3AssetPaths.actions.practice} onClick={() => setActive("practice")} title="ابدأ التدريب" tone="practice" />
+          <QuickActionCard illustrationSrc={v3AssetPaths.actions.curriculum} onClick={() => setActive("curriculum")} title="تصفح المنهج" tone="curriculum" />
         </section>
 
         <section>
@@ -74,10 +75,10 @@ export function CompositePreview() {
         <section>
           <h2 className="v3-type-h2">بطاقات Curriculum الإجرائية</h2>
           <div className="v3-composite-preview__subject-grid" data-v3-subject-grid="actionable">
-            <SubjectCard illustrationSrc={v3AssetPaths.subjects.arabic} meta="الوحدات والدروس والاختبارات" title="اللغة العربية" tone="arabic" variant="actionable" />
-            <SubjectCard illustrationSrc={v3AssetPaths.subjects.english} meta="الوحدات والدروس والاختبارات" title="اللغة الإنجليزية" tone="english" variant="actionable" />
-            <SubjectCard illustrationSrc={v3AssetPaths.subjects.islamic} meta="الوحدات والدروس والاختبارات" title="التربية الإسلامية" tone="islamic" variant="actionable" />
-            <SubjectCard illustrationSrc={v3AssetPaths.subjects.social} meta="الوحدات والدروس والاختبارات" title="الاجتماعيات" tone="social" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.arabic} meta="الوحدات والدروس والاختبارات" onAction={() => setActive("curriculum")} title="اللغة العربية" tone="arabic" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.english} meta="الوحدات والدروس والاختبارات" onAction={() => setActive("curriculum")} title="اللغة الإنجليزية" tone="english" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.islamic} meta="الوحدات والدروس والاختبارات" onAction={() => setActive("curriculum")} title="التربية الإسلامية" tone="islamic" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.social} meta="الوحدات والدروس والاختبارات" onAction={() => setActive("curriculum")} title="الاجتماعيات" tone="social" variant="actionable" />
           </div>
         </section>
       </main>

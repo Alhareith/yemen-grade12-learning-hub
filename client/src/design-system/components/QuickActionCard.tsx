@@ -6,7 +6,7 @@ export type QuickActionCardProps = {
   illustrationSrc: string;
   illustrationAlt?: string;
   tone: QuickActionTone;
-  onClick?: () => void;
+  onClick: () => void;
 };
 
 export function QuickActionCard({
