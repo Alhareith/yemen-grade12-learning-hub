@@ -48,7 +48,7 @@ Because this runs against localhost CI, LCP is used only as a regression alarm, 
 
 ## Font loading
 
-IBM Plex Sans Arabic remains isolated to the lazy V3 validation chunk. The current Home route does not import the Fontsource CSS directly.
+IBM Plex Sans Arabic remains isolated to the lazy V3 validation chunk. The harness imports only the explicit `arabic` subset for weights 400/500/600/700, avoiding unused Latin and Latin-ext font subsets. The current Home route does not import the Fontsource CSS directly.
 
 This keeps the Stage-3 preview accurate without forcing the V3 font into unmigrated legacy screens.
 

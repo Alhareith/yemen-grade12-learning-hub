@@ -35,7 +35,7 @@ jobs:
 
       - name: Record bundle and asset metrics
         run: |
-          node --input-type=module <<'NODE' | tee v3-quality-build-metrics.json
+          node --input-type=module <<'NODE'
           import fs from "node:fs";
           import path from "node:path";
 
@@ -68,6 +68,7 @@ jobs:
             largestFiles: [...files].sort((a, b) => b.bytes - a.bytes).slice(0, 12),
           };
 
+          fs.writeFileSync("v3-quality-build-metrics.json", JSON.stringify(metrics, null, 2) + "\n");
           // Stage-3 budgets are guardrails against accidental bloat, not real-user speed claims.
           if (metrics.fontBytes > 450_000) throw new Error(`Font payload too large: ${metrics.fontBytes}`);
           if (metrics.largestFontBytes > 120_000) throw new Error(`Single font asset too large: ${metrics.largestFontBytes}`);
