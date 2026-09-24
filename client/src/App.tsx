@@ -2,7 +2,9 @@
  * Product shell — prompts, curriculum navigation, skill practice and simulations are loaded on demand.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
-import AppHeader, { type PrimaryNavigationTarget } from "@/app/AppHeader";
+import AppHeader from "@/app/AppHeader";
+import AppMobileNavigation from "@/app/AppMobileNavigation";
+import { type PrimaryNavigationTarget } from "@/app/navigation";
 import AppShell from "@/app/AppShell";
 import ErrorBoundary from "@/app/ErrorBoundary";
 import {
@@ -90,7 +92,12 @@ export default function App() {
           </div>
         </Suspense>
       ) : (
-        <AppShell header={<AppHeader route={route} onNavigate={navigatePrimary} />}>
+        <AppShell
+          header={<AppHeader route={route} onNavigate={navigatePrimary} />}
+          mobileNavigation={
+            <AppMobileNavigation route={route} onNavigate={navigatePrimary} />
+          }
+        >
           {route === "practice" ? (
             <Suspense fallback={<RouteLoading />}>
               <SkillPractice

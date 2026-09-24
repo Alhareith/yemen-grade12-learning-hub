@@ -1,42 +1,16 @@
-import { functionalIcons, iconSize, iconStroke } from "@/design-system/icons/icon-system";
-import { v3AssetPaths } from "@/design-system/assets/asset-paths";
+import {
+  primaryNavigationItems,
+  type PrimaryNavigationTarget,
+} from "@/app/navigation";
 import type { AppRoute } from "@/app/routing";
+import { v3AssetPaths } from "@/design-system/assets/asset-paths";
+import { functionalIcons, iconSize, iconStroke } from "@/design-system/icons/icon-system";
 import "./app-header.css";
-
-export type PrimaryNavigationTarget = "home" | "curriculum" | "practice" | "prompts" | "resources";
 
 interface AppHeaderProps {
   route: AppRoute;
   onNavigate: (target: PrimaryNavigationTarget) => void;
 }
-
-const navigationItems = [
-  {
-    id: "home",
-    label: "الرئيسية",
-    icon: functionalIcons.navigation.home.icon,
-  },
-  {
-    id: "curriculum",
-    label: "المنهج",
-    icon: functionalIcons.content.curriculum.icon,
-  },
-  {
-    id: "practice",
-    label: "التدريب",
-    icon: functionalIcons.content.practice.icon,
-  },
-  {
-    id: "prompts",
-    label: "مولد الأوامر",
-    icon: functionalIcons.content.prompts.icon,
-  },
-  {
-    id: "resources",
-    label: "المزيد",
-    icon: functionalIcons.content.resources.icon,
-  },
-] as const;
 
 export default function AppHeader({ route, onNavigate }: AppHeaderProps) {
   const HomeIcon = functionalIcons.navigation.home.icon;
@@ -63,7 +37,7 @@ export default function AppHeader({ route, onNavigate }: AppHeaderProps) {
       </button>
 
       <nav className="v3-app-header__desktop-nav" aria-label="التنقل الرئيسي">
-        {navigationItems.map((item) => {
+        {primaryNavigationItems.map((item) => {
           const Icon = item.icon;
           const active = route === item.id;
 

@@ -90,8 +90,28 @@ jobs:
           assert.equal(await page.locator("[data-app-header]").count(), 1, "Expected exactly one application header");
           assert.equal(await page.getByRole("button", { name: "أوامر", exact: true }).count(), 0, "Legacy mobile tabs should be removed from the shell");
 
-          await page.goto(`${baseUrl}#prompts`, { waitUntil: "domcontentloaded" });
+          const mobileNav = page.locator(".v3-mobile-bottom-nav");
+          await mobileNav.waitFor();
+          assert.equal(await mobileNav.getByRole("button").count(), 5, "Expected five frozen mobile destinations");
+          for (const label of ["الرئيسية", "المنهج", "التدريب", "مولد الأوامر", "المزيد"]) {
+            assert.equal(await mobileNav.getByRole("button", { name: label, exact: true }).count(), 1, `Expected mobile destination: ${label}`);
+          }
+          assert.equal(await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).getAttribute("aria-current"), "page");
+
+          const mobileSlot = page.locator("[data-app-shell-mobile]");
+          const mobileSpacer = page.locator("[data-app-shell-mobile-spacer]");
+          const navBox = await mobileNav.boundingBox();
+          const slotBox = await mobileSlot.boundingBox();
+          const spacerBox = await mobileSpacer.boundingBox();
+          assert.ok(navBox && slotBox && spacerBox, "Expected measurable mobile navigation geometry");
+          assert.ok(navBox.height >= 64, `Expected mobile nav height >= 64px, got ${navBox.height}`);
+          assert.ok(spacerBox.height >= slotBox.height, "Expected flow spacer to reserve the fixed navigation height");
+          assert.ok(Math.abs((slotBox.y + slotBox.height) - 844) <= 1, "Expected mobile navigation to be fixed to viewport bottom");
+
+          await mobileNav.getByRole("button", { name: "مولد الأوامر", exact: true }).click();
           await page.getByRole("heading", { name: "أوامر اسأل بها أي ذكاء اصطناعي متوفر لديك" }).waitFor();
+          assert.equal(new URL(page.url()).hash, "#prompts");
+          assert.equal(await mobileNav.getByRole("button", { name: "مولد الأوامر", exact: true }).getAttribute("aria-current"), "page");
           assert.equal(await page.getByText("لا تحتاج كتابة اسم الدرس.", { exact: true }).count(), 0, "Old lesson-name notice should be removed");
           assert.equal(await page.getByText("الرياضيات مضبوطة بالعربي.", { exact: true }).count(), 0, "Old math notice should be removed");
 
@@ -107,8 +127,15 @@ jobs:
           assert.ok(generatedPrompt.includes("إذا كان المطلوب صغيرًا أو مباشرًا"), "Expected direct response rule for small topics");
           await page.screenshot({ path: promptEvidencePath, fullPage: false });
 
-          await page.goto(`${baseUrl}#resources`, { waitUntil: "domcontentloaded" });
+          await mobileNav.getByRole("button", { name: "المزيد", exact: true }).click();
           await page.getByRole("heading", { name: "مصادر رياضيات" }).waitFor();
+          assert.equal(new URL(page.url()).hash, "#resources");
+          assert.equal(await mobileNav.getByRole("button", { name: "المزيد", exact: true }).getAttribute("aria-current"), "page");
+
+          await page.setViewportSize({ width: 900, height: 900 });
+          assert.equal(await mobileNav.isVisible(), false, "Mobile navigation must be hidden at 900px");
+          assert.equal(await mobileSpacer.isVisible(), false, "Mobile navigation spacer must be hidden at 900px");
+          await page.setViewportSize({ width: 390, height: 844 });
 
           await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-curriculum-explorer]").waitFor();
@@ -194,7 +221,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 

@@ -5,6 +5,7 @@ import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 import type { ReactNode } from "react";
 import "@/design-system/tokens/tokens.css";
 import "@/design-system/typography/typography.css";
+import "@/design-system/components/components.css";
 import "./app-shell.css";
 
 interface AppShellProps {
@@ -48,13 +49,21 @@ export default function AppShell({
       </div>
 
       {mobileNavigation ? (
-        <div
-          className="v3-app-shell__scope v3-app-shell__mobile-slot"
-          data-app-shell-mobile=""
-          data-v3-ui=""
-        >
-          {mobileNavigation}
-        </div>
+        <>
+          <div
+            aria-hidden="true"
+            className="v3-app-shell__scope v3-app-shell__mobile-spacer"
+            data-app-shell-mobile-spacer=""
+            data-v3-ui=""
+          />
+          <div
+            className="v3-app-shell__scope v3-app-shell__mobile-slot"
+            data-app-shell-mobile=""
+            data-v3-ui=""
+          >
+            {mobileNavigation}
+          </div>
+        </>
       ) : null}
     </div>
   );
