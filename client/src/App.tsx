@@ -9,7 +9,7 @@ import "./polish.css";
 
 const ExamPilot = lazy(() => import("./pages/ExamPilot"));
 const CurriculumExplorer = lazy(() => import("@/features/curriculum/CurriculumExplorer"));
-const SkillPractice = lazy(() => import("./pages/SkillPractice"));
+const SkillPractice = lazy(() => import("@/features/practice/SkillPractice"));
 const ArabicExamTypography = lazy(() => import("@/components/ArabicExamTypography"));
 
 type AppRoute = "home" | "curriculum" | "practice" | "exam-pilot";
