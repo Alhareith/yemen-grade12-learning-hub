@@ -26,6 +26,7 @@ Locked delivery method:
 - locked package baseline for Stage 3: `5.3.0`
 - delivery: self-hosted through the Vite bundle;
 - required weights: 400, 500, 600, 700;
+- explicit runtime subset: `arabic` only;
 - no Google Fonts or third-party font CDN at runtime.
 
 The dependency is intentionally installed when the isolated V3 preview/app entry first consumes the typography stylesheet. Stage 3G does not add an unused font dependency to the current application bundle.
@@ -33,10 +34,10 @@ The dependency is intentionally installed when the isolated V3 preview/app entry
 The future consuming entry should import only the required weights, conceptually:
 
 ```ts
-import "@fontsource/ibm-plex-sans-arabic/400.css";
-import "@fontsource/ibm-plex-sans-arabic/500.css";
-import "@fontsource/ibm-plex-sans-arabic/600.css";
-import "@fontsource/ibm-plex-sans-arabic/700.css";
+import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
+import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
+import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
+import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
 ```
 
 Then import the scoped V3 token and typography styles.
