@@ -1,6 +1,6 @@
 # V3 Stage 4A — App Shell Baseline & Boundary Lock
 
-Status: **IMPLEMENTATION BASELINE**
+Status: **PASS — 4A BOUNDARY LOCKED**
 
 Stage 4 builds the application shell around the existing product without redesigning feature content or removing protected Legacy.
 
@@ -366,3 +366,36 @@ Stage 4A is PASS only when:
 - no production runtime behavior has changed.
 
 Only then may Stage 4B — Hash Routing Extraction begin after explicit approval.
+
+
+---
+
+## 17. Stage 4A Closure Evidence
+
+Stage 4A completed without a runtime code change.
+
+Branch lineage:
+
+- base: `0b5f2416a442225b02d699e5a1be85d16a29bb42`
+- first Stage 4A commit: `28725f9a85b408db637b15fbedb30fef305a52ac`
+- Draft PR: `#41 — V3-04: Build application shell`
+
+Baseline validation on the Stage 4 branch:
+
+- Validate student experience / push: **success** — run `36069650168`
+- Browser smoke test / push: **success** — run `36069650162`
+- Validate student experience / pull_request: **success** — run `36069674599`
+- Browser smoke test / pull_request: **success** — run `36069674564`
+- V3 design system visual validation / pull_request: **success** — run `36069674585`
+- V3 accessibility performance regression / pull_request: **success** — run `36069674571`
+- Vercel commit status: **success**
+
+The first Stage 4A compare against the Stage 3 merge base contained exactly one added file:
+
+`docs/v3/13-stage4-app-shell-boundary.md`
+
+No runtime source, Design System source, Legacy source, curriculum/question data, workflow or deployment configuration was modified in 4A.
+
+**Stage 4A: PASS.**
+
+Stage 4B remains blocked on explicit human approval.
