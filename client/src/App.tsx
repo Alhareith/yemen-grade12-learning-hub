@@ -3,7 +3,7 @@
  */
 import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorBoundary from "./components/ErrorBoundary";
-import Home from "./pages/Home";
+import Home from "@/features/home/Home";
 import "./v2.css";
 import "./polish.css";
 
