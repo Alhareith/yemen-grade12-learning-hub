@@ -259,7 +259,7 @@ Do not move or recreate this tag later.
 
 ## 15. Stage 0 Status
 
-`IN PROGRESS`
+`PASS`
 
 Stage 0 becomes `PASS` only after:
 
