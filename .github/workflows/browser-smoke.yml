@@ -112,6 +112,7 @@ jobs:
           await page.getByRole("heading", { name: "أوامر اسأل بها أي ذكاء اصطناعي متوفر لديك" }).waitFor();
           assert.equal(new URL(page.url()).hash, "#prompts");
           assert.equal(await mobileNav.getByRole("button", { name: "مولد الأوامر", exact: true }).getAttribute("aria-current"), "page");
+          assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", "Route transition should focus the application content");
           assert.equal(await page.getByText("لا تحتاج كتابة اسم الدرس.", { exact: true }).count(), 0, "Old lesson-name notice should be removed");
           assert.equal(await page.getByText("الرياضيات مضبوطة بالعربي.", { exact: true }).count(), 0, "Old math notice should be removed");
 
@@ -127,10 +128,28 @@ jobs:
           assert.ok(generatedPrompt.includes("إذا كان المطلوب صغيرًا أو مباشرًا"), "Expected direct response rule for small topics");
           await page.screenshot({ path: promptEvidencePath, fullPage: false });
 
+          await page.evaluate(() => window.scrollTo(0, 500));
+          await page.emulateMedia({ reducedMotion: "reduce" });
+          await page.evaluate(() => {
+            window.__routeScrollBehavior = null;
+            const originalScrollTo = window.scrollTo.bind(window);
+            window.scrollTo = (...args) => {
+              const first = args[0];
+              if (first && typeof first === "object") {
+                window.__routeScrollBehavior = first.behavior ?? null;
+              }
+              return originalScrollTo(...args);
+            };
+          });
+
           await mobileNav.getByRole("button", { name: "المزيد", exact: true }).click();
           await page.getByRole("heading", { name: "مصادر رياضيات" }).waitFor();
           assert.equal(new URL(page.url()).hash, "#resources");
           assert.equal(await mobileNav.getByRole("button", { name: "المزيد", exact: true }).getAttribute("aria-current"), "page");
+          assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", "Reduced-motion route transition should keep focus lifecycle");
+          assert.equal(await page.evaluate(() => window.__routeScrollBehavior), "auto", "Reduced motion should disable smooth route scrolling");
+          assert.ok(Math.abs(await page.evaluate(() => window.scrollY)) <= 1, "Route lifecycle should reset scroll to top");
+          await page.emulateMedia({ reducedMotion: "no-preference" });
 
           await page.setViewportSize({ width: 900, height: 900 });
           assert.equal(await mobileNav.isVisible(), false, "Mobile navigation must be hidden at 900px");
@@ -141,6 +160,13 @@ jobs:
           await page.locator("[data-curriculum-explorer]").waitFor();
           assert.equal(new URL(page.url()).hash, "#curriculum", "Training without practice context should resolve to curriculum");
           assert.equal(await mobileNav.getByRole("button", { name: "المنهج", exact: true }).getAttribute("aria-current"), "page");
+
+          const curriculumHashBeforeSkip = new URL(page.url()).hash;
+          const skipLink = page.getByRole("link", { name: "تجاوز إلى المحتوى" });
+          await skipLink.focus();
+          await skipLink.press("Enter");
+          assert.equal(new URL(page.url()).hash, curriculumHashBeforeSkip, "Skip link must not mutate the Hash Router");
+          assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", "Skip link should focus app content");
 
           await page.locator("[data-curriculum-explorer]").waitFor();
           const skillCount = await page.locator("[data-curriculum-skill]").count();
@@ -226,7 +252,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 

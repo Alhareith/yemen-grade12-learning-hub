@@ -2,7 +2,8 @@ import "@fontsource/ibm-plex-sans-arabic/arabic-400.css";
 import "@fontsource/ibm-plex-sans-arabic/arabic-500.css";
 import "@fontsource/ibm-plex-sans-arabic/arabic-600.css";
 import "@fontsource/ibm-plex-sans-arabic/arabic-700.css";
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
+import { revealAppContent } from "@/app/route-lifecycle";
 import "@/design-system/tokens/tokens.css";
 import "@/design-system/typography/typography.css";
 import "@/design-system/components/components.css";
@@ -26,6 +27,11 @@ export default function AppShell({
   header,
   mobileNavigation,
 }: AppShellProps) {
+  const handleSkipLink = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    revealAppContent();
+  };
+
   return (
     <div className="v3-app-shell-frame" data-app-shell="" dir="rtl" lang="ar">
       <div
@@ -33,7 +39,11 @@ export default function AppShell({
         data-app-shell-chrome=""
         data-v3-ui=""
       >
-        <a className="v3-app-shell__skip-link" href="#app-content">
+        <a
+          className="v3-app-shell__skip-link"
+          href="#app-content"
+          onClick={handleSkipLink}
+        >
           تجاوز إلى المحتوى
         </a>
 

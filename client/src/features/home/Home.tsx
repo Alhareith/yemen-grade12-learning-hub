@@ -121,9 +121,15 @@ export default function HomeV4({
 
     if (onRouteNavigate && (next === "home" || next === "prompts" || next === "resources")) {
       onRouteNavigate(next);
+      return;
     }
 
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
   };
 
   const chooseSubject = (material: MaterialCatalog) => {

@@ -6,7 +6,9 @@ import AppHeader from "@/app/AppHeader";
 import AppMobileNavigation from "@/app/AppMobileNavigation";
 import { type PrimaryNavigationTarget } from "@/app/navigation";
 import AppShell from "@/app/AppShell";
+import { AppErrorState, AppRouteLoading } from "@/app/AppRouteState";
 import ErrorBoundary from "@/app/ErrorBoundary";
+import { useRouteLifecycle } from "@/app/route-lifecycle";
 import {
   appRouteHash,
   parseAppHash,
@@ -32,19 +34,9 @@ const PrimitivesPreview = lazy(() =>
   })),
 );
 
-function RouteLoading() {
-  return (
-    <div dir="rtl" className="flex min-h-[45vh] items-center justify-center px-4 text-center">
-      <div>
-        <span className="mx-auto block h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-700" />
-        <p className="mt-3 text-xs font-bold text-slate-500">جاري فتح المسار…</p>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(() => parseAppHash(window.location.hash));
+  const { resetCurrentRouteView } = useRouteLifecycle(route);
 
   useEffect(() => {
     const onHashChange = () => setRoute(parseAppHash(window.location.hash));
@@ -53,21 +45,18 @@ export default function App() {
   }, []);
 
   const navigatePrimary = (target: PrimaryNavigationTarget) => {
-    if (target === "practice") {
-      if (route === "practice") {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return;
-      }
+    const resolvedTarget =
+      target === "practice" && route !== "practice"
+        ? "curriculum"
+        : target;
 
-      window.location.hash = appRouteHash.curriculum;
-      setRoute("curriculum");
-      window.scrollTo({ top: 0, behavior: "smooth" });
+    if (resolvedTarget === route || resolvedTarget === "practice") {
+      resetCurrentRouteView();
       return;
     }
 
-    window.location.hash = appRouteHash[target];
-    setRoute(target);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.location.hash = appRouteHash[resolvedTarget];
+    setRoute(resolvedTarget);
   };
 
   const goHome = () => navigatePrimary("home");
@@ -77,15 +66,15 @@ export default function App() {
   return (
     <ErrorBoundary>
       {route === "design-system-primitives" ? (
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<AppRouteLoading standalone />}>
           <PrimitivesPreview />
         </Suspense>
       ) : route === "design-system-preview" ? (
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<AppRouteLoading standalone />}>
           <CompositePreview />
         </Suspense>
       ) : route === "exam-pilot" ? (
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<AppRouteLoading standalone />}>
           <div data-arabic-exam dir="rtl" lang="ar">
             <ArabicExamTypography />
             <ExamPilot onBack={goHome} />
@@ -98,15 +87,27 @@ export default function App() {
             <AppMobileNavigation route={route} onNavigate={navigatePrimary} />
           }
         >
+          <ErrorBoundary
+            resetKey={route}
+            fallback={({ reset }) => (
+              <AppErrorState
+                onHome={() => {
+                  reset();
+                  goHome();
+                }}
+                onRetry={() => window.location.reload()}
+              />
+            )}
+          >
           {route === "practice" ? (
-            <Suspense fallback={<RouteLoading />}>
+            <Suspense fallback={<AppRouteLoading />}>
               <SkillPractice
                 skillId={readPracticeSkillIdFromHash(window.location.hash)}
                 onBack={goCurriculum}
               />
             </Suspense>
           ) : route === "curriculum" ? (
-            <Suspense fallback={<RouteLoading />}>
+            <Suspense fallback={<AppRouteLoading />}>
               <CurriculumExplorer onBack={goHome} />
             </Suspense>
           ) : (
@@ -125,6 +126,7 @@ export default function App() {
               ) : null}
             </>
           )}
+          </ErrorBoundary>
         </AppShell>
       )}
     </ErrorBoundary>
