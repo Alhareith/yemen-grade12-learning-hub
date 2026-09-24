@@ -195,8 +195,14 @@ jobs:
             const style = getComputedStyle(node);
             return { transitionDuration: style.transitionDuration, animationDuration: style.animationDuration };
           });
-          assert.ok(motion.transitionDuration === "0s" || motion.transitionDuration === "", `Reduced motion should remove transition: ${JSON.stringify(motion)}`);
-          assert.ok(motion.animationDuration === "0s" || motion.animationDuration === "", `Reduced motion should remove animation: ${JSON.stringify(motion)}`);
+          const seconds = (value) => {
+            if (!value) return 0;
+            return Math.max(...value.split(",").map((part) => Number.parseFloat(part.trim()) || 0));
+          };
+          // Legacy v2.css uses 0.01ms as its global reduced-motion sentinel.
+          // Treat <= 1ms as effectively disabled while keeping the legacy stylesheet untouched.
+          assert.ok(seconds(motion.transitionDuration) <= 0.001, `Reduced motion transition too long: ${JSON.stringify(motion)}`);
+          assert.ok(seconds(motion.animationDuration) <= 0.001, `Reduced motion animation too long: ${JSON.stringify(motion)}`);
 
           const contrast = await page.evaluate(() => {
             const parse = (value) => (value.match(/\d+(?:\.\d+)?/g) ?? []).slice(0, 3).map(Number);
