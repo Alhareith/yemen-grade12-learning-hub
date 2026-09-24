@@ -16,15 +16,22 @@ const CompositePreview = lazy(() =>
     default: module.CompositePreview,
   })),
 );
+const PrimitivesPreview = lazy(() =>
+  import("@/design-system/preview/PrimitivesPreview").then((module) => ({
+    default: module.PrimitivesPreview,
+  })),
+);
 
 type AppRoute =
   | "home"
   | "curriculum"
   | "practice"
   | "exam-pilot"
-  | "design-system-preview";
+  | "design-system-preview"
+  | "design-system-primitives";
 
 function readRoute(): AppRoute {
+  if (window.location.hash === "#design-system-primitives") return "design-system-primitives";
   if (window.location.hash === "#design-system-preview") return "design-system-preview";
   if (window.location.hash === "#exam-pilot") return "exam-pilot";
   if (window.location.hash.startsWith("#practice/")) return "practice";
@@ -75,7 +82,11 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      {route === "design-system-preview" ? (
+      {route === "design-system-primitives" ? (
+        <Suspense fallback={<RouteLoading />}>
+          <PrimitivesPreview />
+        </Suspense>
+      ) : route === "design-system-preview" ? (
         <Suspense fallback={<RouteLoading />}>
           <CompositePreview />
         </Suspense>

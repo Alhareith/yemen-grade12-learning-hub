@@ -169,7 +169,7 @@
 }
 
 [data-v3-ui] .v3-simulation-banner__cta {
-  min-height: 40px;
+  min-height: var(--v3-touch-target);
   margin-top: var(--v3-space-3);
   border: 0;
   border-radius: var(--v3-radius-button);
@@ -339,5 +339,23 @@
     width: 72px;
     height: 72px;
     flex-basis: 72px;
+  }
+}
+
+
+[data-v3-ui] .v3-subject-card__cta,
+[data-v3-ui] .v3-quick-action,
+[data-v3-ui] .v3-simulation-banner__cta,
+[data-v3-ui] .v3-mobile-bottom-nav button {
+  touch-action: manipulation;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-v3-ui] .v3-subject-card__cta,
+  [data-v3-ui] .v3-quick-action,
+  [data-v3-ui] .v3-simulation-banner__cta,
+  [data-v3-ui] .v3-mobile-bottom-nav button {
+    scroll-behavior: auto;
+    transition: none;
   }
 }

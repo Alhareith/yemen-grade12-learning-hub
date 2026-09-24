@@ -1,0 +1,295 @@
+name: V3 accessibility performance regression
+
+on:
+  push:
+    branches:
+      - "feature/v3-design-system"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify typecheck tests and Vercel-style build
+        run: pnpm verify
+
+      - name: Record bundle and asset metrics
+        run: |
+          node --input-type=module <<'NODE' | tee v3-quality-build-metrics.json
+          import fs from "node:fs";
+          import path from "node:path";
+
+          const root = "dist/public";
+          const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+            const full = path.join(dir, entry.name);
+            return entry.isDirectory() ? walk(full) : [full];
+          });
+
+          const files = walk(root).map((file) => ({
+            file,
+            bytes: fs.statSync(file).size,
+          }));
+          const fonts = files.filter((item) => /\.(woff2?|ttf|otf)$/i.test(item.file));
+          const webp = files.filter((item) => /\.webp$/i.test(item.file));
+          const js = files.filter((item) => /\.js$/i.test(item.file));
+          const css = files.filter((item) => /\.css$/i.test(item.file));
+          const sum = (items) => items.reduce((total, item) => total + item.bytes, 0);
+
+          const metrics = {
+            totalBytes: sum(files),
+            fontBytes: sum(fonts),
+            webpBytes: sum(webp),
+            jsBytes: sum(js),
+            cssBytes: sum(css),
+            largestFontBytes: Math.max(0, ...fonts.map((item) => item.bytes)),
+            largestWebpBytes: Math.max(0, ...webp.map((item) => item.bytes)),
+            fontFiles: fonts.length,
+            webpFiles: webp.length,
+            largestFiles: [...files].sort((a, b) => b.bytes - a.bytes).slice(0, 12),
+          };
+
+          // Stage-3 budgets are guardrails against accidental bloat, not real-user speed claims.
+          if (metrics.fontBytes > 450_000) throw new Error(`Font payload too large: ${metrics.fontBytes}`);
+          if (metrics.largestFontBytes > 120_000) throw new Error(`Single font asset too large: ${metrics.largestFontBytes}`);
+          if (metrics.webpBytes > 150_000) throw new Error(`V3 WebP payload too large: ${metrics.webpBytes}`);
+          if (metrics.largestWebpBytes > 40_000) throw new Error(`Single WebP too large: ${metrics.largestWebpBytes}`);
+          console.log(JSON.stringify(metrics, null, 2));
+          NODE
+
+      - name: Verify GitHub Pages static build
+        run: GITHUB_ACTIONS=true pnpm build
+
+      - name: Install isolated browser driver
+        run: |
+          mkdir -p /tmp/v3-quality
+          cd /tmp/v3-quality
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
+
+      - name: Start production preview
+        run: |
+          GITHUB_ACTIONS=false pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/v3-quality-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/v3-quality-preview.log
+          exit 1
+
+      - name: Verify accessibility motion and lab performance
+        run: |
+          cd /tmp/v3-quality
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright-core";
+
+          const browser = await chromium.launch({
+            executablePath: "/usr/bin/google-chrome",
+            headless: true,
+            args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          });
+
+          const base = "http://127.0.0.1:4173/";
+          const failures = [];
+
+          const luminance = ([r, g, b]) => {
+            const parts = [r, g, b].map((v) => {
+              const x = v / 255;
+              return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+            });
+            return parts[0] * 0.2126 + parts[1] * 0.7152 + parts[2] * 0.0722;
+          };
+          const ratio = (a, b) => {
+            const l1 = luminance(a);
+            const l2 = luminance(b);
+            return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+          };
+
+          const page = await browser.newPage({
+            viewport: { width: 390, height: 844 },
+            reducedMotion: "reduce",
+          });
+
+          await page.addInitScript(() => {
+            window.__v3LayoutShifts = [];
+            new PerformanceObserver((list) => {
+              for (const entry of list.getEntries()) {
+                if (!entry.hadRecentInput) window.__v3LayoutShifts.push(entry.value);
+              }
+            }).observe({ type: "layout-shift", buffered: true });
+
+            window.__v3Lcp = 0;
+            new PerformanceObserver((list) => {
+              const entries = list.getEntries();
+              const last = entries[entries.length - 1];
+              if (last) window.__v3Lcp = last.startTime;
+            }).observe({ type: "largest-contentful-paint", buffered: true });
+          });
+
+          page.on("requestfailed", (request) => failures.push(`request: ${request.url()}`));
+          page.on("pageerror", (error) => failures.push(`page: ${error.message}`));
+          page.on("console", (message) => {
+            if (message.type() === "error") failures.push(`console: ${message.text()}`);
+          });
+
+          await page.goto(`${base}#design-system-preview`, { waitUntil: "networkidle" });
+          await page.locator("[data-v3-validation]").waitFor();
+          await page.evaluate(() => document.fonts.ready);
+
+          assert.equal(await page.locator("h1").count(), 1, "Composite preview needs exactly one h1");
+          assert.equal(await page.locator('nav[aria-label="التنقل الرئيسي"]').count(), 1);
+          assert.equal(await page.locator("button").evaluateAll((nodes) => nodes.every((node) => (node.textContent ?? "").trim().length > 0 || node.getAttribute("aria-label"))), true, "Every button needs an accessible name");
+          assert.equal(await page.locator("img").evaluateAll((nodes) => nodes.every((node) => node.hasAttribute("alt"))), true, "Every image needs alt");
+
+          const touchFailures = await page.locator("button:visible").evaluateAll((nodes) =>
+            nodes
+              .map((node) => {
+                const rect = node.getBoundingClientRect();
+                return { label: (node.textContent ?? node.getAttribute("aria-label") ?? "").trim(), width: rect.width, height: rect.height };
+              })
+              .filter((item) => item.width < 44 || item.height < 44),
+          );
+          assert.deepEqual(touchFailures, [], `Composite touch targets below 44px: ${JSON.stringify(touchFailures)}`);
+
+          await page.keyboard.press("Tab");
+          const focused = await page.evaluate(() => {
+            const element = document.activeElement;
+            if (!(element instanceof HTMLElement)) return null;
+            const style = getComputedStyle(element);
+            return {
+              tag: element.tagName,
+              outlineWidth: style.outlineWidth,
+              outlineStyle: style.outlineStyle,
+            };
+          });
+          assert.ok(focused && focused.tag === "BUTTON", "Tab should enter an interactive control");
+          assert.notEqual(focused.outlineStyle, "none", "Keyboard focus needs a visible outline");
+          assert.notEqual(focused.outlineWidth, "0px", "Keyboard focus outline must have width");
+
+          const motion = await page.locator(".v3-quick-action").first().evaluate((node) => {
+            const style = getComputedStyle(node);
+            return { transitionDuration: style.transitionDuration, animationDuration: style.animationDuration };
+          });
+          assert.ok(motion.transitionDuration === "0s" || motion.transitionDuration === "", `Reduced motion should remove transition: ${JSON.stringify(motion)}`);
+          assert.ok(motion.animationDuration === "0s" || motion.animationDuration === "", `Reduced motion should remove animation: ${JSON.stringify(motion)}`);
+
+          const contrast = await page.evaluate(() => {
+            const parse = (value) => (value.match(/\d+(?:\.\d+)?/g) ?? []).slice(0, 3).map(Number);
+            const button = document.querySelector(".v3-simulation-banner__cta");
+            const root = document.querySelector("[data-v3-validation]");
+            if (!(button instanceof HTMLElement) || !(root instanceof HTMLElement)) return null;
+            const bs = getComputedStyle(button);
+            const rs = getComputedStyle(root);
+            return {
+              buttonFg: parse(bs.color),
+              buttonBg: parse(bs.backgroundColor),
+              bodyFg: parse(rs.color),
+              bodyBg: parse(rs.backgroundColor),
+            };
+          });
+          assert.ok(contrast);
+          assert.ok(ratio(contrast.buttonFg, contrast.buttonBg) >= 4.5, "Primary CTA contrast must meet 4.5:1");
+          assert.ok(ratio(contrast.bodyFg, contrast.bodyBg) >= 4.5, "Body contrast must meet 4.5:1");
+
+          await page.waitForTimeout(300);
+          const perf = await page.evaluate(() => ({
+            cls: (window.__v3LayoutShifts ?? []).reduce((sum, value) => sum + value, 0),
+            lcpMs: window.__v3Lcp ?? 0,
+            resources: performance.getEntriesByType("resource").map((entry) => ({
+              name: entry.name,
+              transferSize: entry.transferSize,
+            })),
+          }));
+          assert.ok(perf.cls <= 0.1, `CLS risk too high: ${perf.cls}`);
+          assert.ok(perf.lcpMs === 0 || perf.lcpMs <= 3500, `Local lab LCP too high: ${perf.lcpMs}ms`);
+
+          const primitives = await browser.newPage({
+            viewport: { width: 390, height: 844 },
+            reducedMotion: "reduce",
+          });
+          await primitives.goto(`${base}#design-system-primitives`, { waitUntil: "networkidle" });
+          await primitives.locator("[data-v3-primitives-validation]").waitFor();
+
+          const primitiveTouchFailures = await primitives.locator("button:visible").evaluateAll((nodes) =>
+            nodes
+              .map((node) => {
+                const rect = node.getBoundingClientRect();
+                return { label: (node.textContent ?? node.getAttribute("aria-label") ?? "").trim(), width: rect.width, height: rect.height };
+              })
+              .filter((item) => item.width < 44 || item.height < 44),
+          );
+          assert.deepEqual(primitiveTouchFailures, [], `Primitive touch targets below 44px: ${JSON.stringify(primitiveTouchFailures)}`);
+
+          const iconButtons = primitives.locator(".v3-icon-button");
+          assert.ok((await iconButtons.count()) > 0);
+          assert.equal(await iconButtons.evaluateAll((nodes) => nodes.every((node) => Boolean(node.getAttribute("aria-label")))), true);
+
+          const search = primitives.locator('input[type="search"]');
+          assert.equal(await search.count(), 1);
+          assert.ok((await search.evaluate((node) => node.labels?.length ?? 0)) > 0, "Search input must have a label");
+
+          await primitives.keyboard.press("Tab");
+          const primitiveFocusOutline = await primitives.evaluate(() => {
+            const element = document.activeElement;
+            if (!(element instanceof HTMLElement)) return "none";
+            return getComputedStyle(element).outlineStyle;
+          });
+          assert.notEqual(primitiveFocusOutline, "none");
+
+          assert.deepEqual(failures, [], failures.join(" | "));
+
+          const report = {
+            compositeTouchTargets: "pass",
+            primitiveTouchTargets: "pass",
+            keyboardFocus: "pass",
+            reducedMotion: "pass",
+            semanticNames: "pass",
+            contrast: "pass",
+            cls: perf.cls,
+            lcpMs: perf.lcpMs,
+            fontResources: perf.resources.filter((item) => /woff2?/i.test(item.name)).length,
+            webpResources: perf.resources.filter((item) => /webp/i.test(item.name)).length,
+          };
+          console.log(JSON.stringify(report, null, 2));
+
+          await primitives.close();
+          await page.close();
+          await browser.close();
+          NODE
+
+      - name: Verify protected Arabic math stylesheet remains present
+        run: |
+          grep -q '.arabic-math-wrap math' client/src/arabic-math.css
+          grep -q '"STIX Two Math"' client/src/arabic-math.css
+          grep -q 'unicode-bidi: isolate' client/src/arabic-math.css
+
+      - name: Upload quality metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-quality-metrics
+          path: v3-quality-build-metrics.json
+          if-no-files-found: error
+          retention-days: 14

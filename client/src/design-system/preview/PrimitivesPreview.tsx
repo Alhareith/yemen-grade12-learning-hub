@@ -11,7 +11,7 @@ export function PrimitivesPreview() {
   const [filter, setFilter] = useState("all");
 
   return (
-    <div data-v3-ui className="v3-primitives-preview" dir="rtl">
+    <div data-v3-ui data-v3-primitives-validation className="v3-primitives-preview" dir="rtl">
       <main className="v3-primitives-preview__content">
         <header>
           <p className="v3-type-meta">Stage 3H · isolated preview</p>
