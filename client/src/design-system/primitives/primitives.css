@@ -1,0 +1,250 @@
+[data-v3-ui] .v3-button,
+[data-v3-ui] .v3-icon-button,
+[data-v3-ui] .v3-chip,
+[data-v3-ui] .v3-search-field__control,
+[data-v3-ui] .v3-surface {
+  box-sizing: border-box;
+}
+
+[data-v3-ui] .v3-button {
+  min-height: var(--v3-button-height);
+  border: 0;
+  border-radius: var(--v3-radius-button);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--v3-space-2);
+  padding-inline: var(--v3-space-4);
+  font-size: var(--v3-type-button-size);
+  line-height: var(--v3-type-button-line);
+  font-weight: var(--v3-type-button-weight);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+[data-v3-ui] .v3-button svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  stroke-width: 2;
+}
+
+[data-v3-ui] .v3-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+[data-v3-ui] .v3-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+[data-v3-ui] .v3-button:disabled,
+[data-v3-ui] .v3-icon-button:disabled,
+[data-v3-ui] .v3-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.52;
+}
+
+[data-v3-ui] .v3-button:focus-visible,
+[data-v3-ui] .v3-icon-button:focus-visible,
+[data-v3-ui] .v3-chip:focus-visible,
+[data-v3-ui] .v3-search-field__control:focus-within {
+  outline: 3px solid color-mix(in srgb, var(--v3-color-primary-bright) 32%, transparent);
+  outline-offset: 2px;
+}
+
+[data-v3-ui] .v3-button--primary {
+  background: var(--v3-color-primary);
+  color: white;
+  box-shadow: var(--v3-shadow-card);
+}
+
+[data-v3-ui] .v3-button--primary:hover:not(:disabled) {
+  background: var(--v3-color-primary-strong);
+}
+
+[data-v3-ui] .v3-button--secondary {
+  background: var(--v3-color-page-blue);
+  color: var(--v3-color-primary-strong);
+  box-shadow: var(--v3-shadow-inset-soft);
+}
+
+[data-v3-ui] .v3-button--ghost {
+  background: transparent;
+  color: var(--v3-color-ink);
+}
+
+[data-v3-ui] .v3-button--danger {
+  background: var(--v3-color-error);
+  color: white;
+}
+
+[data-v3-ui] .v3-button--sm {
+  min-height: var(--v3-touch-target);
+  padding-inline: var(--v3-space-3);
+}
+
+[data-v3-ui] .v3-button--md {
+  min-height: var(--v3-button-height);
+}
+
+[data-v3-ui] .v3-icon-button {
+  width: var(--v3-touch-target);
+  height: var(--v3-touch-target);
+  border: 0;
+  border-radius: var(--v3-radius-medium);
+  display: inline-grid;
+  place-items: center;
+  color: var(--v3-color-ink);
+  background: transparent;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    transform 160ms ease;
+}
+
+[data-v3-ui] .v3-icon-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+[data-v3-ui] .v3-icon-button--soft {
+  background: var(--v3-color-page-blue);
+}
+
+[data-v3-ui] .v3-icon-button--primary,
+[data-v3-ui] .v3-icon-button.is-active {
+  background: var(--v3-color-primary);
+  color: white;
+}
+
+[data-v3-ui] .v3-search-field {
+  display: grid;
+  gap: var(--v3-space-2);
+  color: var(--v3-color-ink);
+}
+
+[data-v3-ui] .v3-search-field__label {
+  font-size: var(--v3-type-meta-size);
+  line-height: var(--v3-type-meta-line);
+  font-weight: var(--v3-type-meta-weight);
+}
+
+[data-v3-ui] .v3-search-field__control {
+  min-height: var(--v3-search-height);
+  display: flex;
+  align-items: center;
+  gap: var(--v3-space-2);
+  border: var(--v3-border-width) solid var(--v3-color-border);
+  border-radius: var(--v3-radius-pill);
+  background: var(--v3-color-search);
+  padding-inline: var(--v3-space-4);
+  color: var(--v3-color-primary);
+}
+
+[data-v3-ui] .v3-search-field__control input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--v3-color-ink);
+  font-size: var(--v3-type-body-size);
+  line-height: var(--v3-type-body-line);
+}
+
+[data-v3-ui] .v3-search-field__control input::placeholder {
+  color: color-mix(in srgb, var(--v3-color-ink) 50%, white);
+}
+
+[data-v3-ui] .v3-surface {
+  border: var(--v3-border-width) solid var(--v3-color-border);
+  border-radius: var(--v3-radius-card);
+  background: var(--v3-color-card);
+  color: var(--v3-color-ink);
+}
+
+[data-v3-ui] .v3-surface--card {
+  box-shadow: var(--v3-shadow-card);
+}
+
+[data-v3-ui] .v3-surface--raised {
+  box-shadow: var(--v3-shadow-raised);
+}
+
+[data-v3-ui] .v3-surface--subtle {
+  background: var(--v3-color-page-blue);
+  box-shadow: none;
+}
+
+[data-v3-ui] .v3-surface--pad-sm {
+  padding: var(--v3-space-3);
+}
+
+[data-v3-ui] .v3-surface--pad-md {
+  padding: var(--v3-space-4);
+}
+
+[data-v3-ui] .v3-surface--pad-lg {
+  padding: var(--v3-space-6);
+}
+
+[data-v3-ui] .v3-chip {
+  min-height: var(--v3-touch-target);
+  border: var(--v3-border-width) solid var(--v3-color-border);
+  border-radius: var(--v3-radius-pill);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--v3-space-3);
+  background: var(--v3-color-card);
+  color: var(--v3-color-ink);
+  font-size: var(--v3-type-meta-size);
+  line-height: 1;
+  font-weight: var(--v3-font-weight-semibold);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+
+[data-v3-ui] .v3-chip--primary.is-selected {
+  border-color: var(--v3-color-primary);
+  background: var(--v3-color-primary);
+  color: white;
+}
+
+[data-v3-ui] .v3-chip--success.is-selected {
+  border-color: var(--v3-color-success);
+  background: var(--v3-color-success-surface);
+  color: var(--v3-color-success);
+}
+
+[data-v3-ui] .v3-chip--warning.is-selected {
+  border-color: var(--v3-color-warning);
+  background: var(--v3-color-warning-surface);
+  color: var(--v3-color-warning);
+}
+
+[data-v3-ui] .v3-chip--neutral.is-selected {
+  border-color: var(--v3-color-border);
+  background: var(--v3-color-page-blue);
+  color: var(--v3-color-primary-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-v3-ui] .v3-button,
+  [data-v3-ui] .v3-icon-button,
+  [data-v3-ui] .v3-chip {
+    transition: none;
+  }
+}
+
+
+[data-v3-ui] .v3-button,
+[data-v3-ui] .v3-icon-button,
+[data-v3-ui] .v3-chip,
+[data-v3-ui] .v3-search-field__control {
+  touch-action: manipulation;
+}

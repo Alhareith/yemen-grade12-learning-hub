@@ -1,0 +1,108 @@
+/**
+ * Learning Hub V3 design tokens.
+ *
+ * Scope rule:
+ * These variables intentionally exist only below [data-v3-ui].
+ * Do not move them to :root during Stage 3; legacy/current UI still relies on v2.css.
+ */
+[data-v3-ui] {
+  /* Brand + ink */
+  --v3-color-primary: #0b4fbf;
+  --v3-color-primary-strong: #073ea5;
+  --v3-color-primary-bright: #287beb;
+  --v3-color-navy: #0a1a74;
+  --v3-color-ink: #0f2a68;
+
+  /* Neutral surfaces */
+  --v3-color-page: #f7fbff;
+  --v3-color-page-blue: #e8f3fe;
+  --v3-color-card: #ffffff;
+  --v3-color-border: #d8e8f7;
+  --v3-color-search: #f3f8fe;
+
+  /* Feature surfaces */
+  --v3-color-prompts: #f0ebfd;
+  --v3-color-practice: #e9faf1;
+  --v3-color-curriculum: #e8f3fe;
+  --v3-color-simulation: #feefd3;
+
+  /* Subject surfaces */
+  --v3-color-subject-math: #e1f0fe;
+  --v3-color-subject-physics: #f8eefd;
+  --v3-color-subject-chemistry: #fdf6e8;
+  --v3-color-subject-biology: #e6faf1;
+  --v3-color-subject-arabic: #fcebf2;
+  --v3-color-subject-english: #eaf4ff;
+  --v3-color-subject-islamic: #e9faf1;
+  --v3-color-subject-social: #f6edfa;
+
+  /* Semantic feedback — deliberately independent from brand blue */
+  --v3-color-success: #059669;
+  --v3-color-success-surface: #ecfdf5;
+  --v3-color-error: #e11d48;
+  --v3-color-error-surface: #fff1f2;
+  --v3-color-warning: #d97706;
+  --v3-color-warning-surface: #fffbeb;
+
+  /* Spacing scale */
+  --v3-space-1: 4px;
+  --v3-space-2: 8px;
+  --v3-space-3: 12px;
+  --v3-space-4: 16px;
+  --v3-space-5: 20px;
+  --v3-space-6: 24px;
+  --v3-space-8: 32px;
+  --v3-space-10: 40px;
+  --v3-space-14: 56px;
+
+  /* Radii */
+  --v3-radius-control: 10px;
+  --v3-radius-button: 12px;
+  --v3-radius-medium: 14px;
+  --v3-radius-card: 18px;
+  --v3-radius-surface: 24px;
+  --v3-radius-pill: 999px;
+
+  /* Borders + shadows */
+  --v3-border-width: 1px;
+  --v3-shadow-card: 0 8px 24px rgba(15, 42, 104, 0.08);
+  --v3-shadow-raised: 0 12px 32px rgba(15, 42, 104, 0.1);
+  --v3-shadow-inset-soft: inset 0 0 0 1px rgba(37, 99, 235, 0.08);
+
+  /* Control geometry */
+  --v3-control-height: 44px;
+  --v3-button-height: 44px;
+  --v3-search-height: 44px;
+  --v3-touch-target: 44px;
+
+  /* Layout — mobile/compact defaults */
+  --v3-container-max: 1280px;
+  --v3-content-padding: 14px;
+  --v3-header-height: 58px;
+  --v3-section-gap: 16px;
+  --v3-grid-gap: 10px;
+  --v3-subject-columns: 2;
+  --v3-subject-card-radius: 18px;
+  --v3-curriculum-card-ratio: 1.35;
+  --v3-simulation-min-height: 138px;
+  --v3-bottom-nav-height: 64px;
+}
+
+@media (min-width: 640px) {
+  [data-v3-ui] {
+    --v3-content-padding: 20px;
+    --v3-grid-gap: 16px;
+  }
+}
+
+@media (min-width: 900px) {
+  [data-v3-ui] {
+    --v3-content-padding: 24px;
+    --v3-header-height: 72px;
+    --v3-section-gap: 24px;
+    --v3-grid-gap: 16px;
+    --v3-subject-columns: 4;
+    --v3-button-height: 46px;
+    --v3-simulation-min-height: 108px;
+  }
+}

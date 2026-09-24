@@ -11,10 +11,28 @@ const ExamPilot = lazy(() => import("./pages/ExamPilot"));
 const CurriculumExplorer = lazy(() => import("@/features/curriculum/CurriculumExplorer"));
 const SkillPractice = lazy(() => import("@/features/practice/SkillPractice"));
 const ArabicExamTypography = lazy(() => import("@/components/ArabicExamTypography"));
+const CompositePreview = lazy(() =>
+  import("@/design-system/preview/CompositePreview").then((module) => ({
+    default: module.CompositePreview,
+  })),
+);
+const PrimitivesPreview = lazy(() =>
+  import("@/design-system/preview/PrimitivesPreview").then((module) => ({
+    default: module.PrimitivesPreview,
+  })),
+);
 
-type AppRoute = "home" | "curriculum" | "practice" | "exam-pilot";
+type AppRoute =
+  | "home"
+  | "curriculum"
+  | "practice"
+  | "exam-pilot"
+  | "design-system-preview"
+  | "design-system-primitives";
 
 function readRoute(): AppRoute {
+  if (window.location.hash === "#design-system-primitives") return "design-system-primitives";
+  if (window.location.hash === "#design-system-preview") return "design-system-preview";
   if (window.location.hash === "#exam-pilot") return "exam-pilot";
   if (window.location.hash.startsWith("#practice/")) return "practice";
   if (window.location.hash === "#curriculum") return "curriculum";
@@ -64,7 +82,15 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      {route === "exam-pilot" ? (
+      {route === "design-system-primitives" ? (
+        <Suspense fallback={<RouteLoading />}>
+          <PrimitivesPreview />
+        </Suspense>
+      ) : route === "design-system-preview" ? (
+        <Suspense fallback={<RouteLoading />}>
+          <CompositePreview />
+        </Suspense>
+      ) : route === "exam-pilot" ? (
         <Suspense fallback={<RouteLoading />}>
           <div data-arabic-exam dir="rtl" lang="ar">
             <ArabicExamTypography />

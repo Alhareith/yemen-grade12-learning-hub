@@ -1,0 +1,178 @@
+name: V3 design system visual validation
+
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/v3-design-system"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  visual-harness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build static output
+        run: GITHUB_ACTIONS=false pnpm build
+
+      - name: Install isolated browser driver
+        run: |
+          mkdir -p /tmp/v3-visual-harness
+          cd /tmp/v3-visual-harness
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
+
+      - name: Start preview
+        run: |
+          GITHUB_ACTIONS=false pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/v3-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/v3-preview.log
+          exit 1
+
+      - name: Verify responsive V3 composition
+        run: |
+          cd /tmp/v3-visual-harness
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import { chromium } from "playwright-core";
+
+          const baseUrl = "http://127.0.0.1:4173/#design-system-preview";
+          const browser = await chromium.launch({
+            executablePath: "/usr/bin/google-chrome",
+            headless: true,
+            args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          });
+
+          const widths = [360, 390, 430, 768, 1024, 1280, 1440, 1536];
+          const failures = [];
+
+          for (const width of widths) {
+            const height = width === 390 ? 844 : width >= 1200 ? 1024 : 900;
+            const page = await browser.newPage({ viewport: { width, height } });
+            const requestFailures = [];
+            const pageErrors = [];
+            const consoleErrors = [];
+
+            page.on("requestfailed", (request) => requestFailures.push(request.url()));
+            page.on("pageerror", (error) => pageErrors.push(error.message));
+            page.on("console", (message) => {
+              if (message.type() === "error") consoleErrors.push(message.text());
+            });
+
+            await page.goto(baseUrl, { waitUntil: "networkidle" });
+            const root = page.locator("[data-v3-validation]");
+            await root.waitFor();
+
+            assert.equal(await root.getAttribute("dir"), "rtl");
+            assert.equal(await page.locator(".v3-quick-action").count(), 3);
+            assert.equal(await page.locator("[data-subject-card]").count(), 8);
+            assert.equal(await page.locator("[data-subject-card] img").count(), 8);
+            assert.equal(await page.locator("[data-v3-brand]").count(), 1);
+
+            const metrics = await page.evaluate(() => {
+              const compact = document.querySelector('[data-v3-subject-grid="compact"]');
+              const nav = document.querySelector(".v3-mobile-bottom-nav");
+              const banner = document.querySelector(".v3-simulation-banner");
+              const images = [...document.querySelectorAll("[data-v3-validation] img")];
+              const overflowNodes = [...document.querySelectorAll("[data-v3-validation] *")]
+                .map((node) => {
+                  const rect = node.getBoundingClientRect();
+                  return {
+                    tag: node.tagName,
+                    className: typeof node.className === "string" ? node.className : "",
+                    left: Math.round(rect.left),
+                    right: Math.round(rect.right),
+                    width: Math.round(rect.width),
+                  };
+                })
+                .filter((node) => node.left < -1 || node.right > window.innerWidth + 1)
+                .slice(0, 12);
+              return {
+                scrollWidth: document.documentElement.scrollWidth,
+                innerWidth: window.innerWidth,
+                compactColumns: compact ? getComputedStyle(compact).gridTemplateColumns.split(" ").length : 0,
+                navDisplay: nav ? getComputedStyle(nav).display : "missing",
+                navItems: nav?.querySelectorAll("button").length ?? 0,
+                bannerHeight: banner?.getBoundingClientRect().height ?? 0,
+                loadedImages: images.filter((image) => image.complete && image.naturalWidth > 0).length,
+                imageCount: images.length,
+                overflowNodes,
+              };
+            });
+
+            assert.ok(
+              metrics.scrollWidth <= metrics.innerWidth,
+              `Horizontal overflow at ${width}px: scrollWidth=${metrics.scrollWidth}, innerWidth=${metrics.innerWidth}, nodes=${JSON.stringify(metrics.overflowNodes)}`,
+            );
+            assert.equal(metrics.loadedImages, metrics.imageCount, `Asset failure at ${width}px`);
+
+            if (width < 900) {
+              assert.equal(metrics.compactColumns, 2, `Expected 2 subject columns at ${width}px`);
+              assert.notEqual(metrics.navDisplay, "none", `Bottom nav should be visible at ${width}px`);
+              assert.equal(metrics.navItems, 5, `Expected five bottom-nav items at ${width}px`);
+              assert.ok(metrics.bannerHeight >= 130, `Simulation banner too short at ${width}px`);
+            } else {
+              assert.equal(metrics.compactColumns, 4, `Expected 4 subject columns at ${width}px`);
+              assert.equal(metrics.navDisplay, "none", `Bottom nav should be hidden at ${width}px`);
+              assert.ok(metrics.bannerHeight >= 100, `Simulation banner too short at ${width}px`);
+            }
+
+            if (width === 390) {
+              await page.screenshot({
+                path: `${process.env.GITHUB_WORKSPACE}/v3-design-mobile-390x844.png`,
+                fullPage: false,
+              });
+            }
+
+            if (width === 1536) {
+              await page.screenshot({
+                path: `${process.env.GITHUB_WORKSPACE}/v3-design-desktop-1536x1024.png`,
+                fullPage: false,
+              });
+            }
+
+            if (requestFailures.length || pageErrors.length || consoleErrors.length) {
+              failures.push({ width, requestFailures, pageErrors, consoleErrors });
+            }
+
+            await page.close();
+          }
+
+          assert.deepEqual(failures, []);
+          await browser.close();
+          NODE
+
+      - name: Upload V3 visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-design-system-visual-evidence
+          path: |
+            v3-design-mobile-390x844.png
+            v3-design-desktop-1536x1024.png
+          if-no-files-found: error
+          retention-days: 14
