@@ -282,3 +282,29 @@
     rgba(11, 79, 191, 0.06);
   box-shadow: var(--v3-shadow-inset-soft);
 }
+
+
+/* Stage 3J narrow-width containment: fix the component, not the page overflow. */
+[data-v3-ui] .v3-quick-action,
+[data-v3-ui] .v3-quick-action__copy,
+[data-v3-ui] .v3-mobile-bottom-nav,
+[data-v3-ui] .v3-mobile-bottom-nav button,
+[data-v3-ui] .v3-mobile-bottom-nav button span {
+  min-width: 0;
+}
+
+[data-v3-ui] .v3-quick-action {
+  overflow: hidden;
+}
+
+[data-v3-ui] .v3-mobile-bottom-nav button {
+  padding-inline: 2px;
+  overflow: hidden;
+}
+
+[data-v3-ui] .v3-mobile-bottom-nav button span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
