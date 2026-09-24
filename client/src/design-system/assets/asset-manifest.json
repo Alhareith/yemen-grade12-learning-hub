@@ -1,0 +1,124 @@
+{
+  "version": 1,
+  "stage": "3D",
+  "format": "WebP with alpha",
+  "policy": {
+    "referencePreservation": "Production derivatives preserve the approved reference motifs and color direction.",
+    "subjectIllustrations": "Illustrative assets; never replace with generic Lucide icons.",
+    "functionalIcons": "Not included here; functional icon contract belongs to Stage 3E.",
+    "brandLockup": "Render brand text as live Arabic text beside the symbol; do not rasterize the product name.",
+    "upscaling": "Do not render beyond the documented footprint without measured visual validation."
+  },
+  "renderTargets": {
+    "subjects": "72–110 CSS px depending on composition",
+    "actions": "48–72 CSS px",
+    "simulation": "96–160 CSS px",
+    "brandSymbol": "36–64 CSS px"
+  },
+  "assets": {
+    "actions/curriculum.webp": {
+      "width": 144,
+      "height": 144,
+      "bytes": 4634,
+      "sha256": "b0977cebd4ab4076c28f3184d47daa5b8b4fddf01e3f71bbcd614ce6021716a5",
+      "alpha": true,
+      "alphaCoverage": 0.2873
+    },
+    "actions/practice.webp": {
+      "width": 144,
+      "height": 144,
+      "bytes": 7080,
+      "sha256": "1cb808b999ec99cb8dbee7325018128fc969c08bf54a9ee400f92b4362752dff",
+      "alpha": true,
+      "alphaCoverage": 0.3489
+    },
+    "actions/prompts.webp": {
+      "width": 144,
+      "height": 144,
+      "bytes": 3518,
+      "sha256": "0d7fbd9fd212fc1fb30108af26203c3045831903b7856b2c5f53b8cf3bd6e9dd",
+      "alpha": true,
+      "alphaCoverage": 0.3954
+    },
+    "brand/daleel-third-symbol.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 8632,
+      "sha256": "7c3b0135197c11cc330920c41b7e41aa59f968a58c14d025716914698e36a9db",
+      "alpha": true,
+      "alphaCoverage": 0.3891
+    },
+    "simulation/exam.webp": {
+      "width": 224,
+      "height": 224,
+      "bytes": 8942,
+      "sha256": "b0c05c154a6aba0861d384085c487f16559caa299a157107a9fded984f70f110",
+      "alpha": true,
+      "alphaCoverage": 0.3515
+    },
+    "subjects/arabic.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 6914,
+      "sha256": "6bc04ea88215e6e039ec83323c36f24e5f2c855310e63e5f4c48244f1b61e5d8",
+      "alpha": true,
+      "alphaCoverage": 0.2621
+    },
+    "subjects/biology.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 8908,
+      "sha256": "74e4b911ffa8e528b5e565415b76a6d414696fced817bde087befcbb0ce77d74",
+      "alpha": true,
+      "alphaCoverage": 0.4261
+    },
+    "subjects/chemistry.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 8964,
+      "sha256": "3a26d2fa765b52656d8e0eca18f887d70c772143354e6f7012a1fdcd9d99d15d",
+      "alpha": true,
+      "alphaCoverage": 0.3392
+    },
+    "subjects/english.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 7010,
+      "sha256": "ff835409b92fbc1bbf0acdfbd5194a11e70e3f0a4a72dade1a6d3b950256d19c",
+      "alpha": true,
+      "alphaCoverage": 0.3372
+    },
+    "subjects/islamic.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 8060,
+      "sha256": "bd236dbb9258d9d769bd1ef1d0e5cc10fd2ba34575f3ce193a0e0847160b7c28",
+      "alpha": true,
+      "alphaCoverage": 0.357
+    },
+    "subjects/math.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 7922,
+      "sha256": "6b4327f592a09560577851b060757947c68a9f7e8cefbe817e973bcb0f521ef0",
+      "alpha": true,
+      "alphaCoverage": 0.3002
+    },
+    "subjects/physics.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 11354,
+      "sha256": "c19e3f55d1e87e83ddb17559e7a088e5e45ef8973d2f381e5e8e2784e346e4fa",
+      "alpha": true,
+      "alphaCoverage": 0.2935
+    },
+    "subjects/social.webp": {
+      "width": 192,
+      "height": 192,
+      "bytes": 8104,
+      "sha256": "b22befe033ea9558eeca2ac330777d4d7354b1322197e18440e2ab16fd2c4cd8",
+      "alpha": true,
+      "alphaCoverage": 0.3894
+    }
+  }
+}

@@ -22,7 +22,7 @@ The harness now carries real binary WebP assets for:
 
 They are imported through Vite, so build hashing and GitHub Pages/Vercel base handling are exercised by the real build rather than by raw `/src/` URLs.
 
-The remaining brand + subject illustrations remain in the complete Stage 3D package and are represented by reserved visual slots in the harness. No Lucide or invented artwork is substituted for them.
+Stage 3M materialized the brand symbol and all eight subject illustrations from the exact approved Stage 3D package. The harness now renders the full production asset set; no reserved subject-art slots, Lucide substitutions, or invented artwork remain.
 
 ## Canonical screenshots
 
@@ -57,7 +57,7 @@ Comparison is split into:
 2. canonical browser screenshots;
 3. human review of hierarchy, spacing, pastels, blue identity, card proportions, banner prominence, and mobile/desktop composition.
 
-Exact subject-art parity remains pending until the full Stage 3D binary package is materialized into the repository.
+Subject-art validation now uses the materialized Stage 3D production illustrations for all eight subjects.
 
 ## Regression boundary
 

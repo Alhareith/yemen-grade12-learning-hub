@@ -30,9 +30,20 @@ export function CompositePreview() {
   return (
     <div data-v3-ui data-v3-validation className="v3-composite-preview" dir="rtl">
       <main className="v3-composite-preview__content">
-        <header>
-          <span className="v3-type-meta">Stage 3J · visual validation harness</span>
-          <h1 className="v3-type-h1">الهوية البصرية المركبة</h1>
+        <header className="v3-composite-preview__header">
+          <div className="v3-composite-preview__brand">
+            <img
+              alt=""
+              aria-hidden="true"
+              className="v3-composite-preview__brand-symbol"
+              data-v3-brand
+              src={v3AssetPaths.brand}
+            />
+            <div>
+              <span className="v3-type-meta">Stage 3M · final visual validation</span>
+              <h1 className="v3-type-h1">الهوية البصرية المركبة</h1>
+            </div>
+          </div>
           <p className="v3-type-body">
             صفحة تحقق معزولة لقياس الاستجابة والاتجاه والتكوين قبل نقل التصميم إلى الشاشات الفعلية.
           </p>
@@ -53,20 +64,20 @@ export function CompositePreview() {
         <section>
           <h2 className="v3-type-h2">بطاقات Home المختصرة</h2>
           <div className="v3-composite-preview__subject-grid" data-v3-subject-grid="compact">
-            <SubjectCard meta="٣ وحدات · ١٠ دروس" title="الرياضيات" tone="math" />
-            <SubjectCard meta="قريبًا" title="الفيزياء" tone="physics" />
-            <SubjectCard meta="قريبًا" title="الكيمياء" tone="chemistry" />
-            <SubjectCard meta="قريبًا" title="الأحياء" tone="biology" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.math} meta="٣ وحدات · ١٠ دروس" title="الرياضيات" tone="math" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.physics} meta="قريبًا" title="الفيزياء" tone="physics" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.chemistry} meta="قريبًا" title="الكيمياء" tone="chemistry" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.biology} meta="قريبًا" title="الأحياء" tone="biology" />
           </div>
         </section>
 
         <section>
           <h2 className="v3-type-h2">بطاقات Curriculum الإجرائية</h2>
           <div className="v3-composite-preview__subject-grid" data-v3-subject-grid="actionable">
-            <SubjectCard meta="الوحدات والدروس والاختبارات" title="اللغة العربية" tone="arabic" variant="actionable" />
-            <SubjectCard meta="الوحدات والدروس والاختبارات" title="اللغة الإنجليزية" tone="english" variant="actionable" />
-            <SubjectCard meta="الوحدات والدروس والاختبارات" title="التربية الإسلامية" tone="islamic" variant="actionable" />
-            <SubjectCard meta="الوحدات والدروس والاختبارات" title="الاجتماعيات" tone="social" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.arabic} meta="الوحدات والدروس والاختبارات" title="اللغة العربية" tone="arabic" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.english} meta="الوحدات والدروس والاختبارات" title="اللغة الإنجليزية" tone="english" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.islamic} meta="الوحدات والدروس والاختبارات" title="التربية الإسلامية" tone="islamic" variant="actionable" />
+            <SubjectCard illustrationSrc={v3AssetPaths.subjects.social} meta="الوحدات والدروس والاختبارات" title="الاجتماعيات" tone="social" variant="actionable" />
           </div>
         </section>
       </main>

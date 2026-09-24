@@ -89,6 +89,8 @@ jobs:
             assert.equal(await root.getAttribute("dir"), "rtl");
             assert.equal(await page.locator(".v3-quick-action").count(), 3);
             assert.equal(await page.locator("[data-subject-card]").count(), 8);
+            assert.equal(await page.locator("[data-subject-card] img").count(), 8);
+            assert.equal(await page.locator("[data-v3-brand]").count(), 1);
 
             const metrics = await page.evaluate(() => {
               const compact = document.querySelector('[data-v3-subject-grid="compact"]');

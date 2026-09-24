@@ -312,14 +312,11 @@ These remain visual assets:
 
 Materialized and validated in the repository:
 
-- Simulation WebP
-- Prompt Generator quick-action WebP
-- Practice quick-action WebP
-- Curriculum quick-action WebP
-
-The complete Stage 3D production package remains source material for:
-
 - brand symbol;
+- Simulation WebP;
+- Prompt Generator quick-action WebP;
+- Practice quick-action WebP;
+- Curriculum quick-action WebP;
 - Math illustration;
 - Physics illustration;
 - Chemistry illustration;
@@ -329,13 +326,11 @@ The complete Stage 3D production package remains source material for:
 - Islamic illustration;
 - Social illustration.
 
-### Closure blocker
+### Stage 3M closure resolution
 
-The nine assets above are the **only known Stage 3 visual-asset materialization gap** at the end of 3L.
+The Stage 3L asset materialization blocker is resolved. The repository now carries the exact approved Stage 3D production derivatives for the brand, all eight subjects, simulation, and all three quick actions.
 
-They must be materialized and verified before Stage 3 is closed if full subject-art parity is claimed.
-
-Do not replace this gap with Lucide icons, invented illustrations, or temporary production placeholders.
+Do not replace these assets with Lucide icons, invented illustrations, or temporary production placeholders.
 
 ---
 
@@ -642,6 +637,7 @@ At the end of 3L:
 - the contract is frozen;
 - future stages consume it rather than redesign it;
 - Stage 3M may fix closure defects and materialize pending approved assets;
+- Stage 3M materialized the complete approved Stage 3D runtime asset set without changing the visual language;
 - Stage 3M must not introduce a new visual language.
 
 Any substantive visual-system redesign after this point requires a deliberate contract revision, not an incidental feature patch.

@@ -85,11 +85,9 @@ V3 primitive transitions are disabled under `prefers-reduced-motion: reduce`.
 
 Composite interactive controls now explicitly follow the same contract.
 
-## Known visual asset boundary
+## Visual asset closure
 
-The Stage 3J validation route currently carries the real Simulation and three Quick Action WebPs. Subject/brand binary artwork remains tracked by the Stage 3D production package and must be materialized before Stage 3 closure if full subject-art parity is required.
-
-This does not weaken accessibility/geometry validation: reserved subject-art slots retain calibrated dimensions and are marked decorative.
+Stage 3M materialized the brand symbol and all eight subject illustrations from the approved Stage 3D production package. The quality and visual harnesses therefore exercise real production WebPs for the complete Stage 3 asset set.
 
 ## Acceptance criteria
 

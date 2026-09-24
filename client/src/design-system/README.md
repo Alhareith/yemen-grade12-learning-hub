@@ -89,8 +89,8 @@ Do not override Arabic Math fonts.
 
 These are hidden engineering fixtures and must not be linked as product pages.
 
-## Current closure gap
+## Visual assets
 
-The Stage 3D brand symbol and eight subject illustrations still need binary materialization into the repository before Stage 3 closure can claim full subject-art parity.
+The approved Stage 3D production set is fully materialized in `assets/`: brand symbol, eight subject illustrations, simulation artwork, and three quick-action illustrations.
 
-Do not replace them with placeholder production artwork.
+Do not replace them with placeholder production artwork or generic subject icons.
