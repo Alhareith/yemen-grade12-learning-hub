@@ -61,6 +61,11 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
+[data-v3-ui].v3-app-shell__mobile-slot .v3-mobile-bottom-nav {
+  height: var(--v3-bottom-nav-height);
+  min-height: var(--v3-bottom-nav-height);
+}
+
 @media (min-width: 900px) {
   [data-v3-ui].v3-app-shell__mobile-spacer,
   [data-v3-ui].v3-app-shell__mobile-slot {
