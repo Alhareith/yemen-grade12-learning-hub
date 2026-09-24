@@ -2,14 +2,14 @@
  * Product shell — prompts, curriculum navigation, skill practice and simulations are loaded on demand.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
-import ErrorBoundary from "./components/ErrorBoundary";
-import Home from "./pages/Home";
+import ErrorBoundary from "@/app/ErrorBoundary";
+import Home from "@/features/home/Home";
 import "./v2.css";
 import "./polish.css";
 
 const ExamPilot = lazy(() => import("./pages/ExamPilot"));
-const CurriculumExplorer = lazy(() => import("./pages/CurriculumExplorer"));
-const SkillPractice = lazy(() => import("./pages/SkillPractice"));
+const CurriculumExplorer = lazy(() => import("@/features/curriculum/CurriculumExplorer"));
+const SkillPractice = lazy(() => import("@/features/practice/SkillPractice"));
 const ArabicExamTypography = lazy(() => import("@/components/ArabicExamTypography"));
 
 type AppRoute = "home" | "curriculum" | "practice" | "exam-pilot";

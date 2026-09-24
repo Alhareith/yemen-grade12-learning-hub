@@ -3,7 +3,7 @@ import {
   arabicMathPlainText,
   localizeArabicText,
   renderArabicMathML,
-} from "@/exams/arabic-math";
+} from "@/lib/arabic-math";
 import "@/arabic-math.css";
 
 export default function ArabicRichContent({ content }: { content: RichContent }) {

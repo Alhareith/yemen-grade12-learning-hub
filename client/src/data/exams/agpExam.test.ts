@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { RichContent } from "@shared/exams/question-model";
 import { validateExamDefinition } from "@shared/exams/exam-model";
-import { arabicMathPlainText } from "@/exams/arabic-math";
+import { arabicMathPlainText } from "@/lib/arabic-math";
 import { curriculumSkillIds } from "@/data/curriculum";
 import { agpGeneralExam } from "./agpExam";
 import { agpExamProvenance } from "./agpExamProvenance";
