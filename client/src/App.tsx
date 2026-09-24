@@ -8,7 +8,7 @@ import "./v2.css";
 import "./polish.css";
 
 const ExamPilot = lazy(() => import("./pages/ExamPilot"));
-const CurriculumExplorer = lazy(() => import("./pages/CurriculumExplorer"));
+const CurriculumExplorer = lazy(() => import("@/features/curriculum/CurriculumExplorer"));
 const SkillPractice = lazy(() => import("./pages/SkillPractice"));
 const ArabicExamTypography = lazy(() => import("@/components/ArabicExamTypography"));
 
