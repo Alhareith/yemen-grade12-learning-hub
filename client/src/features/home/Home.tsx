@@ -100,7 +100,7 @@ const socialLinks = [
   { label: "البريد", href: "mailto:alhareithaldahia@gmail.com", icon: Mail },
 ];
 
-export default function HomeV4() {
+export default function HomeV4({ showGlobalHeader = true }: { showGlobalHeader?: boolean }) {
   const [view, setView] = useState<View>("home");
   const [selectedId, setSelectedId] = useState("رياضيات");
   const [filter, setFilter] = useState("all");
@@ -128,7 +128,7 @@ export default function HomeV4() {
 
   return (
     <div dir="rtl" className="min-h-screen bg-[#f5f6fa] pb-24 font-sans text-slate-950 md:pb-0">
-      <AppHeader view={view} onNavigate={go} />
+      {showGlobalHeader ? <AppHeader view={view} onNavigate={go} /> : null}
       <main className="min-h-[70vh]">
         {view === "home" && <HomeView selected={selected} onNavigate={go} onChangeSubject={() => go("subjects")} />}
         {view === "prompts" && <PromptLibrary subject={selected.title} units={selectedUnitTitles} />}
