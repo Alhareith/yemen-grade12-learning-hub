@@ -30,6 +30,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `09-responsive-visual-harness.md` | browser visual validation |
 | `10-accessibility-performance-regression.md` | quality guardrails |
 | `11-design-system-contract.md` | **canonical frozen Stage 3 contract** |
+| `12-stage3-closure.md` | Stage 3 closure evidence and handoff |
 
 ## Stage snapshots
 

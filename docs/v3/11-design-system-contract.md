@@ -490,13 +490,13 @@ Current Stage 3 guardrails:
 Latest validated Stage 3K measurements:
 
 - font build payload: 360,316 bytes;
-- WebP build payload: 20,656 bytes;
+- WebP build payload: 96,524 bytes;
 - largest font asset: 46,924 bytes;
 - largest WebP: 8,942 bytes;
 - browser font requests on V3 preview: 4;
-- browser WebP requests on V3 preview: 3;
+- browser external WebP requests on V3 preview: 12 (one small asset may be inlined by Vite);
 - CLS: ~0.00085;
-- local CI LCP: ~1124ms.
+- local CI LCP: ~716ms.
 
 These are regression guardrails, not production Core Web Vitals claims.
 
