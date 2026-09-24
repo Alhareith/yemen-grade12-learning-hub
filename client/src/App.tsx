@@ -2,6 +2,7 @@
  * Product shell — prompts, curriculum navigation, skill practice and simulations are loaded on demand.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
+import AppShell from "@/app/AppShell";
 import ErrorBoundary from "@/app/ErrorBoundary";
 import {
   appRouteHash,
@@ -77,24 +78,31 @@ export default function App() {
             <ExamPilot onBack={goHome} />
           </div>
         </Suspense>
-      ) : route === "practice" ? (
-        <Suspense fallback={<RouteLoading />}>
-          <SkillPractice skillId={readPracticeSkillIdFromHash(window.location.hash)} onBack={goCurriculum} />
-        </Suspense>
-      ) : route === "curriculum" ? (
-        <Suspense fallback={<RouteLoading />}>
-          <CurriculumExplorer onBack={goHome} />
-        </Suspense>
       ) : (
-        <>
-          <Home />
-          <a
-            href={appRouteHash.curriculum}
-            className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
-          >
-            تصفح المنهج
-          </a>
-        </>
+        <AppShell>
+          {route === "practice" ? (
+            <Suspense fallback={<RouteLoading />}>
+              <SkillPractice
+                skillId={readPracticeSkillIdFromHash(window.location.hash)}
+                onBack={goCurriculum}
+              />
+            </Suspense>
+          ) : route === "curriculum" ? (
+            <Suspense fallback={<RouteLoading />}>
+              <CurriculumExplorer onBack={goHome} />
+            </Suspense>
+          ) : (
+            <>
+              <Home />
+              <a
+                href={appRouteHash.curriculum}
+                className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
+              >
+                تصفح المنهج
+              </a>
+            </>
+          )}
+        </AppShell>
       )}
     </ErrorBoundary>
   );
