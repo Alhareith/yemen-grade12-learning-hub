@@ -308,3 +308,36 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+
+/* Stage 3J: actionable subject cards must shrink inside 2-column 360px layouts. */
+[data-v3-ui] .v3-subject-card,
+[data-v3-ui] .v3-subject-card__content,
+[data-v3-ui] .v3-subject-card__copy,
+[data-v3-ui] .v3-subject-card__cta {
+  min-width: 0;
+}
+
+[data-v3-ui] .v3-subject-card {
+  overflow: hidden;
+}
+
+[data-v3-ui] .v3-subject-card__cta {
+  width: 100%;
+  padding-inline: var(--v3-space-2);
+  white-space: normal;
+}
+
+@media (max-width: 430px) {
+  [data-v3-ui] .v3-subject-card__art {
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
+  }
+
+  [data-v3-ui] .v3-subject-card--actionable .v3-subject-card__art {
+    width: 72px;
+    height: 72px;
+    flex-basis: 72px;
+  }
+}
