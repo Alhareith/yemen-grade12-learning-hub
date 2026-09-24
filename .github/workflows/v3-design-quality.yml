@@ -163,6 +163,10 @@ jobs:
           await page.locator("[data-v3-validation]").waitFor();
           await page.evaluate(() => document.fonts.ready);
 
+          assert.equal(await page.locator("[data-app-shell]").count(), 0, "Composite preview must bypass the production AppShell");
+          assert.equal(await page.locator("[data-app-header]").count(), 0, "Composite preview must not inherit the product header");
+          assert.equal(await page.locator("[data-app-shell-mobile]").count(), 0, "Composite preview must keep its fixture-owned mobile navigation");
+
           assert.equal(await page.locator("h1").count(), 1, "Composite preview needs exactly one h1");
           assert.equal(await page.locator('nav[aria-label="التنقل الرئيسي"]').count(), 1);
           assert.equal(await page.locator("button").evaluateAll((nodes) => nodes.every((node) => (node.textContent ?? "").trim().length > 0 || node.getAttribute("aria-label"))), true, "Every button needs an accessible name");
@@ -242,6 +246,9 @@ jobs:
           });
           await primitives.goto(`${base}#design-system-primitives`, { waitUntil: "networkidle" });
           await primitives.locator("[data-v3-primitives-validation]").waitFor();
+          assert.equal(await primitives.locator("[data-app-shell]").count(), 0, "Primitives preview must bypass the production AppShell");
+          assert.equal(await primitives.locator("[data-app-header]").count(), 0, "Primitives preview must not inherit the product header");
+          assert.equal(await primitives.locator("[data-app-shell-mobile]").count(), 0, "Primitives preview must not inherit product mobile navigation");
 
           const primitiveTouchFailures = await primitives.locator("button:visible").evaluateAll((nodes) =>
             nodes
@@ -277,6 +284,7 @@ jobs:
             keyboardFocus: "pass",
             reducedMotion: "pass",
             semanticNames: "pass",
+            protectedFixtureBypass: "pass",
             contrast: "pass",
             cls: perf.cls,
             lcpMs: perf.lcpMs,

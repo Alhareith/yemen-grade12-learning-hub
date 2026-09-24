@@ -221,6 +221,9 @@ jobs:
           await page.goto(`${baseUrl}#exam-pilot`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-arabic-exam]").waitFor();
           await page.locator("[data-exam-model-selector]").waitFor();
+          assert.equal(await page.locator("[data-app-shell]").count(), 0, "ExamPilot must bypass the production AppShell");
+          assert.equal(await page.locator("[data-app-header]").count(), 0, "ExamPilot must not inherit the product header");
+          assert.equal(await page.locator(".v3-mobile-bottom-nav").count(), 0, "ExamPilot must not inherit the product mobile navigation");
           const modelCards = page.locator("[data-exam-model]");
           assert.equal(await modelCards.count(), 2, "Expected exactly two math model cards");
           await page.getByText("النموذج العام ١", { exact: false }).waitFor();
@@ -230,6 +233,18 @@ jobs:
           await page.getByRole("button", { name: "بدون مؤقت" }).click();
           await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
+
+          const model1StorageKey = "yemen-grade12:exam-session:v2:MATH-CALC-2020-ADAPTED-PILOT-01";
+          await page.waitForFunction(
+            (key) => window.localStorage.getItem(key) !== null,
+            model1StorageKey,
+          );
+          await page.reload({ waitUntil: "domcontentloaded" });
+          await page.getByText("محاولة محفوظة على هذا الجهاز", { exact: true }).waitFor();
+          assert.equal(await page.locator("[data-app-shell]").count(), 0, "Recovered ExamPilot session must remain outside AppShell");
+          await page.getByRole("button", { name: "متابعة المحاولة", exact: true }).click();
+          await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
+
           const mathCount1 = await page.locator("[data-arabic-exam] math").count();
           const enhancedMathCount1 = await page.locator("[data-arabic-exam] .arabic-math-wrap").count();
           assert.ok(mathCount1 > 0, "Expected MathML in protected model 1 question");
@@ -252,7 +267,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 
