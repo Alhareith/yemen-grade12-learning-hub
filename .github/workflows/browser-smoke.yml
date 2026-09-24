@@ -87,7 +87,10 @@ jobs:
           assert.equal(await page.getByText("GitHub", { exact: true }).count(), 0, "GitHub footer link should be removed");
           assert.equal(await page.getByText("Hugging Face", { exact: true }).count(), 0, "Hugging Face footer link should be removed");
 
-          await page.getByRole("button", { name: "أوامر", exact: true }).click();
+          assert.equal(await page.locator("[data-app-header]").count(), 1, "Expected exactly one application header");
+          assert.equal(await page.getByRole("button", { name: "أوامر", exact: true }).count(), 0, "Legacy mobile tabs should be removed from the shell");
+
+          await page.goto(`${baseUrl}#prompts`, { waitUntil: "domcontentloaded" });
           await page.getByRole("heading", { name: "أوامر اسأل بها أي ذكاء اصطناعي متوفر لديك" }).waitFor();
           assert.equal(await page.getByText("لا تحتاج كتابة اسم الدرس.", { exact: true }).count(), 0, "Old lesson-name notice should be removed");
           assert.equal(await page.getByText("الرياضيات مضبوطة بالعربي.", { exact: true }).count(), 0, "Old math notice should be removed");
@@ -103,6 +106,9 @@ jobs:
           assert.ok(generatedPrompt.includes("٤. شرح مركز ثم مثال"), "Expected focused-example option");
           assert.ok(generatedPrompt.includes("إذا كان المطلوب صغيرًا أو مباشرًا"), "Expected direct response rule for small topics");
           await page.screenshot({ path: promptEvidencePath, fullPage: false });
+
+          await page.goto(`${baseUrl}#resources`, { waitUntil: "domcontentloaded" });
+          await page.getByRole("heading", { name: "مصادر رياضيات" }).waitFor();
 
           await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-curriculum-explorer]").waitFor();
@@ -188,7 +194,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, promptRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 

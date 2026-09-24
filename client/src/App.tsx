@@ -11,7 +11,7 @@ import {
   readPracticeSkillIdFromHash,
   type AppRoute,
 } from "@/app/routing";
-import Home from "@/features/home/Home";
+import Home, { type HomeRouteView } from "@/features/home/Home";
 import "./v2.css";
 import "./polish.css";
 
@@ -50,31 +50,27 @@ export default function App() {
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const goHome = () => {
-    window.location.hash = appRouteHash.home;
-    setRoute("home");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const goCurriculum = () => {
-    window.location.hash = appRouteHash.curriculum;
-    setRoute("curriculum");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const navigatePrimary = (target: PrimaryNavigationTarget) => {
-    if (target === "home") {
-      goHome();
-      return;
-    }
+    if (target === "practice") {
+      if (route === "practice") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
 
-    if (target === "practice" && route === "practice") {
+      window.location.hash = appRouteHash.curriculum;
+      setRoute("curriculum");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
-    goCurriculum();
+    window.location.hash = appRouteHash[target];
+    setRoute(target);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const goHome = () => navigatePrimary("home");
+  const goCurriculum = () => navigatePrimary("curriculum");
+  const navigateHomeFeature = (target: HomeRouteView) => navigatePrimary(target);
 
   return (
     <ErrorBoundary>
@@ -108,13 +104,18 @@ export default function App() {
             </Suspense>
           ) : (
             <>
-              <Home showGlobalHeader={false} />
-              <a
-                href={appRouteHash.curriculum}
-                className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
-              >
-                تصفح المنهج
-              </a>
+              <Home
+                routeView={route === "prompts" || route === "resources" ? route : "home"}
+                onRouteNavigate={navigateHomeFeature}
+              />
+              {route === "home" ? (
+                <a
+                  href={appRouteHash.curriculum}
+                  className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
+                >
+                  تصفح المنهج
+                </a>
+              ) : null}
             </>
           )}
         </AppShell>

@@ -3,7 +3,7 @@ import { v3AssetPaths } from "@/design-system/assets/asset-paths";
 import type { AppRoute } from "@/app/routing";
 import "./app-header.css";
 
-export type PrimaryNavigationTarget = "home" | "curriculum" | "practice";
+export type PrimaryNavigationTarget = "home" | "curriculum" | "practice" | "prompts" | "resources";
 
 interface AppHeaderProps {
   route: AppRoute;
@@ -25,6 +25,16 @@ const navigationItems = [
     id: "practice",
     label: "التدريب",
     icon: functionalIcons.content.practice.icon,
+  },
+  {
+    id: "prompts",
+    label: "مولد الأوامر",
+    icon: functionalIcons.content.prompts.icon,
+  },
+  {
+    id: "resources",
+    label: "المزيد",
+    icon: functionalIcons.content.resources.icon,
   },
 ] as const;
 
@@ -55,10 +65,7 @@ export default function AppHeader({ route, onNavigate }: AppHeaderProps) {
       <nav className="v3-app-header__desktop-nav" aria-label="التنقل الرئيسي">
         {navigationItems.map((item) => {
           const Icon = item.icon;
-          const active =
-            item.id === "home"
-              ? route === "home" || route === "prompts" || route === "resources"
-              : route === item.id;
+          const active = route === item.id;
 
           return (
             <button
