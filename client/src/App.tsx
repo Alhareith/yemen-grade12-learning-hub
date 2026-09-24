@@ -3,6 +3,12 @@
  */
 import { lazy, Suspense, useEffect, useState } from "react";
 import ErrorBoundary from "@/app/ErrorBoundary";
+import {
+  appRouteHash,
+  parseAppHash,
+  readPracticeSkillIdFromHash,
+  type AppRoute,
+} from "@/app/routing";
 import Home from "@/features/home/Home";
 import "./v2.css";
 import "./polish.css";
@@ -22,32 +28,6 @@ const PrimitivesPreview = lazy(() =>
   })),
 );
 
-type AppRoute =
-  | "home"
-  | "curriculum"
-  | "practice"
-  | "exam-pilot"
-  | "design-system-preview"
-  | "design-system-primitives";
-
-function readRoute(): AppRoute {
-  if (window.location.hash === "#design-system-primitives") return "design-system-primitives";
-  if (window.location.hash === "#design-system-preview") return "design-system-preview";
-  if (window.location.hash === "#exam-pilot") return "exam-pilot";
-  if (window.location.hash.startsWith("#practice/")) return "practice";
-  if (window.location.hash === "#curriculum") return "curriculum";
-  return "home";
-}
-
-function readPracticeSkillId() {
-  if (!window.location.hash.startsWith("#practice/")) return "";
-  try {
-    return decodeURIComponent(window.location.hash.slice("#practice/".length));
-  } catch {
-    return "";
-  }
-}
-
 function RouteLoading() {
   return (
     <div dir="rtl" className="flex min-h-[45vh] items-center justify-center px-4 text-center">
@@ -60,22 +40,22 @@ function RouteLoading() {
 }
 
 export default function App() {
-  const [route, setRoute] = useState<AppRoute>(() => readRoute());
+  const [route, setRoute] = useState<AppRoute>(() => parseAppHash(window.location.hash));
 
   useEffect(() => {
-    const onHashChange = () => setRoute(readRoute());
+    const onHashChange = () => setRoute(parseAppHash(window.location.hash));
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
   const goHome = () => {
-    window.location.hash = "";
+    window.location.hash = appRouteHash.home;
     setRoute("home");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const goCurriculum = () => {
-    window.location.hash = "#curriculum";
+    window.location.hash = appRouteHash.curriculum;
     setRoute("curriculum");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -99,7 +79,7 @@ export default function App() {
         </Suspense>
       ) : route === "practice" ? (
         <Suspense fallback={<RouteLoading />}>
-          <SkillPractice skillId={readPracticeSkillId()} onBack={goCurriculum} />
+          <SkillPractice skillId={readPracticeSkillIdFromHash(window.location.hash)} onBack={goCurriculum} />
         </Suspense>
       ) : route === "curriculum" ? (
         <Suspense fallback={<RouteLoading />}>
@@ -109,7 +89,7 @@ export default function App() {
         <>
           <Home />
           <a
-            href="#curriculum"
+            href={appRouteHash.curriculum}
             className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
           >
             تصفح المنهج
