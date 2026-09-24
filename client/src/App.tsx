@@ -2,7 +2,7 @@
  * Product shell — prompts, curriculum navigation, skill practice and simulations are loaded on demand.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
-import ErrorBoundary from "./components/ErrorBoundary";
+import ErrorBoundary from "@/app/ErrorBoundary";
 import Home from "@/features/home/Home";
 import "./v2.css";
 import "./polish.css";
