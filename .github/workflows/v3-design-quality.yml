@@ -79,6 +79,9 @@ jobs:
       - name: Verify GitHub Pages static build
         run: GITHUB_ACTIONS=true pnpm build
 
+      - name: Restore Vercel-style build for localhost browser checks
+        run: GITHUB_ACTIONS=false pnpm build
+
       - name: Install isolated browser driver
         run: |
           mkdir -p /tmp/v3-quality
