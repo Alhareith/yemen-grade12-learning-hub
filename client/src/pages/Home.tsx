@@ -33,7 +33,7 @@ import {
   Target,
   Type,
 } from "lucide-react";
-import PromptLibrary from "@/components/PromptLibrary";
+import PromptLibrary from "@/features/prompts/PromptLibrary";
 import {
   examChannels,
   materials,
