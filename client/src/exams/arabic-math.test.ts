@@ -6,7 +6,7 @@ import {
   collectArabicMathDiagnostics,
   renderArabicMathML,
   toArabicDigits,
-} from "./arabic-math";
+} from "@/lib/arabic-math";
 
 function mathSources(content: RichContent | undefined): string[] {
   if (!content) return [];
