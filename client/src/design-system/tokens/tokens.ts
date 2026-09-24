@@ -68,6 +68,25 @@ export const v3Tokens = {
     touchTarget: 44,
   },
 
+  typography: {
+    mobile: {
+      h1: { size: 28, lineHeight: 1.25, weight: 700 },
+      h2: { size: 22, lineHeight: 1.3, weight: 700 },
+      h3: { size: 17, lineHeight: 1.35, weight: 600 },
+      body: { size: 14, lineHeight: 1.75, weight: 400 },
+      meta: { size: 12, lineHeight: 1.6, weight: 500 },
+      button: { size: 14, lineHeight: 1.2, weight: 600 },
+    },
+    desktop: {
+      h1: { size: 36, lineHeight: 1.25, weight: 700 },
+      h2: { size: 27, lineHeight: 1.3, weight: 700 },
+      h3: { size: 20, lineHeight: 1.35, weight: 600 },
+      body: { size: 16, lineHeight: 1.75, weight: 400 },
+      meta: { size: 13, lineHeight: 1.6, weight: 500 },
+      button: { size: 16, lineHeight: 1.2, weight: 600 },
+    },
+  },
+
   layout: {
     containerMax: 1280,
     breakpoints: {
@@ -102,8 +121,7 @@ export const v3Tokens = {
 export type V3Tokens = typeof v3Tokens;
 
 /**
- * Values intentionally not locked here:
- * - typography (Stage 3G)
+ * Values intentionally not locked yet:
  * - hero exact height
  * - illustration rendered sizes
  * - curriculum sidebar width
@@ -111,7 +129,6 @@ export type V3Tokens = typeof v3Tokens;
  * - feature-specific card heights
  */
 export const v3TokenDeferredDecisions = [
-  "typography",
   "hero-height",
   "illustration-rendered-size",
   "curriculum-sidebar-width",
