@@ -95,6 +95,19 @@ jobs:
               const nav = document.querySelector(".v3-mobile-bottom-nav");
               const banner = document.querySelector(".v3-simulation-banner");
               const images = [...document.querySelectorAll("[data-v3-validation] img")];
+              const overflowNodes = [...document.querySelectorAll("[data-v3-validation] *")]
+                .map((node) => {
+                  const rect = node.getBoundingClientRect();
+                  return {
+                    tag: node.tagName,
+                    className: typeof node.className === "string" ? node.className : "",
+                    left: Math.round(rect.left),
+                    right: Math.round(rect.right),
+                    width: Math.round(rect.width),
+                  };
+                })
+                .filter((node) => node.left < -1 || node.right > window.innerWidth + 1)
+                .slice(0, 12);
               return {
                 scrollWidth: document.documentElement.scrollWidth,
                 innerWidth: window.innerWidth,
@@ -104,10 +117,14 @@ jobs:
                 bannerHeight: banner?.getBoundingClientRect().height ?? 0,
                 loadedImages: images.filter((image) => image.complete && image.naturalWidth > 0).length,
                 imageCount: images.length,
+                overflowNodes,
               };
             });
 
-            assert.ok(metrics.scrollWidth <= metrics.innerWidth, `Horizontal overflow at ${width}px`);
+            assert.ok(
+              metrics.scrollWidth <= metrics.innerWidth,
+              `Horizontal overflow at ${width}px: scrollWidth=${metrics.scrollWidth}, innerWidth=${metrics.innerWidth}, nodes=${JSON.stringify(metrics.overflowNodes)}`,
+            );
             assert.equal(metrics.loadedImages, metrics.imageCount, `Asset failure at ${width}px`);
 
             if (width < 900) {
