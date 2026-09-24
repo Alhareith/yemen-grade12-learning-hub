@@ -275,3 +275,10 @@
     display: none;
   }
 }
+\n[data-v3-ui] .v3-subject-card__art--reserved {
+  border-radius: var(--v3-radius-card);
+  background:
+    radial-gradient(circle at 65% 35%, rgba(255, 255, 255, 0.75), transparent 34%),
+    rgba(11, 79, 191, 0.06);
+  box-shadow: var(--v3-shadow-inset-soft);
+}

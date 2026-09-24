@@ -1,19 +1,29 @@
+import simulation from "./simulation/exam.webp";
+import prompts from "./actions/prompts.webp";
+import practice from "./actions/practice.webp";
+import curriculum from "./actions/curriculum.webp";
+
 export const v3AssetPaths = {
-  brand: "/src/design-system/assets/brand/daleel-third-symbol.webp",
-  simulation: "/src/design-system/assets/simulation/exam.webp",
+  simulation,
   actions: {
-    prompts: "/src/design-system/assets/actions/prompts.webp",
-    practice: "/src/design-system/assets/actions/practice.webp",
-    curriculum: "/src/design-system/assets/actions/curriculum.webp",
-  },
-  subjects: {
-    math: "/src/design-system/assets/subjects/math.webp",
-    physics: "/src/design-system/assets/subjects/physics.webp",
-    chemistry: "/src/design-system/assets/subjects/chemistry.webp",
-    biology: "/src/design-system/assets/subjects/biology.webp",
-    arabic: "/src/design-system/assets/subjects/arabic.webp",
-    english: "/src/design-system/assets/subjects/english.webp",
-    islamic: "/src/design-system/assets/subjects/islamic.webp",
-    social: "/src/design-system/assets/subjects/social.webp",
+    prompts,
+    practice,
+    curriculum,
   },
 } as const;
+
+/**
+ * The complete Stage 3D subject/brand asset package remains the source of truth.
+ * The validation harness materializes only the assets it renders in this stage.
+ */
+export const v3PendingVisualAssets = [
+  "brand/daleel-third-symbol.webp",
+  "subjects/math.webp",
+  "subjects/physics.webp",
+  "subjects/chemistry.webp",
+  "subjects/biology.webp",
+  "subjects/arabic.webp",
+  "subjects/english.webp",
+  "subjects/islamic.webp",
+  "subjects/social.webp",
+] as const;
