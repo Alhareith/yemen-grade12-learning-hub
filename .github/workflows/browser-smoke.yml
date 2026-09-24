@@ -137,7 +137,11 @@ jobs:
           assert.equal(await mobileSpacer.isVisible(), false, "Mobile navigation spacer must be hidden at 900px");
           await page.setViewportSize({ width: 390, height: 844 });
 
-          await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+          await mobileNav.getByRole("button", { name: "التدريب", exact: true }).click();
+          await page.locator("[data-curriculum-explorer]").waitFor();
+          assert.equal(new URL(page.url()).hash, "#curriculum", "Training without practice context should resolve to curriculum");
+          assert.equal(await mobileNav.getByRole("button", { name: "المنهج", exact: true }).getAttribute("aria-current"), "page");
+
           await page.locator("[data-curriculum-explorer]").waitFor();
           const skillCount = await page.locator("[data-curriculum-skill]").count();
           assert.ok(skillCount > 0, "Expected visible curriculum skills");
@@ -153,6 +157,7 @@ jobs:
 
           await page.locator("[data-skill-practice-action]").click();
           await page.locator("[data-practice-page]").waitFor();
+          assert.equal(await mobileNav.getByRole("button", { name: "التدريب", exact: true }).getAttribute("aria-current"), "page");
           await page.getByText("فهم وتمثيل العدد المركب", { exact: false }).first().waitFor();
           await page.locator("[data-practice-start]").click();
 
@@ -221,7 +226,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 
