@@ -105,7 +105,7 @@ jobs:
           assert.equal(await home.getByRole("link", { name: "ابدأ بالمنهج", exact: true }).getAttribute("href"), "#curriculum");
           assert.equal(await home.getByRole("link", { name: "تدرّب الآن", exact: true }).getAttribute("href"), "#curriculum");
           assert.equal(await home.getByRole("link", { name: "ادخل إلى المنهج", exact: true }).getAttribute("href"), "#curriculum");
-          assert.equal(await home.getByRole("link", { name: "ابدأ المحاكاة", exact: true }).getAttribute("href"), "#exam-pilot");
+          assert.equal(await home.getByRole("link", { name: "الانتقال إلى موقع المحاكاة", exact: true }).getAttribute("href"), "#exam-pilot");
           assert.equal(await home.getByRole("link", { name: "عرض جميع المصادر", exact: true }).getAttribute("href"), "#resources");
           assert.equal(await home.getByRole("link", { name: /مولد الأوامر/ }).getAttribute("href"), "#prompts");
 
