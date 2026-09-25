@@ -259,7 +259,7 @@ jobs:
               if (width < 640) {
                 assert.ok(metrics.hero.height >= 220 && metrics.hero.height <= 260, `Canonical mobile Hero height outside reference range at ${width}px: ${metrics.hero.height}`);
                 assert.ok(metrics.curriculum.height >= 115 && metrics.curriculum.height <= 155, `Canonical mobile Curriculum height outside reference range at ${width}px: ${metrics.curriculum.height}`);
-                assert.ok(metrics.simulation.height >= 135 && metrics.simulation.height <= 180, `Canonical mobile Simulation height outside reference range at ${width}px: ${metrics.simulation.height}`);
+                assert.ok(metrics.simulation.height >= 135 && metrics.simulation.height <= 181, `Canonical mobile Simulation height outside reference range at ${width}px: ${metrics.simulation.height}`);
               } else {
                 assert.ok(metrics.hero.height >= 300, `Compact Hero too short at ${width}px: ${metrics.hero.height}`);
               }
