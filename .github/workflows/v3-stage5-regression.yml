@@ -3,9 +3,26 @@ name: V3 Stage 5 regression boundary
 on:
   push:
     branches:
-      - "main"
       - "feature/v3-curriculum-experience"
   pull_request:
+    paths:
+      - ".github/workflows/v3-stage5-regression.yml"
+      - "client/src/App.tsx"
+      - "client/src/features/curriculum/**"
+      - "client/src/pages/ExamPilot.tsx"
+      - "client/src/components/ExamRunner.tsx"
+      - "client/src/components/ExamResultReport.tsx"
+      - "client/src/components/LearningDashboard.tsx"
+      - "client/src/components/ArabicExamTypography.tsx"
+      - "client/src/components/ArabicRichContent.tsx"
+      - "client/src/exams/session-storage.ts"
+      - "client/src/lib/arabic-math.ts"
+      - "client/src/arabic-math.css"
+      - "shared/exams/**"
+      - "client/src/data/curriculum.ts"
+      - "client/src/data/curriculumStructure.ts"
+      - "client/src/data/practiceBank.ts"
+      - "client/src/data/promptCatalog.ts"
   workflow_dispatch:
 
 permissions:
