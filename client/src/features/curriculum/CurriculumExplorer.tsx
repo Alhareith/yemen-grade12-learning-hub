@@ -11,9 +11,7 @@ import { buildPracticeHash } from "@/app/routing";
 import {
   QuickActionCard,
   SubjectCard,
-  type SubjectTone,
 } from "@/design-system/components";
-import { v3AssetPaths } from "@/design-system/assets/asset-paths";
 import { Button, Chip, Surface } from "@/design-system/primitives";
 import "@/design-system/primitives/primitives.css";
 import { curriculumGraph, curriculumIndex } from "@/data/curriculum";
@@ -22,6 +20,7 @@ import {
   consumeCurriculumReturnAfterPractice,
   prepareCurriculumReturnAfterPractice,
 } from "./curriculum-return-state";
+import { curriculumSubjectVisuals } from "./subject-visuals";
 import { selfStudyPrompts } from "@/data/promptCatalog";
 import { buildArabicOutputPolicy } from "@shared/prompts/arabic-output-policy";
 import "./curriculum-explorer.css";
@@ -31,32 +30,6 @@ const explainPrompt =
   selfStudyPrompts[0];
 
 const numberFormatter = new Intl.NumberFormat("ar");
-
-const subjectVisuals: Record<
-  string,
-  { tone: SubjectTone; illustrationSrc: string }
-> = {
-  رياضيات: {
-    tone: "math",
-    illustrationSrc: v3AssetPaths.subjects.math,
-  },
-  فيزياء: {
-    tone: "physics",
-    illustrationSrc: v3AssetPaths.subjects.physics,
-  },
-  كيمياء: {
-    tone: "chemistry",
-    illustrationSrc: v3AssetPaths.subjects.chemistry,
-  },
-  أحياء: {
-    tone: "biology",
-    illustrationSrc: v3AssetPaths.subjects.biology,
-  },
-  "لغة إنجليزية": {
-    tone: "english",
-    illustrationSrc: v3AssetPaths.subjects.english,
-  },
-};
 
 type CurriculumStage = "subjects" | "units" | "lessons" | "detail";
 
@@ -126,7 +99,7 @@ export default function CurriculumExplorer({
   const practiceSet = activeSkill
     ? getReadyPracticeSetForSkill(activeSkill.id)
     : null;
-  const subjectVisual = subject ? subjectVisuals[subject.id] : undefined;
+  const subjectVisual = subject ? curriculumSubjectVisuals[subject.id] : undefined;
 
   const stage: CurriculumStage = !subject
     ? "subjects"
@@ -328,7 +301,7 @@ export default function CurriculumExplorer({
                 data-curriculum-subject-grid
               >
                 {subjectsWithUnits.map((item) => {
-                  const visual = subjectVisuals[item.id];
+                  const visual = curriculumSubjectVisuals[item.id];
                   const itemUnits = curriculumIndex.getUnitsForSubject(item.id);
                   const lessonCount = itemUnits.reduce(
                     (total, unit) =>

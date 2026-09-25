@@ -182,7 +182,11 @@ The primary actionable Subject catalogue is driven by actual Curriculum structur
 
 Approved artwork availability never creates a fake Curriculum destination.
 
-When later data gives Units to an existing Subject ID, that Subject may become navigable without changing its ID.
+Every one of the 13 stable Subject identities currently present in the Curriculum graph has an approved visual-family mapping. Arabic-language subjects reuse the approved Arabic family artwork; Islamic subjects reuse the approved Islamic family artwork.
+
+Subject visibility is driven by verified Units, not by whether artwork happens to exist.
+
+When later data gives Units to an existing Subject ID, that Subject may become navigable without changing its ID or requiring a new Curriculum UI implementation.
 
 ---
 

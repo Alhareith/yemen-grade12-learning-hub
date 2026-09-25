@@ -403,3 +403,23 @@ PR #42 remains Draft until explicit human approval changes that state.
 No merge to `main` has been performed.
 
 Stage 6 has not started.
+
+
+---
+
+## 17. Pre-merge review hardening
+
+A final manual PR review identified a future-expansion risk: the Stage 5 Subject catalogue initially had visual mappings only for the five Subjects that currently own Units.
+
+The data model already contains 13 stable Subject identities. If a later data stage added verified Units to one of the remaining Subjects, the old rendering guard could have filtered that Subject out because no visual mapping existed.
+
+Stage 5 was hardened before merge:
+
+- visual mapping was extracted to `client/src/features/curriculum/subject-visuals.ts`;
+- all 13 current stable Subject identities now have an approved visual-family mapping;
+- Arabic-language Subjects use the approved Arabic visual family;
+- Islamic Subjects use the approved Islamic visual family;
+- navigability remains controlled only by verified Unit presence;
+- a dedicated unit test fails if any current Curriculum Subject lacks visual coverage.
+
+This change does not add Units, Lessons, Skills, questions or new Curriculum destinations. It only guarantees that later verified data can surface an existing stable Subject without being silently hidden by the presentation layer.
