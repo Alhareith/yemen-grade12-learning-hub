@@ -1,0 +1,309 @@
+name: V3 Home responsive accessibility visual regression
+
+on:
+  push:
+    branches:
+      - "feature/v3-home-experience"
+  pull_request:
+    paths:
+      - "client/src/features/home/**"
+      - "client/src/App.tsx"
+      - "client/src/app/**"
+      - "client/src/design-system/**"
+      - "docs/v3/2*-stage5-5-*.md"
+      - ".github/workflows/v3-home-quality.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  home-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify typecheck tests and production build
+        run: pnpm verify
+
+      - name: Restore Vercel-style build for browser checks
+        run: GITHUB_ACTIONS=false pnpm build
+
+      - name: Install isolated browser driver
+        run: |
+          mkdir -p /tmp/v3-home-quality
+          cd /tmp/v3-home-quality
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
+
+      - name: Start production preview
+        run: |
+          GITHUB_ACTIONS=false pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/v3-home-quality-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/v3-home-quality-preview.log
+          exit 1
+
+      - name: Verify Home responsive accessibility and capture evidence
+        run: |
+          cd /tmp/v3-home-quality
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import fs from "node:fs";
+          import { chromium } from "playwright-core";
+
+          const baseUrl = "http://127.0.0.1:4173/";
+          const widths = [360, 390, 430, 768, 1024, 1280, 1440, 1536];
+          const browser = await chromium.launch({
+            executablePath: "/usr/bin/google-chrome",
+            headless: true,
+            args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          });
+
+          const reports = [];
+          const failures = [];
+
+          const attachFailures = (page, bucket) => {
+            page.on("requestfailed", request => {
+              if (request.url().startsWith(baseUrl)) {
+                bucket.requests.push(`${request.url()} :: ${request.failure()?.errorText ?? "failed"}`);
+              }
+            });
+            page.on("pageerror", error => bucket.pages.push(error.message));
+            page.on("console", message => {
+              if (message.type() === "error") bucket.console.push(message.text());
+            });
+          };
+
+          for (const width of widths) {
+            const height = width === 390 ? 844 : width === 1536 ? 1024 : width >= 1200 ? 1024 : 900;
+            const page = await browser.newPage({ viewport: { width, height } });
+            const localFailures = { requests: [], pages: [], console: [] };
+            attachFailures(page, localFailures);
+
+            await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+            await page.locator("[data-v3-ui].v3-home").waitFor();
+            await page.evaluate(() => document.fonts.ready);
+
+            const root = page.locator("[data-v3-ui].v3-home");
+            assert.equal(await root.getAttribute("dir"), "rtl");
+            assert.equal(await root.getAttribute("lang"), "ar");
+            assert.equal(await root.getByRole("heading", { level: 1 }).count(), 1, `Expected one Home H1 at ${width}px`);
+
+            const missingAlt = await root.locator("img").evaluateAll(nodes =>
+              nodes.filter(node => !node.hasAttribute("alt")).map(node => node.outerHTML.slice(0, 180)),
+            );
+            assert.deepEqual(missingAlt, [], `Images missing alt at ${width}px: ${JSON.stringify(missingAlt)}`);
+
+            const unloadedImages = await root.locator("img").evaluateAll(nodes =>
+              nodes.filter(node => !(node.complete && node.naturalWidth > 0)).map(node => node.getAttribute("src")),
+            );
+            assert.deepEqual(unloadedImages, [], `Unloaded Home images at ${width}px: ${JSON.stringify(unloadedImages)}`);
+
+            const tooSmall = await root.locator("a:visible, button:visible").evaluateAll(nodes =>
+              nodes.map(node => {
+                const rect = node.getBoundingClientRect();
+                return {
+                  label: (node.getAttribute("aria-label") ?? node.textContent ?? "").trim(),
+                  width: Math.round(rect.width * 10) / 10,
+                  height: Math.round(rect.height * 10) / 10,
+                };
+              }).filter(item => item.width < 44 || item.height < 44),
+            );
+            assert.deepEqual(tooSmall, [], `Home touch targets below 44px at ${width}px: ${JSON.stringify(tooSmall)}`);
+
+            const metrics = await page.evaluate(() => {
+              const home = document.querySelector("[data-v3-ui].v3-home");
+              const hero = document.querySelector(".v3-home-hero");
+              const curriculum = document.querySelector(".v3-home-curriculum");
+              const quickGrid = document.querySelector(".v3-home-quick-grid");
+              const simulation = document.querySelector(".v3-home-simulation");
+              const resources = document.querySelector(".v3-home-resources");
+              const middle = document.querySelector(".v3-home-middle");
+              const mobileNav = document.querySelector(".v3-mobile-bottom-nav");
+              const desktopNav = document.querySelector(".v3-app-header__desktop-nav");
+              const overflowNodes = [...document.querySelectorAll("[data-v3-ui].v3-home *")]
+                .map(node => {
+                  const rect = node.getBoundingClientRect();
+                  const style = getComputedStyle(node);
+                  return {
+                    tag: node.tagName,
+                    className: typeof node.className === "string" ? node.className : "",
+                    left: Math.round(rect.left),
+                    right: Math.round(rect.right),
+                    width: Math.round(rect.width),
+                    display: style.display,
+                    position: style.position,
+                  };
+                })
+                .filter(node => node.display !== "none" && node.position !== "fixed" && (node.left < -1 || node.right > window.innerWidth + 1))
+                .slice(0, 12);
+
+              const rect = node => {
+                const r = node?.getBoundingClientRect();
+                return r ? {
+                  x: Math.round(r.x * 10) / 10,
+                  y: Math.round(r.y * 10) / 10,
+                  width: Math.round(r.width * 10) / 10,
+                  height: Math.round(r.height * 10) / 10,
+                } : null;
+              };
+
+              return {
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                home: rect(home),
+                hero: rect(hero),
+                curriculum: rect(curriculum),
+                quickGrid: rect(quickGrid),
+                simulation: rect(simulation),
+                resources: rect(resources),
+                middle: rect(middle),
+                quickColumns: quickGrid ? getComputedStyle(quickGrid).gridTemplateColumns.split(" ").length : 0,
+                middleColumns: middle ? getComputedStyle(middle).gridTemplateColumns.split(" ").length : 0,
+                mobileNavDisplay: mobileNav ? getComputedStyle(mobileNav).display : "missing",
+                desktopNavDisplay: desktopNav ? getComputedStyle(desktopNav).display : "missing",
+                overflowNodes,
+              };
+            });
+
+            assert.ok(metrics.scrollWidth <= metrics.innerWidth, `Horizontal overflow at ${width}px: ${JSON.stringify(metrics)}`);
+            assert.deepEqual(metrics.overflowNodes, [], `Overflowing Home nodes at ${width}px: ${JSON.stringify(metrics.overflowNodes)}`);
+
+            if (width < 900) {
+              assert.equal(metrics.quickColumns, 2, `Expected 2 quick-action columns at ${width}px`);
+              assert.equal(metrics.middleColumns, 1, `Expected stacked middle composition at ${width}px`);
+              assert.notEqual(metrics.mobileNavDisplay, "none", `Mobile nav must be visible at ${width}px`);
+              assert.equal(metrics.desktopNavDisplay, "none", `Desktop nav must be hidden at ${width}px`);
+              assert.ok(metrics.hero.height >= 285, `Hero too short at ${width}px: ${metrics.hero.height}`);
+            } else {
+              assert.equal(metrics.quickColumns, 4, `Expected 4 quick-action columns at ${width}px`);
+              assert.equal(metrics.middleColumns, 2, `Expected desktop middle composition at ${width}px`);
+              assert.equal(metrics.mobileNavDisplay, "none", `Mobile nav must be hidden at ${width}px`);
+              assert.notEqual(metrics.desktopNavDisplay, "none", `Desktop nav must be visible at ${width}px`);
+              assert.ok(metrics.hero.height >= 280 && metrics.hero.height <= 330, `Desktop Hero height outside reference range at ${width}px: ${metrics.hero.height}`);
+              assert.ok(metrics.simulation.height >= 125 && metrics.simulation.height <= 180, `Desktop Simulation height outside reference range at ${width}px: ${metrics.simulation.height}`);
+            }
+
+            const expectedHrefs = {
+              "ابدأ بالمنهج": "#curriculum",
+              "تدرّب الآن": "#curriculum",
+              "ادخل إلى المنهج": "#curriculum",
+              "ابدأ المحاكاة": "#exam-pilot",
+              "عرض جميع المصادر": "#resources",
+            };
+            for (const [label, href] of Object.entries(expectedHrefs)) {
+              const link = root.getByRole("link", { name: label, exact: true });
+              assert.equal(await link.count(), 1, `Missing Home link ${label} at ${width}px`);
+              assert.equal(await link.getAttribute("href"), href, `Wrong href for ${label} at ${width}px`);
+            }
+
+            const promptCard = root.getByRole("link", { name: /مولد الأوامر/ });
+            assert.equal(await promptCard.getAttribute("href"), "#prompts");
+            const resourcesCard = root.getByRole("link", { name: /^المصادر/ });
+            assert.equal(await resourcesCard.getAttribute("href"), "#resources");
+
+            if (width === 390 || width === 1536) {
+              const homeScreenshot = width === 390
+                ? `${process.env.GITHUB_WORKSPACE}/home-mobile-390x844.png`
+                : `${process.env.GITHUB_WORKSPACE}/home-desktop-1536x1024.png`;
+              await page.screenshot({ path: homeScreenshot, fullPage: false });
+
+              const bodyScreenshot = width === 390
+                ? `${process.env.GITHUB_WORKSPACE}/home-body-mobile-390.png`
+                : `${process.env.GITHUB_WORKSPACE}/home-body-desktop-1536.png`;
+              await root.screenshot({ path: bodyScreenshot });
+
+              const firstPrimary = root.getByRole("link", { name: "ابدأ بالمنهج", exact: true });
+              await firstPrimary.focus();
+              const focus = await firstPrimary.evaluate(node => {
+                const style = getComputedStyle(node);
+                return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth };
+              });
+              assert.notEqual(focus.outlineStyle, "none", `Home primary focus missing at ${width}px`);
+              assert.notEqual(focus.outlineWidth, "0px", `Home primary focus width missing at ${width}px`);
+            }
+
+            if (localFailures.requests.length || localFailures.pages.length || localFailures.console.length) {
+              failures.push({ width, ...localFailures });
+            }
+
+            reports.push({
+              width,
+              height,
+              composition: width < 900 ? "mobile-compact" : "desktop",
+              quickColumns: metrics.quickColumns,
+              middleColumns: metrics.middleColumns,
+              hero: metrics.hero,
+              curriculum: metrics.curriculum,
+              quickGrid: metrics.quickGrid,
+              simulation: metrics.simulation,
+              resources: metrics.resources,
+              overflow: "pass",
+              touchTargets: "pass",
+              images: "pass",
+              routes: "pass",
+            });
+
+            await page.close();
+          }
+
+          for (const width of [390, 1536]) {
+            const height = width === 390 ? 844 : 1024;
+            const page = await browser.newPage({ viewport: { width, height }, reducedMotion: "reduce" });
+            await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+            await page.locator("[data-v3-ui].v3-home").waitFor();
+            const durations = await page.locator("[data-v3-ui].v3-home a").evaluateAll(nodes =>
+              nodes.map(node => ({
+                transition: getComputedStyle(node).transitionDuration,
+                animation: getComputedStyle(node).animationDuration,
+              })),
+            );
+            const seconds = value => Math.max(...String(value || "0s").split(",").map(part => {
+              const s = part.trim();
+              return s.endsWith("ms") ? (Number.parseFloat(s) || 0) / 1000 : Number.parseFloat(s) || 0;
+            }));
+            assert.equal(durations.some(item => seconds(item.transition) > 0.01 || seconds(item.animation) > 0.01), false, `Reduced motion not respected at ${width}px`);
+            await page.close();
+          }
+
+          assert.deepEqual(failures, [], JSON.stringify(failures, null, 2));
+          fs.writeFileSync(
+            `${process.env.GITHUB_WORKSPACE}/home-responsive-report.json`,
+            JSON.stringify({ widths: reports }, null, 2) + "\n",
+          );
+
+          await browser.close();
+          NODE
+
+      - name: Upload Home visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-home-responsive-visual-evidence
+          path: |
+            home-mobile-390x844.png
+            home-desktop-1536x1024.png
+            home-body-mobile-390.png
+            home-body-desktop-1536.png
+            home-responsive-report.json
+          if-no-files-found: error
+          retention-days: 14
