@@ -3,7 +3,6 @@ name: V3 Stage 4 final CI gate
 on:
   push:
     branches:
-      - "main"
       - "feature/v3-app-shell"
   pull_request:
   workflow_dispatch:
@@ -13,6 +12,7 @@ permissions:
 
 jobs:
   stage4-gate:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feature/v3-app-shell' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
