@@ -1,6 +1,6 @@
 # V3 Stage 5.5D — Desktop Home Exact Implementation
 
-Status: **IMPLEMENTED — VALIDATION IN PROGRESS**
+Status: **PASS — DESKTOP IMPLEMENTATION CLOSED**
 
 Depends on:
 - `docs/v3/26-stage5-5-home-boundary.md`
@@ -131,7 +131,17 @@ Draft PR:
 
 Stage 5.5D is not merged.
 
-At this snapshot, push and PR validation suites have started for the desktop commit.
+At the Stage 5.5D closure snapshot:
+- Validate student experience / push — **success**.
+- Vercel commit status — **success**.
+- Browser Smoke and the broader PR regression family continue as shared branch checks and are consumed again in Stage 5.5G/H.
+- No Stage 5.5D-specific code/build blocker remains.
 
 Final pixel-diff/canonical screenshot iteration is deliberately owned by Stage 5.5G; Stage 5.5D closes the desktop runtime composition itself.
+
+## Result
+
+**Stage 5.5D — PASS.**
+
+Stages 5.5A through 5.5D are now complete. The next owning substage is 5.5E, but it is not started by this document.
 
