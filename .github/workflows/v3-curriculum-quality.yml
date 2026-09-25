@@ -367,9 +367,6 @@ jobs:
 
             const skill = page.locator('[data-curriculum-skill="DER-CHAIN"]');
             await skill.focus();
-            await skill.press("Space");
-            assert.equal(await skill.getAttribute("aria-pressed"), "true", `Skill keyboard selection failed at ${width}px`);
-            assert.equal(await skill.locator("[data-curriculum-selected-icon]").count(), 1, `Selected Skill needs non-color icon at ${width}px`);
 
             const skillFocus = await skill.evaluate((node) => {
               const style = getComputedStyle(node);
@@ -377,6 +374,10 @@ jobs:
             });
             assert.notEqual(skillFocus.outlineStyle, "none", `Skill focus outline missing at ${width}px`);
             assert.notEqual(skillFocus.outlineWidth, "0px", `Skill focus outline width missing at ${width}px`);
+
+            await skill.press("Space");
+            assert.equal(await skill.getAttribute("aria-pressed"), "true", `Skill keyboard selection failed at ${width}px`);
+            assert.equal(await skill.locator("[data-curriculum-selected-icon]").count(), 1, `Selected Skill needs non-color icon at ${width}px`);
 
             const reducedMotion = await page.locator("[data-curriculum-explorer] button:visible").evaluateAll((nodes) =>
               nodes.map((node) => {
