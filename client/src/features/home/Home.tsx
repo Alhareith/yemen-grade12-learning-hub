@@ -162,7 +162,7 @@ export default function HomeV4({
         )}
         {view === "subjects" && <SubjectsView selectedId={selected.id} onSelect={chooseSubject} />}
       </main>
-      {view !== "prompts" && <DeveloperFooter />}
+      {view !== "prompts" && view !== "home" && <DeveloperFooter />}
     </div>
   );
 }
