@@ -6,7 +6,7 @@ Stage 4 establishes the production application shell around the existing Learnin
 
 The canonical post-Stage-4 contract is:
 
-\`docs/v3/14-app-shell-contract.md\`
+`docs/v3/14-app-shell-contract.md`
 
 ---
 
@@ -14,32 +14,36 @@ The canonical post-Stage-4 contract is:
 
 Repository:
 
-\`Alhareith/yemen-grade12-learning-hub\`
+`Alhareith/yemen-grade12-learning-hub`
 
 Base branch:
 
-\`main\`
+`main`
 
 Stage 4 base / Stage 3 merge SHA:
 
-\`0b5f2416a442225b02d699e5a1be85d16a29bb42\`
+`0b5f2416a442225b02d699e5a1be85d16a29bb42`
 
 Implementation branch:
 
-\`feature/v3-app-shell\`
+`feature/v3-app-shell`
 
 Draft PR:
 
-\`#41 — V3-04: Build application shell\`
+`#41 — V3-04: Build application shell`
 
 Validated runtime/CI head before the 4K documentation freeze:
 
-\`36e58deeb1867a08f3a2e6db3d2d45d9bbc88de8\`
+`36e58deeb1867a08f3a2e6db3d2d45d9bbc88de8`
+
+Initial 4K contract-freeze documentation commit:
+
+`eeb2bbaa8f6d233f7335d41a474502eed3a0c8cc`
 
 At that head the branch was:
 
-- 18 commits ahead of \`main\`;
-- 0 commits behind \`main\`;
+- 18 commits ahead of `main`;
+- 0 commits behind `main`;
 - mergeable;
 - still Draft;
 - not merged.
@@ -68,7 +72,7 @@ Actual execution order:
 
 Creating the frozen five-item mobile navigation first would have produced destinations whose hashes were recognized but whose content ownership was not yet truthful.
 
-4F promoted \`#prompts\` and \`#resources\` to real shell routes and removed Home-owned global navigation first. 4E then connected the five production destinations without dead or misleading navigation.
+4F promoted `#prompts` and `#resources` to real shell routes and removed Home-owned global navigation first. 4E then connected the five production destinations without dead or misleading navigation.
 
 The scope was not expanded; only execution order changed.
 
@@ -81,12 +85,12 @@ Stage 4 delivered:
 - typed application hash route model;
 - deterministic practice hash encoding/decoding;
 - product-shell/bypass-route classification;
-- production \`AppShell\`;
+- production `AppShell`;
 - approved brand lockup;
 - one shell-owned global header;
 - route-driven desktop navigation;
 - shared five-destination primary-navigation model;
-- reused Stage 3 \`MobileBottomNav\`;
+- reused Stage 3 `MobileBottomNav`;
 - safe-area-aware bottom navigation and content spacer;
 - truthful Prompt Generator and Resources routes;
 - removal of Home-owned duplicate global header/mobile tabs;
@@ -105,16 +109,16 @@ Stage 4 delivered:
 Product shell:
 
 - default / empty hash → Home
-- \`#curriculum\` → Curriculum
-- \`#prompts\` → Prompt Generator
-- \`#resources\` → Resources
-- \`#practice/<skillId>\` → Practice
+- `#curriculum` → Curriculum
+- `#prompts` → Prompt Generator
+- `#resources` → Resources
+- `#practice/<skillId>` → Practice
 
 Protected bypass:
 
-- \`#exam-pilot\`
-- \`#design-system-preview\`
-- \`#design-system-primitives\`
+- `#exam-pilot`
+- `#design-system-preview`
+- `#design-system-primitives`
 
 Unknown hashes preserve safe fallback to Home.
 
@@ -143,14 +147,14 @@ Training behavior:
 Mobile navigation:
 
 - reused existing Design System composite;
-- active state uses \`aria-current="page"\`;
+- active state uses `aria-current="page"`;
 - safe-area handled;
 - content spacing reserved;
-- hidden at \`900px+\`.
+- hidden at `900px+`.
 
 Desktop navigation:
 
-- visible at \`900px+\`;
+- visible at `900px+`;
 - route-driven;
 - shell-owned.
 
@@ -162,7 +166,7 @@ Stage 4 replaced the old route-loading presentation with V3 route states.
 
 Verified behavior:
 
-- route transition focuses \`#app-content\`;
+- route transition focuses `#app-content`;
 - route transition resets scroll;
 - normal mode may use smooth scrolling;
 - reduced-motion mode uses automatic scrolling;
@@ -199,13 +203,13 @@ No Legacy removal occurred.
 
 Production AppShell harness validates:
 
-\`360 / 390 / 430 / 768 / 1024 / 1280 / 1440 / 1536\`
+`360 / 390 / 430 / 768 / 1024 / 1280 / 1440 / 1536`
 
 Canonical evidence:
 
-- \`v3-shell-mobile-390x844.png\`
-- \`v3-shell-desktop-1536x1024.png\`
-- \`v3-shell-regression-report.json\`
+- `v3-shell-mobile-390x844.png`
+- `v3-shell-desktop-1536x1024.png`
+- `v3-shell-regression-report.json`
 
 Validated shell behavior includes:
 
@@ -231,20 +235,20 @@ Validated shell behavior includes:
 
 Head:
 
-\`36e58deeb1867a08f3a2e6db3d2d45d9bbc88de8\`
+`36e58deeb1867a08f3a2e6db3d2d45d9bbc88de8`
 
 Successful final runs:
 
-- Stage 4 Final CI Gate / push — \`36078142877\`
-- Stage 4 Final CI Gate / pull_request — \`36078148816\`
-- Validate student experience / push — \`36078142813\`
-- Validate student experience / pull_request — \`36078148869\`
-- Browser smoke / push — \`36078142821\`
-- Browser smoke / pull_request — \`36078148799\`
-- Production shell regression / push — \`36078142818\`
-- Production shell regression / pull_request — \`36078148806\`
-- V3 accessibility performance regression / pull_request — \`36078148862\`
-- V3 design system visual validation / pull_request — \`36078148881\`
+- Stage 4 Final CI Gate / push — `36078142877`
+- Stage 4 Final CI Gate / pull_request — `36078148816`
+- Validate student experience / push — `36078142813`
+- Validate student experience / pull_request — `36078148869`
+- Browser smoke / push — `36078142821`
+- Browser smoke / pull_request — `36078148799`
+- Production shell regression / push — `36078142818`
+- Production shell regression / pull_request — `36078148806`
+- V3 accessibility performance regression / pull_request — `36078148862`
+- V3 design system visual validation / pull_request — `36078148881`
 - Vercel commit status — **success**
 
 The final CI gate itself verifies:
@@ -252,28 +256,28 @@ The final CI gate itself verifies:
 - protected/frozen boundary diff;
 - no new router dependency;
 - required Stage 4 files;
-- \`pnpm verify\`;
+- `pnpm verify`;
 - GitHub Pages static build mode.
 
 ---
 
 ## 10. Key implementation commits
 
-- \`28725f9a...\` — lock Stage 4A boundary
-- \`c86766d4...\` — extract hash route model
-- \`3a66af51...\` — route model tests
-- \`3354d348...\` — App consumes extracted routing
-- \`3e12fb2e...\` — isolated V3 AppShell foundation
-- \`7fe6ac5b...\` — brand/header/desktop navigation
-- \`80f51c27...\` — feature containment / Home de-duplication
-- \`778d73c9...\` — production MobileBottomNav
-- \`aa0b5f09...\` — fixed nav height contract
-- \`a6535ca7...\` — loading/error/navigation lifecycle
-- \`53d63926...\` — protected boundary verification
-- \`ce500d33...\` — final protected exam verification shape
-- \`38852a9d...\` — production shell responsive regression
-- \`c7b38a07...\` — Stage 4 final CI gate
-- \`36e58dee...\` — scope Stage 4 gate to Stage 4 branch
+- `28725f9a...` — lock Stage 4A boundary
+- `c86766d4...` — extract hash route model
+- `3a66af51...` — route model tests
+- `3354d348...` — App consumes extracted routing
+- `3e12fb2e...` — isolated V3 AppShell foundation
+- `7fe6ac5b...` — brand/header/desktop navigation
+- `80f51c27...` — feature containment / Home de-duplication
+- `778d73c9...` — production MobileBottomNav
+- `aa0b5f09...` — fixed nav height contract
+- `a6535ca7...` — loading/error/navigation lifecycle
+- `53d63926...` — protected boundary verification
+- `ce500d33...` — final protected exam verification shape
+- `38852a9d...` — production shell responsive regression
+- `c7b38a07...` — Stage 4 final CI gate
+- `36e58dee...` — scope Stage 4 gate to Stage 4 branch
 
 Intermediate verification-only commits remain visible in Git history.
 
@@ -310,7 +314,7 @@ Intermediate verification-only commits remain visible in Git history.
 - [x] Vercel remains green.
 - [x] Protected Legacy/frozen Design System source diff is zero.
 - [x] Final Stage 4 CI gate passes.
-- [x] No merge to \`main\` was performed automatically.
+- [x] No merge to `main` was performed automatically.
 
 ---
 
@@ -337,8 +341,8 @@ These require their own owning stages and regression evidence.
 
 Later stages must consume:
 
-1. \`docs/v3/11-design-system-contract.md\`
-2. \`docs/v3/14-app-shell-contract.md\`
+1. `docs/v3/11-design-system-contract.md`
+2. `docs/v3/14-app-shell-contract.md`
 
 They must not recreate a parallel shell or navigation model.
 
@@ -346,4 +350,4 @@ The Stage 4 branch is ready for human PR review after this documentation freeze 
 
 PR #41 remains Draft until an explicit human decision changes that state.
 
-Merge to \`main\` remains an explicit human approval gate.
+Merge to `main` remains an explicit human approval gate.
