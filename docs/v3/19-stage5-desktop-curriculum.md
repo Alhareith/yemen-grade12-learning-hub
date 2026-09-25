@@ -1,6 +1,6 @@
 # V3 Stage 5D — Desktop Curriculum Experience
 
-Status: **IMPLEMENTATION CANDIDATE — CI PENDING**
+Status: **PASS — 5D DESKTOP EXPERIENCE IMPLEMENTED**
 
 Stage 5D adds the desktop composition defined by the Stage 5B UX contract without changing Curriculum data, IDs, routes, Practice semantics, or the completed Stage 5C mobile flow.
 
@@ -93,3 +93,37 @@ A dedicated `curriculum-desktop-smoke.png` artifact is captured.
 ## Acceptance
 
 5D becomes PASS only after the desktop browser contract, full validation, V3 quality regressions, AppShell regression, and Vercel status are green while Stage 5C mobile behavior remains green.
+
+
+## 5D closure evidence
+
+Final 5D runtime head before this documentation-only closure:
+
+`97ee9ff868e4546c1e768e7e882ad20f1b2a7453`
+
+Successful checks:
+
+- Validate student experience / push — `36082543276`;
+- Browser smoke test / push — `36082543282`;
+- Validate student experience / pull_request — `36082547617`;
+- Browser smoke test / pull_request — `36082547656`;
+- V3 design system visual validation — `36082547624`;
+- V3 accessibility performance regression — `36082547613`;
+- V3 production shell regression — `36082547649`;
+- Vercel deployment `dpl_F1yTe2p2hsxDpyaP9guX94Gz7XPS` — **READY**.
+
+The Browser Smoke result includes both the existing 390px Stage 5C path and the new 1024/1536 Stage 5D assertions.
+
+Diff from the completed 5C head changes only:
+
+- `client/src/features/curriculum/CurriculumExplorer.tsx`;
+- `client/src/features/curriculum/curriculum-explorer.css`;
+- `.github/workflows/browser-smoke.yml`;
+- `docs/v3/19-stage5-desktop-curriculum.md`;
+- `docs/v3/README.md`.
+
+No protected Legacy file changed.
+
+**Stage 5D: PASS.**
+
+Stage 5E is not started.
