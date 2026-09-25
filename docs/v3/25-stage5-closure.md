@@ -423,3 +423,65 @@ Stage 5 was hardened before merge:
 - a dedicated unit test fails if any current Curriculum Subject lacks visual coverage.
 
 This change does not add Units, Lessons, Skills, questions or new Curriculum destinations. It only guarantees that later verified data can surface an existing stable Subject without being silently hidden by the presentation layer.
+
+
+---
+
+## 18. Final pre-merge hardening verification
+
+Final runtime/test head after pre-merge review hardening:
+
+`9d5a58fc53cef188334f103bc8f50e55af350e7f`
+
+The branch at this point is:
+
+- 33 commits ahead of `main`;
+- 0 commits behind `main`;
+- mergeable;
+- Draft;
+- not merged.
+
+Pre-merge review hardening completed two items:
+
+1. **Stage 5 regression trigger scope**
+   - push execution is limited to `feature/v3-curriculum-experience`;
+   - Pull Request execution is path-filtered to Stage 5 runtime/integration, protected Legacy, preserved Curriculum/Practice/Prompt data, and the workflow itself;
+   - unrelated future PRs and ordinary `main` pushes no longer pay the historical Stage 5 gate cost.
+
+2. **Subject visual expansion safety**
+   - all 13 stable Subject identities in the current Curriculum graph now have visual-family mappings;
+   - Arabic-language Subjects use the approved Arabic visual family;
+   - Islamic Subjects use the approved Islamic visual family;
+   - `subject-visuals.test.ts` fails if a current Curriculum Subject is not covered;
+   - Subject navigability continues to be controlled by verified Unit presence rather than artwork availability.
+
+### Successful final checks
+
+- Validate student experience / push — `36130201773`;
+- Browser smoke test / push — `36130201797`;
+- V3 Curriculum responsive accessibility / push — `36130201802`;
+- V3 Stage 5 regression boundary / push — `36130201787`;
+- Validate student experience / pull_request — `36130207505`;
+- Browser smoke test / pull_request — `36130207597`;
+- V3 production shell regression — `36130207670`;
+- V3 accessibility performance regression — `36130207463`;
+- V3 design system visual validation — `36130207489`;
+- V3 Curriculum responsive accessibility — `36130207464`;
+- V3 Stage 5 regression boundary — `36130207470`;
+- Vercel deployment `dpl_G2mLzTABQgwsbE8eW5QXDjZweQXB` — **READY**.
+
+Stage 4 final CI gate remains skipped by design because it is scoped to `feature/v3-app-shell`.
+
+### Final evidence artifacts
+
+Stage 5 protected-boundary artifact:
+
+- id: `10861477352`;
+- SHA-256: `13ef1c7bc5bedc8c3ae4f3503f6a9c63e8a5c45fd3b096d8a6d5a920c3c07c27`.
+
+Curriculum responsive/accessibility artifact:
+
+- id: `10861572258`;
+- SHA-256: `0983d470cdf962cf99b2ad490ca35b4ce7afa112b7aeb174b9fc3b332214c413`.
+
+**Stage 5 remains PASS and is ready for the explicit human Ready/Merge gate.**
