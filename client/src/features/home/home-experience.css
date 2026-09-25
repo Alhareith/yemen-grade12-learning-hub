@@ -724,8 +724,8 @@
 
 @media (min-width: 900px) {
   [data-v3-ui] .v3-home__container {
-    padding-block: 24px 28px;
-    gap: 24px;
+    padding-block: 0 28px;
+    gap: 16px;
   }
 
   [data-v3-ui] .v3-home-hero {
@@ -923,33 +923,33 @@
   }
 
   [data-v3-ui] .v3-home-quick-card {
-    min-height: 154px;
-    padding: 13px 14px 12px;
+    min-height: 146px;
+    padding: 10px 11px 9px;
   }
 
   [data-v3-ui] .v3-home-quick-card__visual {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
   }
 
   [data-v3-ui] .v3-home-quick-card__visual img,
   [data-v3-ui] .v3-home-quick-card__visual svg {
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
   }
 
   [data-v3-ui] .v3-home-quick-card__copy {
-    padding-block-start: 9px;
+    padding-block-start: 6px;
   }
 
   [data-v3-ui] .v3-home-quick-card__copy strong {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   [data-v3-ui] .v3-home-quick-card__copy small {
-    font-size: 11px;
-    line-height: 1.6;
+    font-size: 10px;
+    line-height: 1.42;
   }
 
   [data-v3-ui] .v3-home-simulation {
@@ -968,30 +968,30 @@
   }
 
   [data-v3-ui] .v3-home-simulation__copy {
-    padding: 18px 24px 16px;
+    padding: 10px 20px;
     align-self: center;
   }
 
   [data-v3-ui] .v3-home-simulation__title-line > svg {
-    width: 30px;
-    height: 30px;
+    width: 27px;
+    height: 27px;
   }
 
   [data-v3-ui] .v3-home-simulation h2 {
-    font-size: 28px;
+    font-size: 25px;
   }
 
   [data-v3-ui] .v3-home-simulation__copy > p {
-    margin-block-start: 6px;
-    font-size: 13px;
-    line-height: 1.65;
+    margin-block-start: 4px;
+    font-size: 11px;
+    line-height: 1.5;
   }
 
   [data-v3-ui] .v3-home-simulation__cta {
     min-height: 44px;
-    margin-block-start: 9px;
-    padding-inline: 20px;
-    font-size: 14px;
+    margin-block-start: 6px;
+    padding-inline: 18px;
+    font-size: 13px;
   }
 
   [data-v3-ui] .v3-home-simulation__checks {
@@ -1130,7 +1130,7 @@
   }
 
   [data-v3-ui] .v3-home-quick-card {
-    min-height: 150px;
+    min-height: 146px;
   }
 
   [data-v3-ui] .v3-home-simulation {
