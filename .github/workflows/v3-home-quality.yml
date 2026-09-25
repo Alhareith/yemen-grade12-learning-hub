@@ -276,7 +276,7 @@ jobs:
               "ابدأ بالمنهج": "#curriculum",
               "تدرّب الآن": "#curriculum",
               "ادخل إلى المنهج": "#curriculum",
-              "ابدأ المحاكاة": "#exam-pilot",
+              "الانتقال إلى موقع المحاكاة": "#exam-pilot",
               "عرض جميع المصادر": "#resources",
             };
             for (const [label, href] of Object.entries(expectedHrefs)) {
