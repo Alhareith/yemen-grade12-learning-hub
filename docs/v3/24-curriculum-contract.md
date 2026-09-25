@@ -176,17 +176,23 @@ A fresh Curriculum entry begins with explicit Subject choice.
 
 Do not silently preselect Mathematics or any other Subject.
 
-The primary actionable Subject catalogue is driven by actual Curriculum structure:
+The Subject index renders every stable Subject identity currently present in `curriculumGraph.subjects`.
+
+Actionability remains driven by actual Curriculum structure:
 
 `getUnitsForSubject(subject.id).length > 0`
+
+Subjects with Units are actionable Curriculum destinations.
+
+Subjects without Units remain visible as truthful, non-navigable catalogue entries marked `قيد الإضافة` / `الوحدات قيد الإضافة`. They must not expose fake counts or enter an empty hierarchy.
 
 Approved artwork availability never creates a fake Curriculum destination.
 
 Every one of the 13 stable Subject identities currently present in the Curriculum graph has an approved visual-family mapping. Arabic-language subjects reuse the approved Arabic family artwork; Islamic subjects reuse the approved Islamic family artwork.
 
-Subject visibility is driven by verified Units, not by whether artwork happens to exist.
+The Subject index may search by the real Subject title and filter by `الكل`, `متاح الآن`, or `قيد الإضافة`. Filtering changes presentation only; it does not change Curriculum identity or data truth.
 
-When later data gives Units to an existing Subject ID, that Subject may become navigable without changing its ID or requiring a new Curriculum UI implementation.
+When later data gives Units to an existing Subject ID, that Subject becomes actionable without changing its ID or requiring a new Curriculum UI implementation.
 
 ---
 
@@ -446,6 +452,8 @@ Stage 5 does not add Simulation as:
 
 External Simulation integration remains deferred.
 
+The post-merge Curriculum UI adjustment may show the packaged Simulation artwork as a non-navigational promotional banner below the Curriculum title. Until an official destination is integrated, the banner must not invent a URL or fake action.
+
 ---
 
 ## 19. AppShell and routing boundary
@@ -467,6 +475,8 @@ Stage 5 does not add:
 - query-string Curriculum routing.
 
 AppShell owns global navigation and route lifecycle.
+
+The canonical AppHeader remains in normal document flow and is sticky at the top of AppShell chrome while scrolling. Sticky behavior must preserve the skip link, focus lifecycle, mobile bottom navigation, and prevent Curriculum content from being covered at initial entry.
 
 Curriculum owns feature-local hierarchy state.
 
