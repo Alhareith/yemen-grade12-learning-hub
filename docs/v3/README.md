@@ -38,6 +38,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `16-stage5-curriculum-boundary.md` | Stage 5A Curriculum baseline, identity lock, UX boundary and regression risks |
 | `17-stage5-curriculum-ux-contract.md` | Stage 5B implementation-ready Curriculum UX contract for mobile/desktop hierarchy and states |
 | `18-stage5-mobile-curriculum.md` | Stage 5C mobile/compact Curriculum implementation and verification |
+| `19-stage5-desktop-curriculum.md` | Stage 5D desktop Curriculum workspace implementation and verification |
 
 ## Stage snapshots
 

@@ -108,6 +108,7 @@ export default function CurriculumExplorer({
   const practiceSet = activeSkill
     ? getReadyPracticeSetForSkill(activeSkill.id)
     : null;
+  const subjectVisual = subject ? subjectVisuals[subject.id] : undefined;
 
   const stage: CurriculumStage = !subject
     ? "subjects"
@@ -222,6 +223,8 @@ export default function CurriculumExplorer({
     <section
       className="v3-curriculum"
       data-curriculum-explorer
+      data-curriculum-has-subject={subject ? "true" : "false"}
+      data-curriculum-mapping-status={activeUnit?.mappingStatus ?? "none"}
       data-curriculum-stage={stage}
       data-v3-ui
       dir="rtl"
@@ -242,7 +245,42 @@ export default function CurriculumExplorer({
           </div>
         </header>
 
-        <div className="v3-curriculum__flow">
+        {subject ? (
+          <div
+            className="v3-curriculum__desktop-context"
+            data-curriculum-desktop-context
+          >
+            <div className="v3-curriculum__desktop-subject">
+              {subjectVisual ? (
+                <img
+                  alt=""
+                  aria-hidden="true"
+                  src={subjectVisual.illustrationSrc}
+                />
+              ) : null}
+              <div>
+                <small>المادة الحالية</small>
+                <strong>{subject.title}</strong>
+                <span>
+                  {formatCount(units.length, "وحدة واحدة", "وحدتان", "وحدات")}
+                </span>
+              </div>
+            </div>
+            <Button
+              data-curriculum-change-subject
+              onClick={backToSubjects}
+              size="sm"
+              variant="secondary"
+            >
+              تغيير المادة
+            </Button>
+          </div>
+        ) : null}
+
+        <div
+          className="v3-curriculum__flow"
+          data-curriculum-desktop-workspace={subject ? "true" : "false"}
+        >
           <section
             aria-labelledby="curriculum-subjects-heading"
             className="v3-curriculum__panel"
@@ -381,6 +419,14 @@ export default function CurriculumExplorer({
             </section>
           ) : null}
 
+          {subject && !activeUnit ? (
+            <DesktopPlaceholder
+              className="v3-curriculum__desktop-placeholder--next"
+              description="اختر وحدة من القائمة لتظهر الدروس الموثقة أو حالة التوثيق الحقيقية لهذه الوحدة."
+              title="اختر وحدة للمتابعة"
+            />
+          ) : null}
+
           {subject && activeUnit ? (
             <section
               aria-labelledby="curriculum-lessons-heading"
@@ -492,6 +538,16 @@ export default function CurriculumExplorer({
                 </Surface>
               )}
             </section>
+          ) : null}
+
+          {subject &&
+          activeUnit?.mappingStatus === "lesson-skill" &&
+          !activeLesson ? (
+            <DesktopPlaceholder
+              className="v3-curriculum__desktop-placeholder--detail"
+              description="اختر درسًا من القائمة، وستظهر تفاصيله هنا دون أن تفقد سياق المادة والوحدة."
+              title="اختر درسًا لعرض التفاصيل"
+            />
           ) : null}
 
           {subject && activeUnit && activeLesson ? (
@@ -614,6 +670,31 @@ export default function CurriculumExplorer({
         </div>
       </div>
     </section>
+  );
+}
+
+function DesktopPlaceholder({
+  title,
+  description,
+  className,
+}: {
+  title: string;
+  description: string;
+  className: string;
+}) {
+  return (
+    <Surface
+      className={`v3-curriculum__desktop-placeholder ${className}`}
+      data-curriculum-desktop-placeholder
+      padding="lg"
+      variant="subtle"
+    >
+      <Layers3 aria-hidden="true" />
+      <div>
+        <strong>{title}</strong>
+        <p>{description}</p>
+      </div>
+    </Surface>
   );
 }
 

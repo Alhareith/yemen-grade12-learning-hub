@@ -64,6 +64,7 @@ jobs:
           const baseUrl = "http://127.0.0.1:4173/";
           const promptEvidencePath = `${process.env.GITHUB_WORKSPACE}/prompt-mobile-smoke.png`;
           const curriculumEvidencePath = `${process.env.GITHUB_WORKSPACE}/curriculum-smoke.png`;
+          const curriculumDesktopEvidencePath = `${process.env.GITHUB_WORKSPACE}/curriculum-desktop-smoke.png`;
           const practiceEvidencePath = `${process.env.GITHUB_WORKSPACE}/skill-practice-smoke.png`;
           const exam1EvidencePath = `${process.env.GITHUB_WORKSPACE}/exam-model-1-smoke.png`;
           const exam2EvidencePath = `${process.env.GITHUB_WORKSPACE}/exam-model-2-smoke.png`;
@@ -214,6 +215,33 @@ jobs:
           assert.ok(mobileOverflow <= 1, `Curriculum should not overflow horizontally on mobile: ${mobileOverflow}px`);
           await page.screenshot({ path: curriculumEvidencePath, fullPage: false });
 
+          await page.setViewportSize({ width: 1536, height: 1024 });
+          await page.locator("[data-curriculum-desktop-context]").waitFor();
+          assert.equal(await page.locator("[data-curriculum-panel=\"units\"]").isVisible(), true, "Desktop should keep Unit navigation visible");
+          assert.equal(await page.locator("[data-curriculum-panel=\"lessons\"]").isVisible(), true, "Desktop should keep Lesson navigation visible");
+          assert.equal(await page.locator("[data-curriculum-panel=\"detail\"]").isVisible(), true, "Wide desktop should show Lesson detail beside hierarchy");
+          const wideWorkspaceColumns = await page.locator("[data-curriculum-desktop-workspace]").evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+          assert.equal(wideWorkspaceColumns, 3, "Wide desktop Curriculum should use three hierarchy regions");
+          assert.equal(await page.locator(".v3-curriculum__back").first().isVisible(), false, "Desktop workspace should not duplicate mobile hierarchy-back controls");
+          const desktopOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+          assert.ok(desktopOverflow <= 1, `Curriculum should not overflow horizontally on desktop: ${desktopOverflow}px`);
+          await page.screenshot({ path: curriculumDesktopEvidencePath, fullPage: false });
+
+          await page.locator("[data-curriculum-change-subject]").click();
+          await page.locator("[data-curriculum-subject-grid]").waitFor();
+          const desktopSubjectGridColumns = await page.locator("[data-curriculum-subject-grid]").evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+          assert.equal(desktopSubjectGridColumns, 4, "Desktop Curriculum subject catalogue must use four columns");
+
+          await page.locator('[data-curriculum-subject="رياضيات"] button').click();
+          await page.locator('[data-curriculum-unit="math-algebra-geometry-probability"]').click();
+          await page.locator('[data-curriculum-lesson="math-algebra-geometry-probability:CPLX-NUMBER"]').click();
+          await page.locator("[data-skill-detail]").waitFor();
+
+          await page.setViewportSize({ width: 1024, height: 900 });
+          const compactDesktopColumns = await page.locator("[data-curriculum-desktop-workspace]").evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+          assert.equal(compactDesktopColumns, 2, "1024px Curriculum should use the compact two-region desktop composition");
+
+          await page.setViewportSize({ width: 390, height: 844 });
           await page.locator("[data-skill-practice-action]").click();
           await page.locator("[data-practice-page]").waitFor();
           assert.equal(await mobileNav.getByRole("button", { name: "التدريب", exact: true }).getAttribute("aria-current"), "page");
@@ -317,6 +345,7 @@ jobs:
           path: |
             prompt-mobile-smoke.png
             curriculum-smoke.png
+            curriculum-desktop-smoke.png
             skill-practice-smoke.png
             exam-model-1-smoke.png
             exam-model-2-smoke.png
