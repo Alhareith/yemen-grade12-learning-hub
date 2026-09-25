@@ -111,7 +111,7 @@ jobs:
           );
           assert.match(
             homeCss,
-            /\.v3-home-button--primary[\s\S]*?var\(--v3-color-primary\)[\s\S]*?var\(--v3-color-primary-strong\)/,
+            /\.v3-home-button--primary\s*\{[^}]*linear-gradient\([^}]*var\(--v3-color-primary\), var\(--v3-color-primary-strong\)[^}]*\} /,
             "Home primary CTA must keep the accessible Primary → Primary Strong gradient",
           );
           assert.doesNotMatch(
