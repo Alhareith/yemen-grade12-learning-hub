@@ -1,6 +1,6 @@
 # V3 Stage 5H — Regression & Protected Legacy Verification
 
-Status: **IMPLEMENTATION CANDIDATE — CI PENDING**
+Status: **PASS — 5H REGRESSION & PROTECTED LEGACY VERIFIED**
 
 Stage 5H verifies that the completed Curriculum work remains isolated from protected Legacy, preserved data and deployment/runtime contracts.
 
@@ -185,5 +185,83 @@ Runtime Browser Smoke independently confirms MathML and Arabic enhancement in Ex
 - Vercel deployment is READY;
 - PR remains Draft and unmerged;
 - protected Legacy remains untouched.
+
+Stage 5I is not started.
+
+
+---
+
+## 11. 5H closure evidence
+
+Final 5H verification head before this documentation-only closure:
+
+`7dbdc5b78d43e0e01a2fca1bb3621e8c6ba4e119`
+
+Current `main` baseline:
+
+`72f0fe12c2a66ebe61dbe0ddf1af2657b3764ae5`
+
+### Protected/data diff result
+
+Stage 5 regression boundary / push:
+
+- run: `36117325802`;
+- base: `72f0fe12c2a66ebe61dbe0ddf1af2657b3764ae5`;
+- head: `7dbdc5b78d43e0e01a2fca1bb3621e8c6ba4e119`;
+- changed protected/data paths: `[]`;
+- result: **pass**.
+
+Stage 5 regression boundary / pull_request:
+
+- run: `36117329760`;
+- changed protected/data paths: `[]`;
+- result: **pass**.
+
+Evidence artifact:
+
+- id: `10855073970`;
+- name: `v3-stage5-regression-boundary`;
+- SHA-256 digest: `8eb0594450b5315932424d95979f7a38f420d911af5338440354c8680d9559cd`.
+
+### Successful regression families
+
+- Validate student experience / push — `36117325766`;
+- Browser smoke test / push — `36117325692`;
+- V3 Curriculum responsive accessibility / push — `36117325697`;
+- V3 Stage 5 regression boundary / push — `36117325802`;
+- Validate student experience / pull_request — `36117329872`;
+- Browser smoke test / pull_request — `36117329694`;
+- V3 production shell regression — `36117329763`;
+- V3 accessibility performance regression — `36117329824`;
+- V3 design system visual validation — `36117329762`;
+- V3 Curriculum responsive accessibility — `36117329778`;
+- V3 Stage 5 regression boundary — `36117329760`;
+- Vercel deployment `dpl_59YZfP82QyrMrryL6wbS4qDYLU5W` — **READY**.
+
+The Stage 4 final CI gate remains skipped by design outside `feature/v3-app-shell`.
+
+### Protected runtime result
+
+Browser Smoke confirms the protected runtime remains operational:
+
+- ExamPilot still bypasses AppShell;
+- both protected math exam models load;
+- MathML and Arabic Math enhancement remain present;
+- exam session recovery remains operational;
+- Practice still produces unique first/second rounds without tested cross-round repetition;
+- Practice diagnostics and deepening Prompt remain operational;
+- Hash Router and Curriculum ↔ Practice behavior remain intact.
+
+### Repository result
+
+5H adds only:
+
+- `.github/workflows/v3-stage5-regression.yml`;
+- this document;
+- the V3 documentation map.
+
+No product Runtime source file is modified by 5H.
+
+**Stage 5H: PASS.**
 
 Stage 5I is not started.
