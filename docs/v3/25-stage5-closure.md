@@ -1,6 +1,6 @@
 # V3 Stage 5I — Curriculum Contract & Stage Closure
 
-Status: **CLOSURE CANDIDATE — CI PENDING**
+Status: **PASS — STAGE 5 CLOSED AND READY FOR HUMAN PR REVIEW**
 
 Stage 5 replaces the legacy Curriculum experience with the V3 Curriculum Experience while preserving Curriculum identity/data, current Practice semantics, Prompt Generator behavior, AppShell routing and protected Legacy.
 
@@ -322,7 +322,7 @@ Stage 6 must preserve:
 - [x] No Backend/Auth/Database/CMS work was introduced.
 - [x] No protected Legacy cleanup was performed.
 - [x] No merge to `main` was performed automatically.
-- [ ] 5I documentation freeze CI is green.
+- [x] 5I documentation freeze CI is green.
 
 ---
 
@@ -334,4 +334,72 @@ Merge to `main` remains an explicit human approval gate.
 
 Stage 6 must not begin merely because Stage 5 closure documentation exists; it begins only after the project chooses the next stage and establishes its baseline from the correct merged `main`.
 
-Until the 5I documentation freeze is verified, Stage 5 remains a closure candidate.
+Stage 5I documentation freeze is verified. Stage 5 is closed and ready for human PR review; merge remains a human approval gate.
+
+
+---
+
+## 16. 5I closure verification evidence
+
+5I contract/closure candidate commit:
+
+`08d79b90add05d3f30def80f310f74c1e962612c`
+
+At that candidate:
+
+- branch was 28 commits ahead of `main`;
+- branch was 0 commits behind `main`;
+- PR #42 remained Draft, open, mergeable and unmerged;
+- Stage 5 diff contained 19 files;
+- no protected Legacy or preserved Curriculum/Practice/Prompt data path changed.
+
+Successful checks:
+
+- Validate student experience / push — `36126544019`;
+- Browser smoke test / push — `36126543779`;
+- V3 Curriculum responsive accessibility / push — `36126544130`;
+- V3 Stage 5 regression boundary / push — `36126544008`;
+- Validate student experience / pull_request — `36126548721`;
+- Browser smoke test / pull_request — `36126548744`;
+- V3 production shell regression — `36126548839`;
+- V3 accessibility performance regression — `36126548787`;
+- V3 design system visual validation — `36126548745`;
+- V3 Curriculum responsive accessibility — `36126548711`;
+- V3 Stage 5 regression boundary — `36126548804`;
+- Vercel deployment `dpl_3v3Gf1mdZQdAGbDgXm81SnxqAHBT` — **READY**.
+
+Stage 4 final CI gate is skipped by design because it is intentionally scoped to `feature/v3-app-shell`.
+
+### Final Stage 5 evidence artifacts
+
+Protected-boundary artifact:
+
+- id: `10859928575`;
+- name: `v3-stage5-regression-boundary`;
+- SHA-256 digest: `65b618ec52da0b14afee8fbe4b6a57ac0febb5b621dcb111c03f1ccc5aa2ef5b`.
+
+Curriculum responsive/accessibility artifact:
+
+- id: `10860505550`;
+- name: `v3-curriculum-responsive-accessibility`;
+- SHA-256 digest: `e1bcce918e24ea320c5d091067fdc79e48a38ca470cb7c1ebe5101c98ea65cae`.
+
+The Curriculum artifact contains the canonical `390×844` and `1536×1024` screenshots plus the eight-width validation report.
+
+### Final canonical contract
+
+Post-Stage-5 Curriculum work must consume:
+
+`docs/v3/24-curriculum-contract.md`
+
+Stage 5 snapshots 16–23 remain historical evidence and do not override the frozen contract.
+
+### Stage result
+
+**Stage 5 — Curriculum Experience: PASS.**
+
+PR #42 remains Draft until explicit human approval changes that state.
+
+No merge to `main` has been performed.
+
+Stage 6 has not started.
