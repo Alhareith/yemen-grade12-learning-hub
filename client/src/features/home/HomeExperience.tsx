@@ -212,11 +212,11 @@ export default function HomeExperience() {
           <div className="v3-home-simulation__copy">
             <span className="v3-home-simulation__title-line">
               <SimulationIcon aria-hidden="true" />
-              <h2 id="v3-home-simulation-title">محاكاة الرياضيات</h2>
+              <h2 id="v3-home-simulation-title">محاكاة النماذج الوزارية</h2>
             </span>
-            <p>اختبر مستواك في محاكاة كاملة مع حفظ واستكمال ونتيجة بعد التسليم.</p>
+            <p>جرّب محاكاة لنماذج الاختبارات الوزارية واستعد للاختبار في تجربة منظمة تحاكي نمط الأسئلة.</p>
             <a className="v3-home-simulation__cta" href={homeActionHref.simulation}>
-              <span>ابدأ المحاكاة</span>
+              <span>الانتقال إلى موقع المحاكاة</span>
               <ForwardIcon aria-hidden="true" />
             </a>
           </div>
