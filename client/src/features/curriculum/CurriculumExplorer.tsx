@@ -10,7 +10,11 @@ import {
   Layers3,
 } from "lucide-react";
 import { buildPracticeHash } from "@/app/routing";
-import { SubjectCard, type SubjectTone } from "@/design-system/components";
+import {
+  QuickActionCard,
+  SubjectCard,
+  type SubjectTone,
+} from "@/design-system/components";
 import { v3AssetPaths } from "@/design-system/assets/asset-paths";
 import { Button, Chip, Surface } from "@/design-system/primitives";
 import "@/design-system/primitives/primitives.css";
@@ -105,6 +109,13 @@ export default function CurriculumExplorer({
       : skillId
         ? curriculumIndex.skills.get(skillId)
         : undefined;
+  const practiceOptions = skills.map((skill) => ({
+    skill,
+    practiceSet: getReadyPracticeSetForSkill(skill.id),
+  }));
+  const readyPracticeOptions = practiceOptions.filter(
+    (option) => option.practiceSet !== null,
+  );
   const practiceSet = activeSkill
     ? getReadyPracticeSetForSkill(activeSkill.id)
     : null;
@@ -163,7 +174,9 @@ export default function CurriculumExplorer({
   };
 
   const chooseSkill = (nextSkillId: string) => {
-    setSkillId(nextSkillId);
+    setSkillId((currentSkillId) =>
+      currentSkillId === nextSkillId ? "" : nextSkillId,
+    );
     setCopied(false);
   };
 
@@ -588,82 +601,177 @@ export default function CurriculumExplorer({
                       {activeLesson.title}
                     </h2>
                     <p>
-                      افتح الشرح مباشرة، واختر مهارة فقط عندما تحتاج سياقًا
-                      أدق أو تدريبًا متاحًا لها.
+                      ابدأ بشرح الدرس، واستخدم المهارة فقط عندما تريد تخصيص
+                      السياق أو فتح تدريب جاهز مرتبط بها.
                     </p>
+                  </div>
+
+                  <div
+                    aria-label="ملخص الدرس"
+                    className="v3-curriculum__detail-summary"
+                    data-curriculum-lesson-summary
+                  >
+                    <span>
+                      <strong>{numberFormatter.format(skills.length)}</strong>
+                      {skills.length === 1 ? "مهارة موثقة" : "مهارات موثقة"}
+                    </span>
+                    <span>
+                      <strong>
+                        {numberFormatter.format(readyPracticeOptions.length)}
+                      </strong>
+                      {readyPracticeOptions.length === 1
+                        ? "تدريب جاهز"
+                        : "تدريبات جاهزة"}
+                    </span>
                   </div>
                 </div>
 
                 {skills.length > 0 ? (
-                  <div className="v3-curriculum__skills">
-                    <span className="v3-curriculum__section-label">
-                      {skills.length === 1 ? "المهارة" : "مهارات الدرس"}
-                    </span>
+                  <section
+                    aria-labelledby="curriculum-skills-heading"
+                    className="v3-curriculum__skills"
+                  >
+                    <div className="v3-curriculum__skills-heading">
+                      <div>
+                        <h3 id="curriculum-skills-heading">
+                          {skills.length === 1 ? "مهارة الدرس" : "مهارات الدرس"}
+                        </h3>
+                        <p>
+                          {skills.length === 1
+                            ? "هذه المهارة موثقة داخل الدرس، ولا تحتاج إلى خطوة اختيار إضافية."
+                            : "اختيار المهارة اختياري. اضغط عليها لتخصيص الشرح أو معرفة التدريب المتاح، واضغط عليها مرة أخرى لإلغاء الاختيار."}
+                        </p>
+                      </div>
+                    </div>
 
                     {skills.length === 1 ? (
-                      <span
+                      <div
                         className="v3-curriculum__single-skill"
                         data-curriculum-skill={skills[0].id}
                       >
                         <CheckCircle2 aria-hidden="true" />
-                        {skills[0].title}
-                      </span>
+                        <span>
+                          <strong>{skills[0].title}</strong>
+                          <small>
+                            {practiceSet
+                              ? "تدريب جاهز لهذه المهارة"
+                              : "لا يوجد تدريب جاهز لهذه المهارة حاليًا"}
+                          </small>
+                        </span>
+                      </div>
                     ) : (
                       <div
                         className="v3-curriculum__skill-list"
                         data-curriculum-skill-list
                       >
-                        {skills.map((skill) => (
+                        {practiceOptions.map(({ skill, practiceSet: optionSet }) => (
                           <Chip
+                            aria-label={
+                              optionSet
+                                ? `${skill.title}، تدريب متاح`
+                                : `${skill.title}، لا يوجد تدريب جاهز حاليًا`
+                            }
+                            data-curriculum-practice-ready={
+                              optionSet ? "true" : "false"
+                            }
                             data-curriculum-skill={skill.id}
                             key={skill.id}
                             onClick={() => chooseSkill(skill.id)}
                             selected={activeSkill?.id === skill.id}
                             tone="primary"
                           >
-                            {skill.title}
+                            <span>{skill.title}</span>
+                            <small>
+                              {optionSet ? "تدريب متاح" : "شرح فقط حاليًا"}
+                            </small>
                           </Chip>
                         ))}
                       </div>
                     )}
-                  </div>
+                  </section>
                 ) : null}
 
-                <div
-                  className="v3-curriculum__actions"
+                <section
+                  aria-labelledby="curriculum-actions-heading"
+                  className="v3-curriculum__lesson-actions"
                   data-curriculum-lesson-actions
                 >
-                  <Button
-                    data-skill-prompt-action
-                    icon={copied ? Check : Copy}
-                    onClick={copyLessonPrompt}
-                    variant="primary"
-                  >
-                    {copied
-                      ? "تم نسخ أمر الشرح"
-                      : "انسخ أمر شرح هذا الدرس"}
-                  </Button>
+                  <div className="v3-curriculum__actions-heading">
+                    <div>
+                      <h3 id="curriculum-actions-heading">ابدأ من هنا</h3>
+                      <p>
+                        الشرح متاح دائمًا للدرس. التدريب يظهر فقط عندما توجد
+                        مجموعة تدريب جاهزة للمهارة الحالية.
+                      </p>
+                    </div>
+                  </div>
 
-                  {practiceSet && activeSkill ? (
-                    <Button
-                      data-skill-practice-action
-                      icon={Dumbbell}
-                      onClick={() => {
-                        window.location.hash = buildPracticeHash(activeSkill.id);
-                      }}
-                      variant="secondary"
+                  <div className="v3-curriculum__action-grid">
+                    <div data-skill-prompt-action>
+                      <QuickActionCard
+                        description={
+                          activeSkill
+                            ? `ينسخ أمرًا جاهزًا مع سياق: ${activeSkill.title}`
+                            : "ينسخ أمرًا جاهزًا لشرح الدرس في مولد الأوامر."
+                        }
+                        illustrationAlt=""
+                        illustrationSrc={v3AssetPaths.actions.prompts}
+                        onClick={copyLessonPrompt}
+                        title={copied ? "تم نسخ أمر الشرح" : "اشرح هذا الدرس"}
+                        tone="prompts"
+                      />
+                    </div>
+
+                    {practiceSet && activeSkill ? (
+                      <div data-skill-practice-action>
+                        <QuickActionCard
+                          description={practiceSet.title}
+                          illustrationAlt=""
+                          illustrationSrc={v3AssetPaths.actions.practice}
+                          onClick={() => {
+                            window.location.hash = buildPracticeHash(activeSkill.id);
+                          }}
+                          title="تدرّب على هذه المهارة"
+                          tone="practice"
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+
+                  {skills.length > 1 && !activeSkill ? (
+                    <div
+                      className="v3-curriculum__availability-note"
+                      data-curriculum-practice-status="choose-skill"
+                      role="status"
                     >
-                      تدرّب على هذه المهارة
-                    </Button>
+                      <Dumbbell aria-hidden="true" />
+                      <div>
+                        <strong>التدريب الحالي مرتبط بالمهارة.</strong>
+                        <p>
+                          اختر مهارة فقط إذا أردت التدريب. يمكنك شرح الدرس
+                          كاملًا بدون اختيار أي مهارة.
+                        </p>
+                      </div>
+                    </div>
                   ) : null}
-                </div>
 
-                {skills.length > 1 && !activeSkill ? (
-                  <p className="v3-curriculum__practice-note">
-                    التدريب الحالي مرتبط بالمهارة. اختر مهارة فقط إذا أردت
-                    التحقق من وجود تدريب جاهز لها.
-                  </p>
-                ) : null}
+                  {activeSkill && !practiceSet ? (
+                    <div
+                      className="v3-curriculum__availability-note"
+                      data-curriculum-practice-status="unavailable"
+                      role="status"
+                    >
+                      <AlertTriangle aria-hidden="true" />
+                      <div>
+                        <strong>لا يوجد تدريب جاهز لهذه المهارة حاليًا.</strong>
+                        <p>
+                          الشرح متاح الآن، ولن نعرض زر تدريب قبل وجود مجموعة
+                          أسئلة جاهزة وموثقة.
+                        </p>
+                      </div>
+                    </div>
+                  ) : null}
+                </section>
               </Surface>
             </section>
           ) : null}

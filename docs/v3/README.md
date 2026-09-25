@@ -39,6 +39,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `17-stage5-curriculum-ux-contract.md` | Stage 5B implementation-ready Curriculum UX contract for mobile/desktop hierarchy and states |
 | `18-stage5-mobile-curriculum.md` | Stage 5C mobile/compact Curriculum implementation and verification |
 | `19-stage5-desktop-curriculum.md` | Stage 5D desktop Curriculum workspace implementation and verification |
+| `20-stage5-lesson-detail-actions.md` | Stage 5E Lesson detail, optional Skill and truthful Prompt/Practice action implementation |
 
 ## Stage snapshots
 

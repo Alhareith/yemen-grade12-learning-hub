@@ -208,8 +208,10 @@ jobs:
           await page.locator("[data-skill-prompt-action]").waitFor();
           await page.locator("[data-skill-practice-action]").waitFor();
           assert.equal(await page.getByText("CPLX-NUMBER-USE", { exact: true }).count(), 0, "Technical skill id should not be student-visible");
-          assert.ok((await page.locator("[data-skill-prompt-action]").innerText()).includes("انسخ أمر شرح هذا الدرس"));
+          assert.ok((await page.locator("[data-skill-prompt-action]").innerText()).includes("اشرح هذا الدرس"));
           assert.ok((await page.locator("[data-skill-practice-action]").innerText()).includes("تدرّب على هذه المهارة"));
+          assert.ok((await page.locator("[data-curriculum-lesson-summary]").innerText()).includes("١"));
+          assert.equal(await page.getByText("مصادر مرتبطة بهذا الدرس", { exact: true }).count(), 0, "Inherited sources must not be labeled as Lesson-specific");
 
           const mobileOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
           assert.ok(mobileOverflow <= 1, `Curriculum should not overflow horizontally on mobile: ${mobileOverflow}px`);
@@ -242,7 +244,8 @@ jobs:
           assert.equal(compactDesktopColumns, 2, "1024px Curriculum should use the compact two-region desktop composition");
 
           await page.setViewportSize({ width: 390, height: 844 });
-          await page.locator("[data-skill-practice-action]").click();
+
+          await page.locator("[data-skill-practice-action] button").click();
           await page.locator("[data-practice-page]").waitFor();
           assert.equal(await mobileNav.getByRole("button", { name: "التدريب", exact: true }).getAttribute("aria-current"), "page");
           await page.getByText("فهم وتمثيل العدد المركب", { exact: false }).first().waitFor();
@@ -278,6 +281,32 @@ jobs:
           await page.locator("[data-practice-diagnostic]").waitFor();
           await page.locator("[data-practice-deepening-prompt]").waitFor();
           await page.screenshot({ path: practiceEvidencePath, fullPage: false });
+
+          await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+          await page.locator("[data-curriculum-explorer]").waitFor();
+          await page.locator('[data-curriculum-subject="رياضيات"] button').click();
+          await page.locator('[data-curriculum-unit="math-calculus"]').click();
+          await page.locator('[data-curriculum-lesson="math-calculus:CHAIN-RULE"]').click();
+          await page.locator("[data-skill-detail]").waitFor();
+
+          assert.equal(await page.locator("[data-curriculum-skill]").count(), 2, "Expected two optional skills in Chain Rule lesson");
+          assert.equal(await page.locator("[data-skill-practice-action]").count(), 0, "Multi-skill Lesson must not choose a Skill implicitly");
+          assert.equal(await page.locator('[data-curriculum-practice-status="choose-skill"]').count(), 1, "Expected truthful choose-skill Practice status");
+          assert.equal(await page.locator('[data-curriculum-skill="DER-CHAIN"]').getAttribute("aria-pressed"), "false");
+
+          await page.locator('[data-curriculum-skill="DER-CHAIN"]').click();
+          await page.locator("[data-skill-practice-action]").waitFor();
+          assert.equal(await page.locator('[data-curriculum-skill="DER-CHAIN"]').getAttribute("aria-pressed"), "true");
+          assert.ok((await page.locator("[data-skill-practice-action]").innerText()).includes("تدرّب على هذه المهارة"));
+
+          await page.locator('[data-curriculum-skill="DER-CHAIN"]').click();
+          assert.equal(await page.locator("[data-skill-practice-action]").count(), 0, "Clicking selected Skill again should clear optional selection");
+          assert.equal(await page.locator('[data-curriculum-practice-status="choose-skill"]').count(), 1);
+
+          await page.locator('[data-curriculum-skill="DER-COMPOSITION"]').click();
+          assert.equal(await page.locator("[data-skill-practice-action]").count(), 0, "No Practice CTA should be shown for an unready Skill");
+          assert.equal(await page.locator('[data-curriculum-practice-status="unavailable"]').count(), 1, "Expected truthful unavailable Practice status");
+          assert.equal(await page.locator("[data-skill-prompt-action]").count(), 1, "Prompt action must remain available when Practice is unavailable");
 
           await page.goto(`${baseUrl}#exam-pilot`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-arabic-exam]").waitFor();
@@ -333,7 +362,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, homeLocalSubviewReset: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, homeLocalSubviewReset: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, lessonActions: true, multiSkillOptionality: true, truthfulPracticeAvailability: true, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 
