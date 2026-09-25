@@ -1,6 +1,6 @@
 # V3 Stage 5F — Shell Integration & State
 
-Status: **IMPLEMENTATION CANDIDATE — CI PENDING**
+Status: **PASS — 5F SHELL INTEGRATION & STATE IMPLEMENTED**
 
 Stage 5F closes the real feature-to-shell lifecycle gap revealed by the completed Curriculum implementation.
 
@@ -154,5 +154,33 @@ Browser Smoke verifies:
 - AppShell regression remains green;
 - Vercel preview is READY;
 - protected Legacy is untouched.
+
+Stage 5G is not started.
+
+
+---
+
+## 12. 5F closure evidence
+
+Final 5F runtime head before this documentation-only closure:
+
+`14331a697f0d163494be1111da72528a6add91dd`
+
+Successful checks:
+
+- Validate student experience / push — `36115504229`;
+- Browser smoke test / push — `36115504265`;
+- Validate student experience / pull_request — `36115510377`;
+- Browser smoke test / pull_request — `36115510416`;
+- V3 design system visual validation — `36115510560`;
+- V3 accessibility performance regression — `36115510198`;
+- V3 production shell regression — `36115510182`;
+- Vercel commit status — **success**.
+
+The Stage 4 final CI gate remains skipped by design outside `feature/v3-app-shell`.
+
+No protected Legacy file changed.
+
+**Stage 5F: PASS.**
 
 Stage 5G is not started.
