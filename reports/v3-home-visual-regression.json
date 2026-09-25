@@ -88,12 +88,14 @@
     "routeSemantics": "PASS",
     "keyboardFocusCanonical": "PASS",
     "reducedMotion": "PASS",
-    "appShellBreakpoints": "PASS"
+    "appShellBreakpoints": "PASS",
+    "contrast": "PASS"
   },
   "workflow": {
-    "runId": 36144407709,
-    "artifactId": 10867928255,
-    "artifactDigest": "sha256:66cd35df43b1a110f62085469423960213249007f503352bab6b26460f854582"
+    "runId": 36147058335,
+    "artifactId": 10869941605,
+    "artifactDigest": "sha256:013377e549e7131d236348c15a04f85726f2dd534443728b60e3d7ef2b6d4646",
+    "runtimeHead": "9f925443f056e4cdb7c71c950be215b0a9aa0c85"
   },
   "visualComparison": {
     "method": [
@@ -104,8 +106,8 @@
       "zone geometry comparison"
     ],
     "informationalMeanAbsoluteRgbDifference": {
-      "mobile": 51.64,
-      "desktop": 42.19
+      "mobile": 52.58,
+      "desktop": 42.37
     },
     "note": "Pixel RGB difference is informational only because the frozen AppShell differs from mock chrome and the approved production artwork differs from the photographic reference. Geometry/hierarchy/accessibility are the acceptance criteria."
   },
@@ -114,5 +116,18 @@
     "Hero uses approved V3 subject/action artwork because the reference pack provides no approved production Hero photograph.",
     "Simulation uses the approved Stage 3 simulation WebP rather than inventing the photographic classroom/exam asset shown in the mock.",
     "Desktop content remains capped by the frozen 1280px V3 container contract."
-  ]
+  ],
+  "preMergeReview": {
+    "status": "PASS",
+    "findingsFixed": [
+      "Small secondary Home text had sub-4.5:1 contrast on light surfaces; secondary mixes were raised to 72% Ink and the primary CTA gradient was darkened to Primary → Primary Strong.",
+      "Unreachable legacy HomeView / ExamsView source was removed without changing any live route."
+    ],
+    "fullRegression": "PASS",
+    "protectedBoundaryArtifact": {
+      "runId": 36147058586,
+      "artifactId": 10869431776,
+      "artifactDigest": "sha256:5b33521b4d0b3d47db001bb90a225b04fa0953591a7c371de32cd07ef6f308b3"
+    }
+  }
 }
