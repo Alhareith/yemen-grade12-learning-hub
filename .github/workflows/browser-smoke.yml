@@ -182,16 +182,36 @@ jobs:
           assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", "Skip link should focus app content");
 
           await page.locator("[data-curriculum-explorer]").waitFor();
-          const skillCount = await page.locator("[data-curriculum-skill]").count();
-          assert.ok(skillCount > 0, "Expected visible curriculum skills");
+          assert.equal(await page.locator("[data-curriculum-explorer]").getAttribute("data-curriculum-stage"), "subjects", "Curriculum must start with explicit Subject choice");
+          assert.equal(await page.locator("[data-curriculum-panel=\"subjects\"]").getAttribute("data-active"), "true");
+          assert.equal(await page.locator("[data-curriculum-panel=\"units\"]").count(), 0, "Units must not be silently preselected");
+          assert.equal(await page.getByRole("heading", { level: 1 }).count(), 1, "Curriculum route must expose one logical H1");
+
+          const subjectGridColumns = await page.locator("[data-curriculum-subject-grid]").evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(" ").length);
+          assert.equal(subjectGridColumns, 2, "Mobile Curriculum subject catalogue must use two columns");
+
+          await page.locator('[data-curriculum-subject="رياضيات"] button').click();
+          await page.locator("[data-curriculum-unit-list]").waitFor();
+          assert.equal(await page.locator("[data-curriculum-explorer]").getAttribute("data-curriculum-stage"), "units");
+
+          await page.locator('[data-curriculum-unit="math-algebra-geometry-probability"]').click();
+          await page.locator("[data-curriculum-lesson-list]").waitFor();
+          assert.equal(await page.locator("[data-curriculum-explorer]").getAttribute("data-curriculum-stage"), "lessons");
+
+          await page.locator('[data-curriculum-lesson="math-algebra-geometry-probability:CPLX-NUMBER"]').click();
           await page.locator("[data-skill-detail]").waitFor();
+          assert.equal(await page.locator("[data-curriculum-explorer]").getAttribute("data-curriculum-stage"), "detail");
+
+          const skillCount = await page.locator("[data-curriculum-skill]").count();
+          assert.equal(skillCount, 1, "Single-skill Lesson should expose its Skill without a separate selection step");
           await page.locator("[data-skill-prompt-action]").waitFor();
           await page.locator("[data-skill-practice-action]").waitFor();
-          assert.equal(await page.locator("[data-skill-detail]").getByText("برومبتات", { exact: true }).count(), 0, "Skill metric dashboard should be removed");
-          assert.equal(await page.getByText("اختبر هذه المهارة داخل المحاكاة", { exact: true }).count(), 0, "Per-skill general exam action should remain removed");
           assert.equal(await page.getByText("CPLX-NUMBER-USE", { exact: true }).count(), 0, "Technical skill id should not be student-visible");
-          assert.ok((await page.locator("[data-skill-prompt-action]").innerText()).includes("انسخ الأمر واسأل به أي ذكاء اصطناعي"));
+          assert.ok((await page.locator("[data-skill-prompt-action]").innerText()).includes("انسخ أمر شرح هذا الدرس"));
           assert.ok((await page.locator("[data-skill-practice-action]").innerText()).includes("تدرّب على هذه المهارة"));
+
+          const mobileOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+          assert.ok(mobileOverflow <= 1, `Curriculum should not overflow horizontally on mobile: ${mobileOverflow}px`);
           await page.screenshot({ path: curriculumEvidencePath, fullPage: false });
 
           await page.locator("[data-skill-practice-action]").click();

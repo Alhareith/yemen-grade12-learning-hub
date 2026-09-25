@@ -1,81 +1,204 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowRight,
-  BookOpenCheck,
+  AlertTriangle,
+  Check,
+  CheckCircle2,
   ChevronLeft,
   Copy,
   Dumbbell,
-  ExternalLink,
   Layers3,
-  Library,
-  Sigma,
 } from "lucide-react";
+import { buildPracticeHash } from "@/app/routing";
+import { SubjectCard, type SubjectTone } from "@/design-system/components";
+import { v3AssetPaths } from "@/design-system/assets/asset-paths";
+import { Button, Chip, Surface } from "@/design-system/primitives";
+import "@/design-system/primitives/primitives.css";
 import { curriculumGraph, curriculumIndex } from "@/data/curriculum";
 import { getReadyPracticeSetForSkill } from "@/data/practiceBank";
 import { selfStudyPrompts } from "@/data/promptCatalog";
 import { buildArabicOutputPolicy } from "@shared/prompts/arabic-output-policy";
+import "./curriculum-explorer.css";
 
-const explainPrompt = selfStudyPrompts.find((prompt) => prompt.id === "rebuild-from-zero") ?? selfStudyPrompts[0];
+const explainPrompt =
+  selfStudyPrompts.find((prompt) => prompt.id === "rebuild-from-zero") ??
+  selfStudyPrompts[0];
 
-export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
+const numberFormatter = new Intl.NumberFormat("ar");
+
+const subjectVisuals: Record<
+  string,
+  { tone: SubjectTone; illustrationSrc: string }
+> = {
+  رياضيات: {
+    tone: "math",
+    illustrationSrc: v3AssetPaths.subjects.math,
+  },
+  فيزياء: {
+    tone: "physics",
+    illustrationSrc: v3AssetPaths.subjects.physics,
+  },
+  كيمياء: {
+    tone: "chemistry",
+    illustrationSrc: v3AssetPaths.subjects.chemistry,
+  },
+  أحياء: {
+    tone: "biology",
+    illustrationSrc: v3AssetPaths.subjects.biology,
+  },
+  "لغة إنجليزية": {
+    tone: "english",
+    illustrationSrc: v3AssetPaths.subjects.english,
+  },
+};
+
+type CurriculumStage = "subjects" | "units" | "lessons" | "detail";
+
+type LessonGroup = {
+  id: string;
+  title: string | null;
+  lessons: ReturnType<typeof curriculumIndex.getLessonsForUnit>;
+};
+
+export default function CurriculumExplorer({
+  onBack: _onBack,
+}: {
+  onBack: () => void;
+}) {
   const subjectsWithUnits = useMemo(
-    () => curriculumGraph.subjects.filter((subject) => curriculumIndex.getUnitsForSubject(subject.id).length > 0),
+    () =>
+      curriculumGraph.subjects.filter(
+        (subject) =>
+          curriculumIndex.getUnitsForSubject(subject.id).length > 0,
+      ),
     [],
   );
-  const [subjectId, setSubjectId] = useState(subjectsWithUnits.find((subject) => subject.id === "رياضيات")?.id ?? subjectsWithUnits[0]?.id ?? "");
-  const subject = curriculumIndex.subjects.get(subjectId) ?? subjectsWithUnits[0];
-  const units = subject ? curriculumIndex.getUnitsForSubject(subject.id) : [];
-  const [unitId, setUnitId] = useState(() => units[0]?.id ?? "");
-  const activeUnit = curriculumIndex.units.get(unitId) ?? units[0];
-  const lessons = activeUnit ? curriculumIndex.getLessonsForUnit(activeUnit.id) : [];
-  const [lessonId, setLessonId] = useState(() => lessons[0]?.id ?? "");
-  const activeLesson = curriculumIndex.lessons.get(lessonId) ?? lessons[0];
-  const skills = activeLesson ? curriculumIndex.getSkillsForLesson(activeLesson.id) : [];
-  const [skillId, setSkillId] = useState(() => skills[0]?.id ?? "");
-  const activeSkill = curriculumIndex.skills.get(skillId) ?? skills[0];
-  const skillContext = activeSkill ? curriculumIndex.getSkillContext(activeSkill.id) : null;
-  const practiceSet = activeSkill ? getReadyPracticeSetForSkill(activeSkill.id) : null;
+
+  const [subjectId, setSubjectId] = useState("");
+  const [unitId, setUnitId] = useState("");
+  const [lessonId, setLessonId] = useState("");
+  const [skillId, setSkillId] = useState("");
   const [copied, setCopied] = useState(false);
+  const [focusVersion, setFocusVersion] = useState(0);
+
+  const subject = subjectId
+    ? curriculumIndex.subjects.get(subjectId)
+    : undefined;
+  const units = subject
+    ? curriculumIndex.getUnitsForSubject(subject.id)
+    : [];
+  const activeUnit = unitId
+    ? curriculumIndex.units.get(unitId)
+    : undefined;
+  const lessons = activeUnit
+    ? curriculumIndex.getLessonsForUnit(activeUnit.id)
+    : [];
+  const activeLesson = lessonId
+    ? curriculumIndex.lessons.get(lessonId)
+    : undefined;
+  const skills = activeLesson
+    ? curriculumIndex.getSkillsForLesson(activeLesson.id)
+    : [];
+  const activeSkill =
+    skills.length === 1
+      ? skills[0]
+      : skillId
+        ? curriculumIndex.skills.get(skillId)
+        : undefined;
+  const practiceSet = activeSkill
+    ? getReadyPracticeSetForSkill(activeSkill.id)
+    : null;
+
+  const stage: CurriculumStage = !subject
+    ? "subjects"
+    : !activeUnit
+      ? "units"
+      : activeUnit.mappingStatus !== "lesson-skill" || !activeLesson
+        ? "lessons"
+        : "detail";
+
+  const lessonGroups = useMemo(
+    () => groupLessons(lessons),
+    [lessons],
+  );
+
+  useEffect(() => {
+    if (focusVersion === 0) return;
+
+    const frame = window.requestAnimationFrame(() => {
+      const heading = document.querySelector<HTMLElement>(
+        '[data-curriculum-panel][data-active="true"] [data-curriculum-focus-heading]',
+      );
+      heading?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(frame);
+  }, [focusVersion, stage]);
+
+  const advanceFocus = () => setFocusVersion((value) => value + 1);
 
   const chooseSubject = (nextSubjectId: string) => {
-    const nextUnits = curriculumIndex.getUnitsForSubject(nextSubjectId);
-    const nextUnit = nextUnits[0];
-    const nextLessons = nextUnit ? curriculumIndex.getLessonsForUnit(nextUnit.id) : [];
-    const nextLesson = nextLessons[0];
-    const nextSkills = nextLesson ? curriculumIndex.getSkillsForLesson(nextLesson.id) : [];
     setSubjectId(nextSubjectId);
-    setUnitId(nextUnit?.id ?? "");
-    setLessonId(nextLesson?.id ?? "");
-    setSkillId(nextSkills[0]?.id ?? "");
+    setUnitId("");
+    setLessonId("");
+    setSkillId("");
     setCopied(false);
+    advanceFocus();
   };
 
   const chooseUnit = (nextUnitId: string) => {
-    const nextLessons = curriculumIndex.getLessonsForUnit(nextUnitId);
-    const nextLesson = nextLessons[0];
-    const nextSkills = nextLesson ? curriculumIndex.getSkillsForLesson(nextLesson.id) : [];
     setUnitId(nextUnitId);
-    setLessonId(nextLesson?.id ?? "");
-    setSkillId(nextSkills[0]?.id ?? "");
+    setLessonId("");
+    setSkillId("");
     setCopied(false);
+    advanceFocus();
   };
 
   const chooseLesson = (nextLessonId: string) => {
-    const nextSkills = curriculumIndex.getSkillsForLesson(nextLessonId);
     setLessonId(nextLessonId);
-    setSkillId(nextSkills[0]?.id ?? "");
+    setSkillId("");
+    setCopied(false);
+    advanceFocus();
+  };
+
+  const chooseSkill = (nextSkillId: string) => {
+    setSkillId(nextSkillId);
     setCopied(false);
   };
 
-  const copySkillPrompt = async () => {
-    if (!skillContext || !explainPrompt) return;
+  const backToSubjects = () => {
+    setSubjectId("");
+    setUnitId("");
+    setLessonId("");
+    setSkillId("");
+    setCopied(false);
+    advanceFocus();
+  };
+
+  const backToUnits = () => {
+    setUnitId("");
+    setLessonId("");
+    setSkillId("");
+    setCopied(false);
+    advanceFocus();
+  };
+
+  const backToLessons = () => {
+    setLessonId("");
+    setSkillId("");
+    setCopied(false);
+    advanceFocus();
+  };
+
+  const copyLessonPrompt = async () => {
+    if (!subject || !activeUnit || !activeLesson || !explainPrompt) return;
+
     const basePrompt = explainPrompt.build({
-      subject: skillContext.subject.title,
-      unit: skillContext.unit.title,
-      lesson: skillContext.lesson.title,
-      input: skillContext.skill.title,
+      subject: subject.title,
+      unit: activeUnit.title,
+      lesson: activeLesson.title,
+      input: activeSkill?.title ?? activeLesson.title,
     });
-    const prompt = `${basePrompt}\n\n${buildArabicOutputPolicy(skillContext.subject.title)}`;
+    const prompt = `${basePrompt}\n\n${buildArabicOutputPolicy(subject.title)}`;
 
     try {
       await navigator.clipboard.writeText(prompt);
@@ -95,126 +218,511 @@ export default function CurriculumExplorer({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div dir="rtl" data-curriculum-explorer className="min-h-screen bg-[#f5f6fa] px-4 py-5 font-sans text-slate-950 sm:px-6 sm:py-8">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex items-center justify-between gap-3">
-          <button type="button" onClick={onBack} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-white px-3 text-xs font-extrabold text-slate-700 ring-1 ring-slate-200">
-            <ArrowRight className="h-4 w-4" /> العودة للرئيسية
-          </button>
-          <span className="inline-flex items-center gap-2 rounded-full bg-violet-100 px-3 py-1.5 text-[10px] font-extrabold text-violet-800">
-            <Layers3 className="h-4 w-4" /> مسار المنهج الموحد
-          </span>
-        </div>
-
-        <section className="mt-4 overflow-hidden rounded-[28px] bg-slate-950 p-5 text-white sm:p-7">
-          <span className="text-[10px] font-extrabold text-violet-300">ابدأ من مكانك الحقيقي في المنهج</span>
-          <h1 className="mt-2 text-2xl font-black leading-10 sm:text-3xl">المادة ← الوحدة ← الدرس ← المهارة</h1>
-          <p className="mt-2 max-w-2xl text-sm font-medium leading-7 text-slate-300">اختر ما تدرسه، وسيعرض لك الموقع أمرًا جاهزًا للشرح والمصادر المرتبطة، والتدريب عندما يكون له بنك مراجع فعليًا.</p>
-        </section>
-
-        <section className="mt-4 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
-          <StepTitle number="١" title="اختر المادة" />
-          <div className="mt-3 flex flex-wrap gap-2">
-            {subjectsWithUnits.map((item) => (
-              <button key={item.id} type="button" onClick={() => chooseSubject(item.id)} className={`rounded-xl px-3 py-2 text-xs font-extrabold ${subject?.id === item.id ? "bg-slate-950 text-white" : "bg-slate-100 text-slate-600"}`}>
-                {item.title}
-              </button>
-            ))}
+    <section
+      className="v3-curriculum"
+      data-curriculum-explorer
+      data-curriculum-stage={stage}
+      data-v3-ui
+      dir="rtl"
+      lang="ar"
+    >
+      <div className="v3-curriculum__shell">
+        <header className="v3-curriculum__page-header">
+          <div>
+            <span className="v3-curriculum__eyebrow">
+              <Layers3 aria-hidden="true" />
+              المسار الدراسي
+            </span>
+            <h1>المنهج</h1>
+            <p>
+              اختر المادة، ثم الوحدة، ثم الدرس. تظهر المهارات داخل الدرس
+              عندما تكون موثقة.
+            </p>
           </div>
-        </section>
+        </header>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[.9fr_1.1fr]">
-          <div className="space-y-4">
-            <section className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
-              <StepTitle number="٢" title="اختر الوحدة" />
-              <div className="mt-3 space-y-2">
-                {units.map((unit) => (
-                  <button key={unit.id} type="button" onClick={() => chooseUnit(unit.id)} className={`flex w-full items-center gap-3 rounded-2xl p-3 text-right ${activeUnit?.id === unit.id ? "bg-violet-50 ring-1 ring-violet-200" : "bg-slate-50"}`}>
-                    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${activeUnit?.id === unit.id ? "bg-violet-700 text-white" : "bg-white text-slate-500"}`}><Library className="h-4 w-4" /></span>
-                    <span className="min-w-0 flex-1"><strong className="block text-xs font-black leading-6">{unit.title}</strong><small className="text-[9px] font-bold text-slate-400">{unit.mappingStatus === "lesson-skill" ? "خريطة دروس ومهارات متاحة" : "الوحدة مسجلة — التفصيل قيد التوثيق"}</small></span>
-                    <ChevronLeft className="h-4 w-4 text-slate-300" />
-                  </button>
-                ))}
+        <div className="v3-curriculum__flow">
+          <section
+            aria-labelledby="curriculum-subjects-heading"
+            className="v3-curriculum__panel"
+            data-active={stage === "subjects"}
+            data-curriculum-panel="subjects"
+          >
+            <div className="v3-curriculum__panel-heading">
+              <div>
+                <p className="v3-curriculum__step">١ · المادة</p>
+                <h2
+                  className="v3-curriculum__focus-heading"
+                  data-curriculum-focus-heading
+                  id="curriculum-subjects-heading"
+                  tabIndex={-1}
+                >
+                  اختر المادة
+                </h2>
+                <p>نعرض هنا المواد التي لديها وحدات فعلية في المنهج الحالي.</p>
+              </div>
+            </div>
+
+            {subjectsWithUnits.length > 0 ? (
+              <div
+                className="v3-curriculum__subject-grid"
+                data-curriculum-subject-grid
+              >
+                {subjectsWithUnits.map((item) => {
+                  const visual = subjectVisuals[item.id];
+                  const itemUnits = curriculumIndex.getUnitsForSubject(item.id);
+                  const lessonCount = itemUnits.reduce(
+                    (total, unit) =>
+                      total +
+                      curriculumIndex.getLessonsForUnit(unit.id).length,
+                    0,
+                  );
+                  const meta =
+                    lessonCount > 0
+                      ? `${formatCount(itemUnits.length, "وحدة", "وحدتان", "وحدات")} · ${numberFormatter.format(lessonCount)} درسًا موثقًا`
+                      : `${formatCount(itemUnits.length, "وحدة", "وحدتان", "وحدات")} · تفاصيل الدروس قيد التوثيق`;
+
+                  if (!visual) return null;
+
+                  return (
+                    <div data-curriculum-subject={item.id} key={item.id}>
+                      <SubjectCard
+                        actionLabel={`عرض وحدات ${item.title}`}
+                        illustrationAlt=""
+                        illustrationSrc={visual.illustrationSrc}
+                        meta={meta}
+                        onAction={() => chooseSubject(item.id)}
+                        title={item.title}
+                        tone={visual.tone}
+                        variant="actionable"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <Surface padding="lg" variant="subtle">
+                <div className="v3-curriculum__empty" role="status">
+                  <AlertTriangle aria-hidden="true" />
+                  <strong>المنهج غير متاح حاليًا.</strong>
+                  <span>لم نجد مواد تحتوي وحدات قابلة للتصفح.</span>
+                </div>
+              </Surface>
+            )}
+          </section>
+
+          {subject ? (
+            <section
+              aria-labelledby="curriculum-units-heading"
+              className="v3-curriculum__panel"
+              data-active={stage === "units"}
+              data-curriculum-panel="units"
+            >
+              <HierarchyBack
+                label="العودة إلى المواد"
+                onClick={backToSubjects}
+              />
+
+              <CurriculumContext subject={subject.title} />
+
+              <div className="v3-curriculum__panel-heading">
+                <div>
+                  <p className="v3-curriculum__step">٢ · الوحدة</p>
+                  <h2
+                    className="v3-curriculum__focus-heading"
+                    data-curriculum-focus-heading
+                    id="curriculum-units-heading"
+                    tabIndex={-1}
+                  >
+                    وحدات {subject.title}
+                  </h2>
+                  <p>اختر الوحدة التي تدرسها الآن.</p>
+                </div>
+              </div>
+
+              <div className="v3-curriculum__list" data-curriculum-unit-list>
+                {units.map((unit) => {
+                  const unitLessons = curriculumIndex.getLessonsForUnit(unit.id);
+                  const selected = activeUnit?.id === unit.id;
+
+                  return (
+                    <button
+                      aria-pressed={selected}
+                      className="v3-curriculum__nav-item"
+                      data-curriculum-unit={unit.id}
+                      data-selected={selected}
+                      key={unit.id}
+                      onClick={() => chooseUnit(unit.id)}
+                      type="button"
+                    >
+                      <span className="v3-curriculum__nav-copy">
+                        <strong>{unit.title}</strong>
+                        <small>
+                          {unit.mappingStatus === "lesson-skill"
+                            ? `${numberFormatter.format(unitLessons.length)} درسًا موثقًا`
+                            : "الوحدة موثقة · تفاصيل الدروس قيد التوثيق"}
+                        </small>
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className="v3-curriculum__nav-state"
+                      >
+                        {selected ? (
+                          <CheckCircle2 />
+                        ) : (
+                          <ChevronLeft />
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </section>
+          ) : null}
 
-            <section className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
-              <StepTitle number="٣" title="اختر الدرس" />
-              {activeUnit?.mappingStatus === "lesson-skill" ? (
-                <div className="mt-3 max-h-[410px] space-y-2 overflow-y-auto pl-1">
-                  {lessons.map((lesson) => (
-                    <button key={lesson.id} type="button" onClick={() => chooseLesson(lesson.id)} className={`w-full rounded-2xl p-3 text-right ${activeLesson?.id === lesson.id ? "bg-slate-950 text-white" : "bg-slate-50 text-slate-800"}`}>
-                      {lesson.groupTitle && <small className={`block text-[9px] font-extrabold ${activeLesson?.id === lesson.id ? "text-violet-300" : "text-violet-700"}`}>{lesson.groupTitle}</small>}
-                      <strong className="mt-0.5 block text-xs font-black leading-6">{lesson.title}</strong>
-                    </button>
+          {subject && activeUnit ? (
+            <section
+              aria-labelledby="curriculum-lessons-heading"
+              className="v3-curriculum__panel"
+              data-active={stage === "lessons"}
+              data-curriculum-panel="lessons"
+            >
+              <HierarchyBack
+                label="العودة إلى الوحدات"
+                onClick={backToUnits}
+              />
+
+              <CurriculumContext
+                subject={subject.title}
+                unit={activeUnit.title}
+              />
+
+              <div className="v3-curriculum__panel-heading">
+                <div>
+                  <p className="v3-curriculum__step">٣ · الدرس</p>
+                  <h2
+                    className="v3-curriculum__focus-heading"
+                    data-curriculum-focus-heading
+                    id="curriculum-lessons-heading"
+                    tabIndex={-1}
+                  >
+                    {activeUnit.mappingStatus === "lesson-skill"
+                      ? `دروس ${activeUnit.title}`
+                      : activeUnit.title}
+                  </h2>
+                  <p>
+                    {activeUnit.mappingStatus === "lesson-skill"
+                      ? "اختر درسًا موثقًا لفتح تفاصيله."
+                      : "هذه الوحدة موجودة في المنهج، لكن تفاصيل الدروس لم تُعتمد بعد."}
+                  </p>
+                </div>
+              </div>
+
+              {activeUnit.mappingStatus === "lesson-skill" ? (
+                <div
+                  className="v3-curriculum__lesson-groups"
+                  data-curriculum-lesson-list
+                >
+                  {lessonGroups.map((group) => (
+                    <section
+                      className="v3-curriculum__lesson-group"
+                      key={group.id}
+                    >
+                      {group.title ? <h3>{group.title}</h3> : null}
+                      <div className="v3-curriculum__list">
+                        {group.lessons.map((lesson) => {
+                          const selected = activeLesson?.id === lesson.id;
+
+                          return (
+                            <button
+                              aria-pressed={selected}
+                              className="v3-curriculum__nav-item v3-curriculum__nav-item--lesson"
+                              data-curriculum-lesson={lesson.id}
+                              data-selected={selected}
+                              key={lesson.id}
+                              onClick={() => chooseLesson(lesson.id)}
+                              type="button"
+                            >
+                              <span className="v3-curriculum__nav-copy">
+                                <strong>{lesson.title}</strong>
+                                <small>
+                                  {formatCount(
+                                    curriculumIndex.getSkillsForLesson(lesson.id)
+                                      .length,
+                                    "مهارة واحدة",
+                                    "مهارتان",
+                                    "مهارات",
+                                  )}
+                                </small>
+                              </span>
+                              <span
+                                aria-hidden="true"
+                                className="v3-curriculum__nav-state"
+                              >
+                                {selected ? (
+                                  <CheckCircle2 />
+                                ) : (
+                                  <ChevronLeft />
+                                )}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </section>
                   ))}
                 </div>
               ) : (
-                <div className="mt-3 rounded-2xl bg-amber-50 p-4 text-xs font-bold leading-6 text-amber-900">تفصيل هذه الوحدة إلى دروس ومهارات لم يُعتمد بعد، لذلك لن نعرض أسماء مخمّنة.</div>
-              )}
-            </section>
-          </div>
-
-          <div className="space-y-4">
-            <section className="rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
-              <StepTitle number="٤" title="اختر المهارة" />
-              <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                {skills.map((skill) => (
-                  <button key={skill.id} data-curriculum-skill={skill.id} type="button" onClick={() => { setSkillId(skill.id); setCopied(false); }} className={`rounded-2xl border p-3.5 text-right ${activeSkill?.id === skill.id ? "border-violet-300 bg-violet-50" : "border-slate-200 bg-white"}`}>
-                    <strong className="block text-sm font-black leading-7 text-slate-950">{skill.title}</strong>
-                  </button>
-                ))}
-              </div>
-            </section>
-
-            {skillContext && (
-              <section data-skill-detail className="overflow-hidden rounded-3xl border border-violet-200 bg-white shadow-[0_18px_45px_rgba(15,23,42,.06)]">
-                <div className="bg-violet-50 p-4 sm:p-5">
-                  <div className="flex items-start gap-3">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-violet-700 text-white"><Sigma className="h-5 w-5" /></span>
-                    <span className="min-w-0 flex-1">
-                      <small className="block text-[10px] font-extrabold leading-5 text-violet-700">{skillContext.subject.title} · {skillContext.unit.title}</small>
-                      <strong className="mt-1 block text-lg font-black leading-8 text-slate-950">{skillContext.skill.title}</strong>
-                      <span className="mt-1 block text-xs font-bold leading-6 text-slate-500">الدرس: {skillContext.lesson.title}</span>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-4 sm:p-5">
-                  <p className="text-xs font-medium leading-6 text-slate-500">ابدأ بالأمر إذا احتجت شرحًا. وإذا ظهر زر التدريب، فهناك بنك مراجع خاص بهذه المهارة وليس محاكاة عامة.</p>
-
-                  <button data-skill-prompt-action type="button" onClick={copySkillPrompt} className={`mt-4 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl px-4 text-center text-sm font-black text-white ${copied ? "bg-emerald-600" : "bg-violet-700"}`}>
-                    <Copy className="h-4 w-4 shrink-0" /> {copied ? "تم نسخ الأمر" : "انسخ الأمر واسأل به أي ذكاء اصطناعي"}
-                  </button>
-
-                  {practiceSet && (
-                    <a data-skill-practice-action href={`#practice/${encodeURIComponent(skillContext.skill.id)}`} className="mt-2 flex min-h-13 w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 px-4 text-center text-sm font-black text-white">
-                      <Dumbbell className="h-4 w-4" /> تدرّب على هذه المهارة
-                    </a>
-                  )}
-
-                  <div className="mt-6">
-                    <span className="text-[11px] font-extrabold text-slate-400">مصادر مرتبطة بهذه المهارة</span>
-                    <div className="mt-2 space-y-2">
-                      {skillContext.sources.slice(0, 6).map((source) => (
-                        <a key={source.id} href={source.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 rounded-2xl border border-slate-200 p-3.5 text-right hover:bg-slate-50">
-                          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><BookOpenCheck className="h-4 w-4" /></span>
-                          <span className="min-w-0 flex-1"><strong className="block text-sm font-black leading-7 text-slate-900">{source.title}</strong><small className="mt-0.5 block text-[10px] font-bold leading-5 text-slate-400">{source.kind === "simulation-source" ? "مرجع المحاكاة" : "مصدر تعلّم"}</small></span>
-                          <ExternalLink className="h-4 w-4 shrink-0 text-slate-300" />
-                        </a>
-                      ))}
+                <Surface
+                  className="v3-curriculum__unmapped"
+                  padding="lg"
+                  variant="subtle"
+                >
+                  <div role="status">
+                    <AlertTriangle aria-hidden="true" />
+                    <div>
+                      <strong>تفاصيل الدروس لم تُعتمد بعد.</strong>
+                      <p>
+                        لن نعرض أسماء دروس أو مهارات غير موجودة في البيانات
+                        الموثقة.
+                      </p>
                     </div>
                   </div>
+                </Surface>
+              )}
+            </section>
+          ) : null}
+
+          {subject && activeUnit && activeLesson ? (
+            <section
+              aria-labelledby="curriculum-detail-heading"
+              className="v3-curriculum__panel"
+              data-active={stage === "detail"}
+              data-curriculum-panel="detail"
+            >
+              <HierarchyBack
+                label="العودة إلى الدروس"
+                onClick={backToLessons}
+              />
+
+              <CurriculumContext
+                lesson={activeLesson.title}
+                subject={subject.title}
+                unit={activeUnit.title}
+              />
+
+              <Surface
+                className="v3-curriculum__detail"
+                data-skill-detail
+                padding="lg"
+                variant="raised"
+              >
+                <div className="v3-curriculum__detail-heading">
+                  <div>
+                    <p className="v3-curriculum__step">
+                      {activeLesson.groupTitle ?? "الدرس"}
+                    </p>
+                    <h2
+                      className="v3-curriculum__focus-heading"
+                      data-curriculum-focus-heading
+                      id="curriculum-detail-heading"
+                      tabIndex={-1}
+                    >
+                      {activeLesson.title}
+                    </h2>
+                    <p>
+                      افتح الشرح مباشرة، واختر مهارة فقط عندما تحتاج سياقًا
+                      أدق أو تدريبًا متاحًا لها.
+                    </p>
+                  </div>
                 </div>
-              </section>
-            )}
-          </div>
+
+                {skills.length > 0 ? (
+                  <div className="v3-curriculum__skills">
+                    <span className="v3-curriculum__section-label">
+                      {skills.length === 1 ? "المهارة" : "مهارات الدرس"}
+                    </span>
+
+                    {skills.length === 1 ? (
+                      <span
+                        className="v3-curriculum__single-skill"
+                        data-curriculum-skill={skills[0].id}
+                      >
+                        <CheckCircle2 aria-hidden="true" />
+                        {skills[0].title}
+                      </span>
+                    ) : (
+                      <div
+                        className="v3-curriculum__skill-list"
+                        data-curriculum-skill-list
+                      >
+                        {skills.map((skill) => (
+                          <Chip
+                            data-curriculum-skill={skill.id}
+                            key={skill.id}
+                            onClick={() => chooseSkill(skill.id)}
+                            selected={activeSkill?.id === skill.id}
+                            tone="primary"
+                          >
+                            {skill.title}
+                          </Chip>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
+
+                <div
+                  className="v3-curriculum__actions"
+                  data-curriculum-lesson-actions
+                >
+                  <Button
+                    data-skill-prompt-action
+                    icon={copied ? Check : Copy}
+                    onClick={copyLessonPrompt}
+                    variant="primary"
+                  >
+                    {copied
+                      ? "تم نسخ أمر الشرح"
+                      : "انسخ أمر شرح هذا الدرس"}
+                  </Button>
+
+                  {practiceSet && activeSkill ? (
+                    <Button
+                      data-skill-practice-action
+                      icon={Dumbbell}
+                      onClick={() => {
+                        window.location.hash = buildPracticeHash(activeSkill.id);
+                      }}
+                      variant="secondary"
+                    >
+                      تدرّب على هذه المهارة
+                    </Button>
+                  ) : null}
+                </div>
+
+                {skills.length > 1 && !activeSkill ? (
+                  <p className="v3-curriculum__practice-note">
+                    التدريب الحالي مرتبط بالمهارة. اختر مهارة فقط إذا أردت
+                    التحقق من وجود تدريب جاهز لها.
+                  </p>
+                ) : null}
+              </Surface>
+            </section>
+          ) : null}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 
-function StepTitle({ number, title }: { number: string; title: string }) {
-  return <div className="flex items-center gap-2"><span className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-950 text-[10px] font-black text-white">{number}</span><strong className="text-sm font-black text-slate-950">{title}</strong></div>;
+function CurriculumContext({
+  subject,
+  unit,
+  lesson,
+}: {
+  subject: string;
+  unit?: string;
+  lesson?: string;
+}) {
+  return (
+    <nav
+      aria-label="مسار المنهج الحالي"
+      className="v3-curriculum__context"
+      data-curriculum-context
+    >
+      <span>{subject}</span>
+      {unit ? (
+        <>
+          <ChevronLeft aria-hidden="true" />
+          <span>{unit}</span>
+        </>
+      ) : null}
+      {lesson ? (
+        <>
+          <ChevronLeft aria-hidden="true" />
+          <span>{lesson}</span>
+        </>
+      ) : null}
+    </nav>
+  );
+}
+
+function HierarchyBack({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <Button
+      className="v3-curriculum__back"
+      icon={functionalBackIcon}
+      onClick={onClick}
+      size="sm"
+      variant="ghost"
+    >
+      {label}
+    </Button>
+  );
+}
+
+const functionalBackIcon = ({
+  "aria-hidden": _ariaHidden,
+  ...props
+}: React.ComponentProps<typeof ChevronLeft>) => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    height="18"
+    viewBox="0 0 24 24"
+    width="18"
+    {...props}
+  >
+    <path
+      d="M15 18l-6-6 6-6"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+    />
+  </svg>
+);
+
+function groupLessons(
+  lessons: ReturnType<typeof curriculumIndex.getLessonsForUnit>,
+): LessonGroup[] {
+  const groups: LessonGroup[] = [];
+  const byKey = new Map<string, LessonGroup>();
+
+  lessons.forEach((lesson, index) => {
+    const key = lesson.groupTitle ?? `ungrouped:${index}`;
+    let group = byKey.get(key);
+
+    if (!group) {
+      group = {
+        id: lesson.groupId ?? key,
+        title: lesson.groupTitle ?? null,
+        lessons: [],
+      };
+      byKey.set(key, group);
+      groups.push(group);
+    }
+
+    group.lessons.push(lesson);
+  });
+
+  return groups;
+}
+
+function formatCount(
+  value: number,
+  singular: string,
+  dual: string,
+  plural: string,
+) {
+  if (value === 1) return singular;
+  if (value === 2) return dual;
+  return `${numberFormatter.format(value)} ${plural}`;
 }
