@@ -54,6 +54,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `32-stage5-5-responsive-accessibility-visual-regression.md` | Stage 5.5G eight-width browser/accessibility/visual-regression evidence |
 | `33-home-contract.md` | **canonical frozen Stage 5.5 Home Experience contract** |
 | `34-stage5-5-closure.md` | Stage 5.5 full regression and closure evidence |
+| `35-stage5-5-premerge-review.md` | Stage 5.5 pre-merge code/CI/accessibility review and resolved findings |
 
 ## Stage snapshots
 
