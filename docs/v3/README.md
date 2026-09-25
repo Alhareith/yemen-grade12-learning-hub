@@ -34,7 +34,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `12-stage3-closure.md` | Stage 3 closure evidence and handoff |
 | `13-stage4-app-shell-boundary.md` | historical Stage 4A boundary/baseline |
 | `14-app-shell-contract.md` | **canonical frozen Stage 4 App Shell contract** |
-| `15-stage4-closure.md` | Stage 4 closure evidence and handoff |
+| `15-stage4-closure.md` | Stage 4 closure evidence and handoff |\n| `16-stage5-curriculum-boundary.md` | Stage 5A Curriculum baseline, identity lock, UX boundary and regression risks |
 
 ## Stage snapshots
 
@@ -43,3 +43,4 @@ Files 04–10 intentionally preserve how each substage was implemented. Some sta
 For current visual-system rules, use `11-design-system-contract.md`.
 
 For current application-shell, routing, navigation and shell-lifecycle rules, use `14-app-shell-contract.md`.
+\n\nFor Stage 5 Curriculum work, `16-stage5-curriculum-boundary.md` is the current stage baseline. It remains subordinate to `01-architecture.md`, `02-legacy-boundary.md`, `11-design-system-contract.md`, and `14-app-shell-contract.md` until the final Stage 5 contract is frozen.\n
