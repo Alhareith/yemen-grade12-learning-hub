@@ -15,6 +15,9 @@ import {
   readPracticeSkillIdFromHash,
   type AppRoute,
 } from "@/app/routing";
+import {
+  cancelCurriculumReturnAfterPractice,
+} from "@/features/curriculum/curriculum-return-state";
 import Home, { type HomeRouteView } from "@/features/home/Home";
 import "./v2.css";
 import "./polish.css";
@@ -40,7 +43,20 @@ export default function App() {
   const { resetCurrentRouteView } = useRouteLifecycle(route);
 
   useEffect(() => {
-    const onHashChange = () => setRoute(parseAppHash(window.location.hash));
+    const onHashChange = () => {
+      const nextRoute = parseAppHash(window.location.hash);
+      setRoute((currentRoute) => {
+        if (
+          currentRoute === "practice" &&
+          nextRoute !== "practice" &&
+          nextRoute !== "curriculum"
+        ) {
+          cancelCurriculumReturnAfterPractice();
+        }
+        return nextRoute;
+      });
+    };
+
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
@@ -50,6 +66,14 @@ export default function App() {
       target === "practice" && route !== "practice"
         ? "curriculum"
         : target;
+
+    if (
+      route === "practice" &&
+      resolvedTarget !== "practice" &&
+      resolvedTarget !== "curriculum"
+    ) {
+      cancelCurriculumReturnAfterPractice();
+    }
 
     if (resolvedTarget === route || resolvedTarget === "practice") {
       if (resolvedTarget === "home") {

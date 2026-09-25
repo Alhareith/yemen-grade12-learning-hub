@@ -35,6 +35,16 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `13-stage4-app-shell-boundary.md` | historical Stage 4A boundary/baseline |
 | `14-app-shell-contract.md` | **canonical frozen Stage 4 App Shell contract** |
 | `15-stage4-closure.md` | Stage 4 closure evidence and handoff |
+| `16-stage5-curriculum-boundary.md` | Stage 5A Curriculum baseline, identity lock, UX boundary and regression risks |
+| `17-stage5-curriculum-ux-contract.md` | Stage 5B implementation-ready Curriculum UX contract for mobile/desktop hierarchy and states |
+| `18-stage5-mobile-curriculum.md` | Stage 5C mobile/compact Curriculum implementation and verification |
+| `19-stage5-desktop-curriculum.md` | Stage 5D desktop Curriculum workspace implementation and verification |
+| `20-stage5-lesson-detail-actions.md` | Stage 5E Lesson detail, optional Skill and truthful Prompt/Practice action implementation |
+| `21-stage5-shell-state.md` | Stage 5F one-time Curriculum ↔ Practice return-state and AppShell lifecycle integration |
+| `22-stage5-responsive-accessibility.md` | Stage 5G Curriculum responsive/accessibility hardening and eight-width browser contract |
+| `23-stage5-regression-protected-legacy.md` | Stage 5H protected Legacy/data diff guard and full regression verification |
+| `24-curriculum-contract.md` | **canonical frozen Stage 5 Curriculum Experience contract** |
+| `25-stage5-closure.md` | Stage 5 closure evidence and Stage 6 handoff |
 
 ## Stage snapshots
 
@@ -43,3 +53,8 @@ Files 04–10 intentionally preserve how each substage was implemented. Some sta
 For current visual-system rules, use `11-design-system-contract.md`.
 
 For current application-shell, routing, navigation and shell-lifecycle rules, use `14-app-shell-contract.md`.
+
+
+For current Curriculum behavior after Stage 5, use `24-curriculum-contract.md`. Stage 5 files 16–23 remain implementation snapshots, audit evidence and rationale.
+
+Later stages must consume the frozen Architecture, Legacy, Design System, AppShell and Curriculum contracts together rather than reviving an earlier Stage 5 snapshot.
