@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
+  ArrowRight,
   Check,
   CheckCircle2,
   ChevronLeft,
@@ -658,7 +659,7 @@ function HierarchyBack({
   return (
     <Button
       className="v3-curriculum__back"
-      icon={functionalBackIcon}
+      icon={ArrowRight}
       onClick={onClick}
       size="sm"
       variant="ghost"
@@ -667,28 +668,6 @@ function HierarchyBack({
     </Button>
   );
 }
-
-const functionalBackIcon = ({
-  "aria-hidden": _ariaHidden,
-  ...props
-}: React.ComponentProps<typeof ChevronLeft>) => (
-  <svg
-    aria-hidden="true"
-    fill="none"
-    height="18"
-    viewBox="0 0 24 24"
-    width="18"
-    {...props}
-  >
-    <path
-      d="M15 18l-6-6 6-6"
-      stroke="currentColor"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-    />
-  </svg>
-);
 
 function groupLessons(
   lessons: ReturnType<typeof curriculumIndex.getLessonsForUnit>,
