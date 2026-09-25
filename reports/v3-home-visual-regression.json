@@ -1,0 +1,133 @@
+{
+  "stage": "5.5G",
+  "status": "PASS",
+  "canonical": {
+    "mobile": {
+      "viewport": "390x844",
+      "actual": {
+        "homeHeight": 766.1,
+        "hero": {
+          "y": 64,
+          "height": 234
+        },
+        "curriculum": {
+          "y": 308,
+          "height": 128
+        },
+        "quickActions": {
+          "y": 452,
+          "height": 132,
+          "columns": 4
+        },
+        "simulation": {
+          "y": 594,
+          "height": 148.1
+        },
+        "resources": {
+          "y": 752.1,
+          "height": 60
+        }
+      },
+      "referenceScaledWidth": 390,
+      "referenceScaledHeight": 813
+    },
+    "desktop": {
+      "viewport": "1536x1024",
+      "actual": {
+        "hero": {
+          "x": 128,
+          "y": 72,
+          "width": 1280,
+          "height": 294
+        },
+        "curriculum": {
+          "x": 128,
+          "y": 382,
+          "width": 435.2,
+          "height": 215.4
+        },
+        "quickActions": {
+          "x": 579.2,
+          "y": 440.8,
+          "width": 828.8,
+          "height": 156.6,
+          "columns": 4
+        },
+        "simulation": {
+          "x": 128,
+          "y": 613.4,
+          "width": 1280,
+          "height": 136
+        },
+        "resources": {
+          "x": 128,
+          "y": 765.4,
+          "width": 1280,
+          "height": 88
+        }
+      },
+      "referenceScaledWidth": 1536,
+      "referenceScaledHeight": 842
+    }
+  },
+  "widths": [
+    360,
+    390,
+    430,
+    768,
+    1024,
+    1280,
+    1440,
+    1536
+  ],
+  "assertions": {
+    "horizontalOverflow": "PASS",
+    "touchTargets44": "PASS",
+    "imagesLoadedAndAlt": "PASS",
+    "rtlArabic": "PASS",
+    "routeSemantics": "PASS",
+    "keyboardFocusCanonical": "PASS",
+    "reducedMotion": "PASS",
+    "appShellBreakpoints": "PASS",
+    "contrast": "PASS"
+  },
+  "workflow": {
+    "runId": 36147058335,
+    "artifactId": 10869941605,
+    "artifactDigest": "sha256:013377e549e7131d236348c15a04f85726f2dd534443728b60e3d7ef2b6d4646",
+    "runtimeHead": "9f925443f056e4cdb7c71c950be215b0a9aa0c85"
+  },
+  "visualComparison": {
+    "method": [
+      "canonical browser screenshots from production preview",
+      "reference normalized to canonical viewport width",
+      "50/50 overlay inspection",
+      "absolute RGB diff inspection",
+      "zone geometry comparison"
+    ],
+    "informationalMeanAbsoluteRgbDifference": {
+      "mobile": 52.58,
+      "desktop": 42.37
+    },
+    "note": "Pixel RGB difference is informational only because the frozen AppShell differs from mock chrome and the approved production artwork differs from the photographic reference. Geometry/hierarchy/accessibility are the acceptance criteria."
+  },
+  "intentionalDifferences": [
+    "Frozen Stage 4 AppShell header/navigation is preserved instead of mock search/profile chrome.",
+    "Hero uses approved V3 subject/action artwork because the reference pack provides no approved production Hero photograph.",
+    "Simulation uses the approved Stage 3 simulation WebP rather than inventing the photographic classroom/exam asset shown in the mock.",
+    "Desktop content remains capped by the frozen 1280px V3 container contract."
+  ],
+  "preMergeReview": {
+    "status": "PASS",
+    "findingsFixed": [
+      "Small secondary Home text had sub-4.5:1 contrast on light surfaces; secondary mixes were raised to 72% Ink and the primary CTA gradient was darkened to Primary → Primary Strong.",
+      "Unreachable legacy HomeView / ExamsView source was removed without changing any live route."
+    ],
+    "fullRegression": "PASS",
+    "protectedBoundaryArtifact": {
+      "runId": 36147058586,
+      "artifactId": 10869431776,
+      "artifactDigest": "sha256:5b33521b4d0b3d47db001bb90a225b04fa0953591a7c371de32cd07ef6f308b3"
+    }
+  }
+}

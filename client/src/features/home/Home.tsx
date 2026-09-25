@@ -4,7 +4,6 @@ import {
   BookMarked,
   BookOpenCheck,
   BookOpenText,
-  BrainCircuit,
   ChevronDown,
   ChevronLeft,
   Compass,
@@ -17,8 +16,6 @@ import {
   Globe2,
   HeartHandshake,
   Languages,
-  Leaf,
-  Library,
   Linkedin,
   Mail,
   PlayCircle,
@@ -27,12 +24,11 @@ import {
   ScrollText,
   Send,
   Sigma,
-  Target,
   Type,
 } from "lucide-react";
 import PromptLibrary from "@/features/prompts/PromptLibrary";
+import HomeExperience from "@/features/home/HomeExperience";
 import {
-  examChannels,
   materials,
   resourceCategories,
   type MaterialCatalog,
@@ -42,7 +38,7 @@ import { unitExpansions, type UnitLink } from "@/data/unitExpansions";
 
 type IconType = ComponentType<{ className?: string; strokeWidth?: number }>;
 export type HomeRouteView = "home" | "prompts" | "resources";
-type View = HomeRouteView | "exams" | "subjects";
+type View = HomeRouteView | "subjects";
 type ResourceMode = "sources" | "units";
 
 const PROFILE_IMAGE_URL = "https://alharethprofilo.netlify.app/assets/alhareth-profile.webp";
@@ -144,9 +140,8 @@ export default function HomeV4({
   return (
     <div dir="rtl" className="min-h-screen bg-[#f5f6fa] font-sans text-slate-950">
       <main className="min-h-[70vh]">
-        {view === "home" && <HomeView selected={selected} onNavigate={go} onChangeSubject={() => go("subjects")} />}
+        {view === "home" && <HomeExperience />}
         {view === "prompts" && <PromptLibrary subject={selected.title} units={selectedUnitTitles} />}
-        {view === "exams" && <ExamsView />}
         {view === "resources" && (
           <ResourcesView
             selected={selected}
@@ -161,78 +156,9 @@ export default function HomeV4({
         )}
         {view === "subjects" && <SubjectsView selectedId={selected.id} onSelect={chooseSubject} />}
       </main>
-      {view !== "prompts" && <DeveloperFooter />}
+      {view !== "prompts" && view !== "home" && <DeveloperFooter />}
     </div>
   );
-}
-
-function HomeView({ selected, onNavigate, onChangeSubject }: {
-  selected: MaterialCatalog;
-  onNavigate: (view: View) => void;
-  onChangeSubject: () => void;
-}) {
-  const Icon = subjectIcons[selected.id] ?? BookOpenText;
-  const tone = subjectTone[selected.id] ?? "bg-slate-100 text-slate-700";
-
-  return (
-    <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
-      <section className="overflow-hidden rounded-[28px] bg-slate-950 p-5 text-white sm:p-8">
-        <span className="inline-flex items-center gap-2 text-[11px] font-extrabold text-violet-300"><Leaf className="h-4 w-4" /> لا تحتاج تعرف من أين تبدأ</span>
-        <h1 className="mt-3 max-w-2xl text-2xl font-black leading-10 sm:text-4xl sm:leading-[1.35]">افهم ما تعثرت فيه، ثم اختبر نفسك بوضوح.</h1>
-        <p className="mt-2 max-w-xl text-sm font-medium leading-7 text-slate-300">اختر واحدًا فقط الآن: إذا تحتاج فهمًا استخدم أمرًا جاهزًا واسأل به أي ذكاء اصطناعي، وإذا تريد قياس مستواك ادخل المحاكاة. المصادر تأتي بعد ذلك عند الحاجة.</p>
-
-        <button type="button" onClick={onChangeSubject} className="mt-5 inline-flex min-h-11 items-center gap-3 rounded-2xl bg-white/10 px-3.5 text-right ring-1 ring-white/10">
-          <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${tone}`}><Icon className="h-4 w-4" /></span>
-          <span><small className="block text-[9px] font-bold text-slate-400">المادة الحالية</small><strong className="text-xs font-black text-white">{selected.title}</strong></span>
-          <span className="text-[9px] font-extrabold text-violet-300">تغيير</span>
-        </button>
-      </section>
-
-      <section className="mt-4 grid gap-3 sm:grid-cols-2">
-        <button type="button" onClick={() => onNavigate("prompts")} className="group rounded-[26px] border border-violet-200 bg-violet-50 p-5 text-right transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-700 text-white"><BrainCircuit className="h-6 w-6" /></span>
-          <small className="mt-5 block text-[10px] font-extrabold text-violet-700">١ · عندما لا تفهم أو تتوقف</small>
-          <strong className="mt-1 block text-xl font-black text-slate-950">ساعدني أفهم</strong>
-          <p className="mt-2 text-xs font-medium leading-6 text-slate-600">اختر حالتك، الصق سؤالك إن وجد، ثم انسخ أمرًا جاهزًا مضبوطًا للثالث الثانوي وللعرض العربي.</p>
-          <span className="mt-4 inline-flex items-center gap-1 text-xs font-extrabold text-violet-700">افتح الأوامر الجاهزة <ChevronLeft className="h-4 w-4" /></span>
-        </button>
-
-        <a href="#exam-pilot" className="group rounded-[26px] border border-slate-800 bg-slate-950 p-5 text-right text-white transition hover:-translate-y-0.5 hover:shadow-lg sm:p-6">
-          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-violet-200"><Target className="h-6 w-6" /></span>
-          <small className="mt-5 block text-[10px] font-extrabold text-violet-300">٢ · عندما تريد قياس مستواك</small>
-          <strong className="mt-1 block text-xl font-black">اختبر مستواي</strong>
-          <p className="mt-2 text-xs font-medium leading-6 text-slate-300">محاكاة رياضيات كاملة: ٥٠ سؤالًا، مؤقت اختياري، حفظ تلقائي، ثم تحليل يحدد ماذا تراجع.</p>
-          <span className="mt-4 inline-flex items-center gap-1 text-xs font-extrabold text-violet-300">ابدأ المحاكاة <ChevronLeft className="h-4 w-4" /></span>
-        </a>
-      </section>
-
-      <section className="mt-5 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5">
-        <span className="text-[10px] font-extrabold text-slate-400">كيف تستخدم الموقع؟</span>
-        <div className="mt-3 grid gap-2 sm:grid-cols-3">
-          <GuideStep number="١" title="اختر المادة" text="حدد المادة مرة، وستستخدمها الأوامر والمصادر تلقائيًا." />
-          <GuideStep number="٢" title="افهم أو اختبر" text="استخدم أمر الشرح إذا تعثرت، أو المحاكاة إذا أردت قياس نفسك." />
-          <GuideStep number="٣" title="اتبع التوجيه" text="بعد الاختبار ابدأ بالمحور الذي يضعه التحليل في أول الأولويات." />
-        </div>
-      </section>
-
-      <section className="mt-5 overflow-hidden rounded-3xl border border-slate-200 bg-white">
-        <div className="flex items-center gap-3 border-b border-slate-100 p-4 sm:p-5">
-          <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600"><Library className="h-5 w-5" /></span>
-          <span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-slate-400">بعد الأوامر والمحاكاة</small><strong className="block text-sm font-black text-slate-950">تحتاج كتابًا أو فيديو أو قناة؟</strong></span>
-        </div>
-        <ActionRow icon={Library} title="افتح مصادر المادة" description={`${selected.sources.length} مصدرًا منظمًا لـ ${selected.title}.`} onClick={() => onNavigate("resources")} />
-        <ActionRow icon={FileQuestion} title="اختبارات ومراجعة إضافية" description="المحاكاة داخل الموقع أولًا، ثم مصادر اختبارات خارجية عند الحاجة." onClick={() => onNavigate("exams")} />
-      </section>
-    </div>
-  );
-}
-
-function GuideStep({ number, title, text }: { number: string; title: string; text: string }) {
-  return <div className="rounded-2xl bg-slate-50 p-3.5"><span className="flex h-7 w-7 items-center justify-center rounded-xl bg-slate-950 text-[10px] font-black text-white">{number}</span><strong className="mt-2 block text-xs font-black text-slate-950">{title}</strong><p className="mt-1 text-[10px] font-medium leading-5 text-slate-500">{text}</p></div>;
-}
-
-function ActionRow({ icon: Icon, title, description, onClick }: { icon: IconType; title: string; description: string; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className="flex w-full items-center gap-3 border-b border-slate-100 p-4 text-right transition last:border-0 hover:bg-slate-50 sm:p-5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600"><Icon className="h-4.5 w-4.5" /></span><span className="min-w-0 flex-1"><strong className="block text-sm font-black text-slate-950">{title}</strong><span className="mt-1 block text-xs font-medium leading-5 text-slate-500">{description}</span></span><ChevronLeft className="h-5 w-5 text-slate-300" /></button>;
 }
 
 function SubjectsView({ selectedId, onSelect }: { selectedId: string; onSelect: (material: MaterialCatalog) => void }) {
@@ -285,16 +211,6 @@ function ResourceRow({ source }: { source: ResourceCard }) {
 function UnitRow({ link }: { link: UnitLink }) {
   const Icon = link.kind === "قناة Telegram" ? Send : link.kind === "اختبارات" ? FileQuestion : PlayCircle;
   return <a href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 text-right hover:bg-slate-50"><span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><Icon className="h-4 w-4" /></span><span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-violet-700">{link.kind}</small><strong className="block text-xs font-black leading-6 text-slate-950">{link.title}</strong></span><ExternalLink className="h-4 w-4 text-slate-300" /></a>;
-}
-
-function ExamsView() {
-  return (
-    <div className="mx-auto max-w-4xl px-4 py-5 sm:px-6 sm:py-8">
-      <PageHeading title="المحاكاة" description="ابدأ بالاختبار داخل الموقع. بعد التسليم ستحصل على درجة، مراجعة أخطاء، ومحاور واضحة تبدأ منها المراجعة." />
-      <a href="#exam-pilot" className="mt-5 block overflow-hidden rounded-3xl border border-violet-200 bg-slate-950 text-white shadow-[0_18px_45px_rgba(15,23,42,.08)] transition hover:-translate-y-0.5"><div className="p-5 sm:p-6"><div className="flex items-start gap-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200"><Target className="h-6 w-6" /></span><span className="min-w-0 flex-1"><small className="text-[10px] font-extrabold text-violet-300">متاح الآن · داخل الموقع</small><strong className="mt-1 block text-lg font-black leading-8">محاكاة الرياضيات</strong><span className="mt-1 block text-xs font-medium leading-6 text-slate-300">نماذج من ٥٠ سؤالًا · ٨٠ درجة · ساعة عند اختيار المؤقت · حفظ واستكمال · تحليل وتوجيه بعد التسليم.</span></span><ChevronLeft className="mt-4 h-5 w-5 text-violet-300" /></div><div className="mt-4 flex flex-wrap gap-2 text-[9px] font-extrabold text-slate-300"><span className="rounded-full bg-white/10 px-2.5 py-1.5">٢٠ صح/خطأ</span><span className="rounded-full bg-white/10 px-2.5 py-1.5">٣٠ اختيارًا</span><span className="rounded-full bg-white/10 px-2.5 py-1.5">خطة مراجعة بعد النتيجة</span></div></div></a>
-      <div className="mt-6"><span className="text-[10px] font-extrabold text-slate-400">مصادر اختبارات إضافية — بعد المحاكاة</span><div className="mt-2 overflow-hidden rounded-3xl border border-slate-200 bg-white">{examChannels.map((channel) => <a key={channel.url} href={channel.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 border-b border-slate-100 p-4 text-right last:border-0 hover:bg-slate-50 sm:p-5"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-50 text-amber-700"><FileQuestion className="h-4.5 w-4.5" /></span><span className="min-w-0 flex-1"><small className="text-[9px] font-extrabold text-amber-700">{channel.badge}</small><strong className="block text-sm font-black leading-6 text-slate-950">{channel.title}</strong><span className="mt-1 block text-xs font-medium leading-5 text-slate-500">{channel.handle} · {channel.detail}</span></span><ExternalLink className="h-4 w-4 text-slate-300" /></a>)}</div></div>
-    </div>
-  );
 }
 
 function PageHeading({ title, description }: { title: string; description: string }) {
