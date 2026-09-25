@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
-  Check,
   CheckCircle2,
   ChevronLeft,
-  Copy,
   Dumbbell,
   Layers3,
 } from "lucide-react";
