@@ -31,6 +31,7 @@ import {
   Type,
 } from "lucide-react";
 import PromptLibrary from "@/features/prompts/PromptLibrary";
+import HomeExperience from "@/features/home/HomeExperience";
 import {
   examChannels,
   materials,
@@ -144,7 +145,7 @@ export default function HomeV4({
   return (
     <div dir="rtl" className="min-h-screen bg-[#f5f6fa] font-sans text-slate-950">
       <main className="min-h-[70vh]">
-        {view === "home" && <HomeView selected={selected} onNavigate={go} onChangeSubject={() => go("subjects")} />}
+        {view === "home" && <HomeExperience />}
         {view === "prompts" && <PromptLibrary subject={selected.title} units={selectedUnitTitles} />}
         {view === "exams" && <ExamsView />}
         {view === "resources" && (
