@@ -1,5 +1,7 @@
 # V3 Stage 4A — App Shell Baseline & Boundary Lock
 
+> Historical Stage 4A baseline. The final Stage 4 contract is `14-app-shell-contract.md`; closure evidence is in `15-stage4-closure.md`.
+
 Status: **PASS — 4A BOUNDARY LOCKED**
 
 Stage 4 builds the application shell around the existing product without redesigning feature content or removing protected Legacy.
