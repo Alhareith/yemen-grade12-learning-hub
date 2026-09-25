@@ -220,7 +220,7 @@
 
 [data-v3-ui] .v3-home-button--primary {
   border: 1px solid var(--v3-color-primary);
-  background: linear-gradient(135deg, var(--v3-color-primary-bright), var(--v3-color-primary));
+  background: linear-gradient(135deg, var(--v3-color-primary), var(--v3-color-primary-strong));
   color: #fff;
   box-shadow: 0 8px 18px rgba(11,79,191,.20);
 }
@@ -320,7 +320,7 @@
 
 [data-v3-ui] .v3-home-section-heading p {
   margin-block-start: 3px;
-  color: color-mix(in srgb, var(--v3-color-ink) 56%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 72%, white);
   font-size: 12px;
   line-height: 1.65;
 }
@@ -391,7 +391,7 @@
 [data-v3-ui] .v3-home-quick-card__copy small {
   display: block;
   margin-block-start: 4px;
-  color: color-mix(in srgb, var(--v3-color-ink) 67%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 72%, white);
   font-size: 11px;
   line-height: 1.55;
   font-weight: 400;
@@ -590,7 +590,7 @@
 
 [data-v3-ui] .v3-home-resources p {
   margin-block-start: 2px;
-  color: color-mix(in srgb, var(--v3-color-ink) 58%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 72%, white);
   font-size: 10px;
   line-height: 1.5;
 }
@@ -1089,7 +1089,7 @@
   [data-v3-ui] .v3-home-resource-tile small {
     margin-block-start: 2px;
     overflow: hidden;
-    color: color-mix(in srgb, var(--v3-color-ink) 56%, white);
+    color: color-mix(in srgb, var(--v3-color-ink) 72%, white);
     font-size: 8px;
     line-height: 1.35;
     text-overflow: ellipsis;
