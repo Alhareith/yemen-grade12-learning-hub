@@ -217,10 +217,15 @@ Visual requirements:
 
 ### Mobile
 
-- 2×2 grid;
-- 10px calibrated gap;
-- cards must remain compact;
+Stage 5.5G browser/reference calibration resolves the pack's written 2×2 note against the canonical visual source:
+
+- 390 / 430 → four compact cards in one row, matching the reference image;
+- 360 → 2×2 fallback for readable content and 44px interaction targets;
+- 768 compact/tablet → 2×2;
+- calibrated gap remains compact;
 - RTL visual order preserves the four canonical semantics.
+
+This amendment changes composition only; it does not change the four action semantics or hierarchy.
 
 ### Desktop
 
