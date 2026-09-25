@@ -1,18 +1,14 @@
 import { functionalIcons } from "@/design-system/icons/icon-system";
 import { v3AssetPaths } from "@/design-system/assets/asset-paths";
+import { homeActionHref } from "./home-actions";
 import "./home-experience.css";
-
-const curriculumHash = "#curriculum";
-const promptsHash = "#prompts";
-const resourcesHash = "#resources";
-const simulationHash = "#exam-pilot";
 
 const quickActions = [
   {
     id: "curriculum",
     title: "المنهج",
     description: "تصفح المواد والوحدات والدروس المعتمدة.",
-    href: curriculumHash,
+    href: homeActionHref.curriculum,
     tone: "curriculum",
     image: v3AssetPaths.actions.curriculum,
     icon: functionalIcons.content.curriculum.icon,
@@ -21,7 +17,7 @@ const quickActions = [
     id: "practice",
     title: "التدريب",
     description: "ابدأ من المنهج للوصول إلى التدريب المتاح.",
-    href: curriculumHash,
+    href: homeActionHref.practice,
     tone: "practice",
     image: v3AssetPaths.actions.practice,
     icon: functionalIcons.content.practice.icon,
@@ -30,7 +26,7 @@ const quickActions = [
     id: "prompts",
     title: "مولد الأوامر",
     description: "احصل على أوامر جاهزة تساعدك في الفهم والمذاكرة.",
-    href: promptsHash,
+    href: homeActionHref.prompts,
     tone: "prompts",
     image: v3AssetPaths.actions.prompts,
     icon: functionalIcons.content.prompts.icon,
@@ -39,7 +35,7 @@ const quickActions = [
     id: "resources",
     title: "المصادر",
     description: "كتب وفيديوهات وروابط مفيدة مرتبة للطالب.",
-    href: resourcesHash,
+    href: homeActionHref.resources,
     tone: "resources",
     image: null,
     icon: functionalIcons.content.resources.icon,
@@ -110,11 +106,11 @@ export default function HomeExperience() {
           </div>
 
           <div className="v3-home-hero__actions" dir="rtl">
-            <a className="v3-home-button v3-home-button--primary" href={curriculumHash}>
+            <a className="v3-home-button v3-home-button--primary" href={homeActionHref.curriculum}>
               <CurriculumIcon aria-hidden="true" />
               <span>ابدأ بالمنهج</span>
             </a>
-            <a className="v3-home-button v3-home-button--secondary" href={curriculumHash}>
+            <a className="v3-home-button v3-home-button--secondary" href={homeActionHref.curriculum}>
               <PracticeIcon aria-hidden="true" />
               <span>تدرّب الآن</span>
             </a>
@@ -136,7 +132,7 @@ export default function HomeExperience() {
             <div className="v3-home-curriculum__copy">
               <h2 id="v3-home-curriculum-title">المنهج الدراسي</h2>
               <p>مواد الصف الثالث الثانوي في مسار واضح ومنظم.</p>
-              <a className="v3-home-button v3-home-button--primary v3-home-curriculum__cta" href={curriculumHash}>
+              <a className="v3-home-button v3-home-button--primary v3-home-curriculum__cta" href={homeActionHref.curriculum}>
                 <span>ادخل إلى المنهج</span>
                 <ForwardIcon aria-hidden="true" />
               </a>
@@ -199,7 +195,7 @@ export default function HomeExperience() {
               <h2 id="v3-home-simulation-title">محاكاة الرياضيات</h2>
             </span>
             <p>اختبر مستواك في محاكاة كاملة مع حفظ واستكمال ونتيجة بعد التسليم.</p>
-            <a className="v3-home-simulation__cta" href={simulationHash}>
+            <a className="v3-home-simulation__cta" href={homeActionHref.simulation}>
               <span>ابدأ المحاكاة</span>
               <ForwardIcon aria-hidden="true" />
             </a>
@@ -233,7 +229,7 @@ export default function HomeExperience() {
             })}
           </div>
 
-          <a className="v3-home-resources__cta" href={resourcesHash}>
+          <a className="v3-home-resources__cta" href={homeActionHref.resources}>
             <span>عرض جميع المصادر</span>
             <ForwardIcon aria-hidden="true" />
           </a>
