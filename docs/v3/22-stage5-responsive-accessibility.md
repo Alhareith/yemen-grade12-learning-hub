@@ -1,6 +1,6 @@
 # V3 Stage 5G — Responsive + Accessibility
 
-Status: **IMPLEMENTATION CANDIDATE — CI PENDING**
+Status: **PASS — 5G RESPONSIVE + ACCESSIBILITY VERIFIED**
 
 Stage 5G validates and hardens the implemented Curriculum experience across the frozen responsive widths and accessibility contract.
 
@@ -157,5 +157,75 @@ The JSON report records each validated width, responsive mode, overflow result, 
 - existing Validate, Browser Smoke, V3 visual, V3 accessibility/performance and AppShell regression remain green;
 - Vercel preview is READY;
 - protected Legacy remains untouched.
+
+Stage 5H is not started.
+
+
+---
+
+## 9. 5G closure evidence
+
+Final 5G runtime/harness head before this documentation-only closure:
+
+`16f6ce3501b4f71687803a9cdca44a3e19d0a1ad`
+
+Successful checks:
+
+- Validate student experience / push — `36116626203`;
+- Browser smoke test / push — `36116626236`;
+- V3 Curriculum responsive accessibility / push — `36116626223`;
+- Validate student experience / pull_request — `36116630040`;
+- Browser smoke test / pull_request — `36116630053`;
+- V3 production shell regression — `36116630090`;
+- V3 Curriculum responsive accessibility / pull_request — `36116630132`;
+- V3 accessibility performance regression — `36116630029`;
+- V3 design system visual validation — `36116630069`;
+- Vercel deployment `dpl_A9hfAgBkvEj93vfuFnEjAVdyBPvr` — **READY**.
+
+Dedicated Curriculum evidence artifact:
+
+- artifact id: `10855303279`;
+- name: `v3-curriculum-responsive-accessibility`;
+- SHA-256 digest: `e6ac2b8c8e09263f5e55212c78bd9f61c646057ebad7448573787d9c1f767aac`;
+- contains canonical 390×844 and 1536×1024 screenshots plus the eight-width JSON report.
+
+The dedicated harness passed all frozen widths:
+
+`360 / 390 / 430 / 768 / 1024 / 1280 / 1440 / 1536`.
+
+### Candidate failures resolved during 5G
+
+Two failures occurred while creating the new harness and were fixed before PASS:
+
+1. the first preview used the GitHub Pages-flavoured build at localhost, so the feature could not load at the root preview URL; the workflow now restores a Vercel-style production build before browser checks;
+2. an early focus assertion read `activeElement` before the feature's requestAnimationFrame focus transfer completed; the harness now waits for the contracted focus destination and verifies its visible outline.
+
+These were harness defects, not accepted runtime failures.
+
+### Runtime fixes validated by 5G
+
+- hierarchy headings now show visible focus after programmatic focus transfer;
+- selected multi-Skill chips expose a visible check icon in addition to color and `aria-pressed`;
+- Curriculum secondary text contrast was darkened within feature scope and passes the browser 4.5:1 checks;
+- 44×44px minimum touch targets pass;
+- no horizontal overflow is present across the eight frozen widths;
+- `unit-only` remains truthful at every width;
+- reduced-motion keyboard checks pass at 390 and 1536.
+
+### Protected boundary result
+
+**PASS.**
+
+Diff from completed 5F changes only:
+
+- `.github/workflows/v3-curriculum-quality.yml`;
+- `client/src/features/curriculum/CurriculumExplorer.tsx`;
+- `client/src/features/curriculum/curriculum-explorer.css`;
+- this document;
+- `docs/v3/README.md`.
+
+No protected Legacy file changed.
+
+**Stage 5G: PASS.**
 
 Stage 5H is not started.
