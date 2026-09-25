@@ -337,7 +337,7 @@ jobs:
 
           await page.locator('[data-exam-model="MATH-CALC-2020-ADAPTED-PILOT-01"]').click();
           await page.getByRole("button", { name: "بدون مؤقت" }).click();
-          await page.getByRole("button", { name: "الانتقال إلى موقع المحاكاة" }).click();
+          await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
 
           await page.locator("[data-arabic-exam] math").first().waitFor();
@@ -366,7 +366,7 @@ jobs:
           await page.locator('[data-exam-model="MATH-AGP-GENERAL-MODEL-02"]').click();
           await page.getByText("الجبر والهندسة والاحتمالات", { exact: false }).first().waitFor();
           await page.getByRole("button", { name: "بدون مؤقت" }).click();
-          await page.getByRole("button", { name: "الانتقال إلى موقع المحاكاة" }).click();
+          await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
           const model2OptionCount = await page.getByRole("button", { name: /صح|خطأ/ }).count();
           assert.ok(model2OptionCount >= 2, `Expected true/false options in model 2, got ${model2OptionCount}`);
