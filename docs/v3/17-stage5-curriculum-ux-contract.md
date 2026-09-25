@@ -1,6 +1,6 @@
 # V3 Stage 5B — Curriculum UX Contract
 
-Status: **CONTRACT CANDIDATE — CI PENDING**
+Status: **PASS — 5B UX CONTRACT LOCKED**
 
 Stage 5B converts the Stage 5A boundary into an implementation-ready UX contract for the Curriculum experience.
 
@@ -848,4 +848,55 @@ Owns final feature-to-shell state/lifecycle integration if implementation reveal
 - this document is committed;
 - required CI is green.
 
-Until then, 5C remains blocked.
+All 5B checks recorded below are green. 5C remains blocked until explicit human approval.
+
+
+---
+
+## 26. 5B closure evidence
+
+5B candidate commit:
+
+`5b8a74cc3ed868e93f6f5c667962d2488ab6d426`
+
+Draft PR:
+
+`#42 — V3-05: Build curriculum experience`
+
+The PR remains Draft and is not merged.
+
+### 5B candidate diff
+
+Compared with the completed 5A head `14be34ee6fa9f2b9d1c6b9b848841b60e6affa82`, 5B changes only:
+
+- added `docs/v3/17-stage5-curriculum-ux-contract.md`;
+- modified `docs/v3/README.md`.
+
+No runtime source, Curriculum/question data, Design System source, workflow, deployment configuration, or protected Legacy file changed.
+
+### 5B candidate CI
+
+Successful checks:
+
+- Validate student experience / push — `36081446167`;
+- Browser smoke test / push — `36081446187`;
+- Validate student experience / pull_request — `36081450284`;
+- Browser smoke test / pull_request — `36081450293`;
+- V3 design system visual validation / pull_request — `36081450390`;
+- V3 accessibility performance regression / pull_request — `36081450289`;
+- V3 production shell regression / pull_request — `36081450350`;
+- Vercel commit status — **success**.
+
+The Stage 4 final CI gate is skipped by design outside `feature/v3-app-shell`; this is not a Stage 5 failure.
+
+### Protected boundary result
+
+**PASS.**
+
+Stage 5B changes documentation only.
+
+### Stage transition
+
+**Stage 5B: PASS.**
+
+Do not begin Stage 5C until explicit human approval.
