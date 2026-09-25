@@ -36,6 +36,7 @@ const PrimitivesPreview = lazy(() =>
 
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(() => parseAppHash(window.location.hash));
+  const [homeResetSignal, setHomeResetSignal] = useState(0);
   const { resetCurrentRouteView } = useRouteLifecycle(route);
 
   useEffect(() => {
@@ -51,6 +52,9 @@ export default function App() {
         : target;
 
     if (resolvedTarget === route || resolvedTarget === "practice") {
+      if (resolvedTarget === "home") {
+        setHomeResetSignal((value) => value + 1);
+      }
       resetCurrentRouteView();
       return;
     }
@@ -114,6 +118,7 @@ export default function App() {
             <>
               <Home
                 routeView={route === "prompts" || route === "resources" ? route : "home"}
+                resetSignal={homeResetSignal}
                 onRouteNavigate={navigateHomeFeature}
               />
               {route === "home" ? (

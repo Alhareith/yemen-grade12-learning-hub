@@ -98,6 +98,19 @@ jobs:
           }
           assert.equal(await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).getAttribute("aria-current"), "page");
 
+          await page.getByRole("button", { name: /تغيير/ }).first().click();
+          await page.getByRole("heading", { name: "اختر المادة" }).waitFor();
+          await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).click();
+          await page.getByRole("heading", { name: "افهم ما تعثرت فيه، ثم اختبر نفسك بوضوح." }).waitFor();
+          assert.equal(await page.getByRole("heading", { name: "اختر المادة" }).count(), 0, "Home navigation should reset the local subjects subview");
+          assert.equal(new URL(page.url()).hash, "", "Resetting a Home-local subview should keep the canonical Home route");
+
+          await page.getByRole("button", { name: /اختبارات ومراجعة إضافية/ }).click();
+          await page.getByRole("heading", { name: "المحاكاة" }).waitFor();
+          await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).click();
+          await page.getByRole("heading", { name: "افهم ما تعثرت فيه، ثم اختبر نفسك بوضوح." }).waitFor();
+          assert.equal(await page.getByRole("heading", { name: "المحاكاة" }).count(), 0, "Home navigation should reset the local exams subview");
+
           const mobileSlot = page.locator("[data-app-shell-mobile]");
           const mobileSpacer = page.locator("[data-app-shell-mobile-spacer]");
           const navBox = await mobileNav.boundingBox();
@@ -272,7 +285,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, homeLocalSubviewReset: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 

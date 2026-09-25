@@ -92,11 +92,13 @@ const socialLinks = [
 
 type HomeV4Props = {
   routeView?: HomeRouteView;
+  resetSignal?: number;
   onRouteNavigate?: (view: HomeRouteView) => void;
 };
 
 export default function HomeV4({
   routeView = "home",
+  resetSignal = 0,
   onRouteNavigate,
 }: HomeV4Props) {
   const [view, setView] = useState<View>(() => routeView);
@@ -106,7 +108,7 @@ export default function HomeV4({
 
   useEffect(() => {
     setView(routeView);
-  }, [routeView]);
+  }, [routeView, resetSignal]);
 
   const selected = materials.find((material) => material.id === selectedId) ?? materials[0];
   const selectedUnits = useMemo(() => unitExpansions.filter((unit) => unit.subjectId === selected.id), [selected.id]);
