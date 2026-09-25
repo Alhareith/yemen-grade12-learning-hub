@@ -308,8 +308,9 @@ jobs:
               });
             }
 
-            await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+            await page.reload({ waitUntil: "domcontentloaded" });
             await page.locator("[data-curriculum-explorer]").waitFor();
+            assert.equal(await root.getAttribute("data-curriculum-stage"), "subjects", `Reload must reset Curriculum to Subject entry at ${width}px`);
             await page.locator('[data-curriculum-subject="لغة إنجليزية"] button').click();
             await page.locator('[data-curriculum-unit="english-grammar-review"]').click();
             assert.equal(await root.getAttribute("data-curriculum-mapping-status"), "unit-only");
