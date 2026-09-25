@@ -80,10 +80,11 @@ It fails if any protected Legacy or preserved-data path differs.
 
 The guard runs on:
 
-- the Stage 5 feature branch;
-- Pull Requests;
-- `main`;
+- every push to `feature/v3-curriculum-experience`;
+- Pull Requests only when Stage 5 runtime/integration, protected Legacy, preserved Curriculum/Practice/Prompt data, or the guard workflow itself changes;
 - manual dispatch.
+
+It no longer runs on every `main` push or every unrelated Pull Request. This keeps the Stage 5 regression evidence available where it is relevant without turning a historical stage gate into a repository-wide CI tax.
 
 The resulting evidence file is:
 
