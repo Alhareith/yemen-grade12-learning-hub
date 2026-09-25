@@ -225,6 +225,11 @@ jobs:
             await activate(page.locator('[data-curriculum-subject="رياضيات"] button'), keyboard);
             await page.locator("[data-curriculum-unit-list]").waitFor();
             assert.equal(await root.getAttribute("data-curriculum-stage"), "units");
+            await page.waitForFunction(
+              () => document.activeElement?.id === "curriculum-units-heading",
+              undefined,
+              { timeout: 2000 },
+            );
 
             const focusedUnitHeading = await page.evaluate(() => {
               const element = document.activeElement;
@@ -250,11 +255,21 @@ jobs:
             await page.locator("[data-curriculum-lesson-list]").waitFor();
             assert.equal(await root.getAttribute("data-curriculum-stage"), "lessons");
             assert.equal(await page.locator('[data-curriculum-unit="math-algebra-geometry-probability"]').getAttribute("aria-pressed"), "true");
+            await page.waitForFunction(
+              () => document.activeElement?.id === "curriculum-lessons-heading",
+              undefined,
+              { timeout: 2000 },
+            );
 
             await activate(page.locator('[data-curriculum-lesson="math-algebra-geometry-probability:CPLX-NUMBER"]'), keyboard);
             await page.locator("[data-skill-detail]").waitFor();
             assert.equal(await root.getAttribute("data-curriculum-stage"), "detail");
             assert.equal(await page.locator('[data-curriculum-lesson="math-algebra-geometry-probability:CPLX-NUMBER"]').getAttribute("aria-pressed"), "true");
+            await page.waitForFunction(
+              () => document.activeElement?.id === "curriculum-detail-heading",
+              undefined,
+              { timeout: 2000 },
+            );
 
             const focusedDetailHeading = await page.evaluate(() => {
               const element = document.activeElement;
