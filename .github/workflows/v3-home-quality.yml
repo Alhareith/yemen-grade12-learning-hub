@@ -189,11 +189,18 @@ jobs:
             assert.deepEqual(metrics.overflowNodes, [], `Overflowing Home nodes at ${width}px: ${JSON.stringify(metrics.overflowNodes)}`);
 
             if (width < 900) {
-              assert.equal(metrics.quickColumns, 2, `Expected 2 quick-action columns at ${width}px`);
+              const expectedQuickColumns = width >= 380 && width < 640 ? 4 : 2;
+              assert.equal(metrics.quickColumns, expectedQuickColumns, `Unexpected quick-action columns at ${width}px`);
               assert.equal(metrics.middleColumns, 1, `Expected stacked middle composition at ${width}px`);
               assert.notEqual(metrics.mobileNavDisplay, "none", `Mobile nav must be visible at ${width}px`);
               assert.equal(metrics.desktopNavDisplay, "none", `Desktop nav must be hidden at ${width}px`);
-              assert.ok(metrics.hero.height >= 285, `Hero too short at ${width}px: ${metrics.hero.height}`);
+              if (width < 640) {
+                assert.ok(metrics.hero.height >= 220 && metrics.hero.height <= 260, `Canonical mobile Hero height outside reference range at ${width}px: ${metrics.hero.height}`);
+                assert.ok(metrics.curriculum.height >= 115 && metrics.curriculum.height <= 155, `Canonical mobile Curriculum height outside reference range at ${width}px: ${metrics.curriculum.height}`);
+                assert.ok(metrics.simulation.height >= 135 && metrics.simulation.height <= 180, `Canonical mobile Simulation height outside reference range at ${width}px: ${metrics.simulation.height}`);
+              } else {
+                assert.ok(metrics.hero.height >= 300, `Compact Hero too short at ${width}px: ${metrics.hero.height}`);
+              }
             } else {
               assert.equal(metrics.quickColumns, 4, `Expected 4 quick-action columns at ${width}px`);
               assert.equal(metrics.middleColumns, 2, `Expected desktop middle composition at ${width}px`);
@@ -252,6 +259,7 @@ jobs:
               composition: width < 900 ? "mobile-compact" : "desktop",
               quickColumns: metrics.quickColumns,
               middleColumns: metrics.middleColumns,
+              home: metrics.home,
               hero: metrics.hero,
               curriculum: metrics.curriculum,
               quickGrid: metrics.quickGrid,
