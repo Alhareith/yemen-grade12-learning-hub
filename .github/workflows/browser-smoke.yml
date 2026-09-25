@@ -284,8 +284,17 @@ jobs:
           await page.locator("[data-practice-deepening-prompt]").waitFor();
           await page.screenshot({ path: practiceEvidencePath, fullPage: false });
 
-          await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+          await page.getByRole("button", { name: "العودة إلى المنهج", exact: true }).click();
           await page.locator("[data-curriculum-explorer]").waitFor();
+          assert.equal(new URL(page.url()).hash, "#curriculum", "Practice return should use the canonical Curriculum hash");
+          assert.equal(await page.locator("[data-curriculum-explorer]").getAttribute("data-curriculum-stage"), "detail", "Practice return should restore the launching Lesson detail once");
+          assert.equal(await page.locator('[data-curriculum-lesson="math-algebra-geometry-probability:CPLX-NUMBER"]').getAttribute("aria-pressed"), "true", "Restored Curriculum should retain the launching Lesson selection");
+
+          await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).click();
+          await mobileNav.getByRole("button", { name: "المنهج", exact: true }).click();
+          await page.locator("[data-curriculum-explorer]").waitFor();
+          assert.equal(await page.locator("[data-curriculum-explorer]").getAttribute("data-curriculum-stage"), "subjects", "Normal Curriculum re-entry must remain fresh after the one-time Practice return");
+
           await page.locator('[data-curriculum-subject="رياضيات"] button').click();
           await page.locator('[data-curriculum-unit="math-calculus"]').click();
           await page.locator('[data-curriculum-lesson="math-calculus:CHAIN-RULE"]').click();
@@ -309,6 +318,14 @@ jobs:
           assert.equal(await page.locator("[data-skill-practice-action]").count(), 0, "No Practice CTA should be shown for an unready Skill");
           assert.equal(await page.locator('[data-curriculum-practice-status="unavailable"]').count(), 1, "Expected truthful unavailable Practice status");
           assert.equal(await page.locator("[data-skill-prompt-action]").count(), 1, "Prompt action must remain available when Practice is unavailable");
+
+          await page.locator('[data-curriculum-skill="DER-CHAIN"]').click();
+          await page.locator("[data-skill-practice-action] button").click();
+          await page.locator("[data-practice-page]").waitFor();
+          await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).click();
+          await mobileNav.getByRole("button", { name: "المنهج", exact: true }).click();
+          await page.locator("[data-curriculum-explorer]").waitFor();
+          assert.equal(await page.locator("[data-curriculum-explorer]").getAttribute("data-curriculum-stage"), "subjects", "Leaving Practice somewhere other than Curriculum must cancel pending Curriculum resume state");
 
           await page.goto(`${baseUrl}#exam-pilot`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-arabic-exam]").waitFor();
@@ -364,7 +381,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, homeLocalSubviewReset: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, lessonActions: true, multiSkillOptionality: true, truthfulPracticeAvailability: true, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, homeLocalSubviewReset: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, lessonActions: true, multiSkillOptionality: true, truthfulPracticeAvailability: true, curriculumPracticeReturn: true, curriculumResumeCancellation: true, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 

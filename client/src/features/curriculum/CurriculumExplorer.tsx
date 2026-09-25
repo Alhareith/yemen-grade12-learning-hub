@@ -18,6 +18,10 @@ import { Button, Chip, Surface } from "@/design-system/primitives";
 import "@/design-system/primitives/primitives.css";
 import { curriculumGraph, curriculumIndex } from "@/data/curriculum";
 import { getReadyPracticeSetForSkill } from "@/data/practiceBank";
+import {
+  consumeCurriculumReturnAfterPractice,
+  prepareCurriculumReturnAfterPractice,
+} from "./curriculum-return-state";
 import { selfStudyPrompts } from "@/data/promptCatalog";
 import { buildArabicOutputPolicy } from "@shared/prompts/arabic-output-policy";
 import "./curriculum-explorer.css";
@@ -76,10 +80,15 @@ export default function CurriculumExplorer({
     [],
   );
 
-  const [subjectId, setSubjectId] = useState("");
-  const [unitId, setUnitId] = useState("");
-  const [lessonId, setLessonId] = useState("");
-  const [skillId, setSkillId] = useState("");
+  const [returnContext] = useState(() =>
+    consumeCurriculumReturnAfterPractice(),
+  );
+  const [subjectId, setSubjectId] = useState(
+    returnContext?.subjectId ?? "",
+  );
+  const [unitId, setUnitId] = useState(returnContext?.unitId ?? "");
+  const [lessonId, setLessonId] = useState(returnContext?.lessonId ?? "");
+  const [skillId, setSkillId] = useState(returnContext?.skillId ?? "");
   const [copied, setCopied] = useState(false);
   const [focusVersion, setFocusVersion] = useState(0);
 
@@ -727,6 +736,12 @@ export default function CurriculumExplorer({
                           illustrationAlt=""
                           illustrationSrc={v3AssetPaths.actions.practice}
                           onClick={() => {
+                            prepareCurriculumReturnAfterPractice({
+                              subjectId: subject.id,
+                              unitId: activeUnit.id,
+                              lessonId: activeLesson.id,
+                              skillId: activeSkill.id,
+                            });
                             window.location.hash = buildPracticeHash(activeSkill.id);
                           }}
                           title="تدرّب على هذه المهارة"

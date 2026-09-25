@@ -40,6 +40,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `18-stage5-mobile-curriculum.md` | Stage 5C mobile/compact Curriculum implementation and verification |
 | `19-stage5-desktop-curriculum.md` | Stage 5D desktop Curriculum workspace implementation and verification |
 | `20-stage5-lesson-detail-actions.md` | Stage 5E Lesson detail, optional Skill and truthful Prompt/Practice action implementation |
+| `21-stage5-shell-state.md` | Stage 5F one-time Curriculum ↔ Practice return-state and AppShell lifecycle integration |
 
 ## Stage snapshots
 
