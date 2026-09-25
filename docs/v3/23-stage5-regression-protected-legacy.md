@@ -265,3 +265,59 @@ No product Runtime source file is modified by 5H.
 **Stage 5H: PASS.**
 
 Stage 5I is not started.
+
+
+---
+
+## 12. Final 5H harness stabilization and verification
+
+During the documentation-only closure run, the dedicated Curriculum quality workflow exposed a nondeterministic focus assertion.
+
+The feature runtime was unchanged. The instability came from the test using programmatic focus / a fixed one-Tab assumption while asserting `:focus-visible`.
+
+5H corrected the harness to test the real keyboard contract:
+
+1. wait for Lesson-detail focus transfer;
+2. traverse the actual Tab order;
+3. require the target Skill to be keyboard-reachable;
+4. verify its visible focus outline under keyboard modality;
+5. activate/deselect it with Space.
+
+No product Runtime source file changed for this correction.
+
+Final fully-green verification head before the final documentation commit:
+
+`afaa30744ecc6a797cb6d84832287567151dc3b2`
+
+Successful checks on that head:
+
+- Validate student experience / push — `36117955406`;
+- Browser smoke test / push — `36117955431`;
+- V3 Curriculum responsive accessibility / push — `36117955425`;
+- V3 Stage 5 regression boundary / push — `36117955427`;
+- Validate student experience / pull_request — `36117959579`;
+- Browser smoke test / pull_request — `36117959544`;
+- V3 production shell regression — `36117959754`;
+- V3 accessibility performance regression — `36117959746`;
+- V3 design system visual validation — `36117959644`;
+- V3 Curriculum responsive accessibility — `36117959613`;
+- V3 Stage 5 regression boundary — `36117959595`;
+- Vercel deployment `dpl_7MnSue6s5TDQVoZxQ9NHpuiuhNXU` — **READY**.
+
+Final Stage 5 boundary artifact on this verification head:
+
+- id: `10854984937`;
+- digest: `7abd073298fb825363190b3f4cd4207b78258a159c68381bb34c44dce27dd2cc`.
+
+Final Curriculum quality artifact:
+
+- id: `10855747606`;
+- digest: `d4a6353de5a76aac0ac81588ccfb88f63c669558c579a79b8ded085d1842a7db`.
+
+PR #42 remains Draft, open, mergeable and unmerged.
+
+`main` remains:
+
+`72f0fe12c2a66ebe61dbe0ddf1af2657b3764ae5`.
+
+Stage 5I remains not started.
