@@ -366,7 +366,17 @@ jobs:
             await page.locator('[data-curriculum-skill="DER-CHAIN"]').waitFor();
 
             const skill = page.locator('[data-curriculum-skill="DER-CHAIN"]');
-            await skill.focus();
+            await page.waitForFunction(
+              () => document.activeElement?.id === "curriculum-detail-heading",
+              undefined,
+              { timeout: 2000 },
+            );
+            await page.keyboard.press("Tab");
+            assert.equal(
+              await skill.evaluate((node) => document.activeElement === node),
+              true,
+              `Keyboard Tab should move from Lesson heading to first Skill at ${width}px`,
+            );
 
             const skillFocus = await skill.evaluate((node) => {
               const style = getComputedStyle(node);
@@ -375,7 +385,7 @@ jobs:
             assert.notEqual(skillFocus.outlineStyle, "none", `Skill focus outline missing at ${width}px`);
             assert.notEqual(skillFocus.outlineWidth, "0px", `Skill focus outline width missing at ${width}px`);
 
-            await skill.press("Space");
+            await page.keyboard.press("Space");
             assert.equal(await skill.getAttribute("aria-pressed"), "true", `Skill keyboard selection failed at ${width}px`);
             assert.equal(await skill.locator("[data-curriculum-selected-icon]").count(), 1, `Selected Skill needs non-color icon at ${width}px`);
 
