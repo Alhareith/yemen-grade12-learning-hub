@@ -12,6 +12,7 @@ import {
   QuickActionCard,
   SubjectCard,
 } from "@/design-system/components";
+import { v3AssetPaths } from "@/design-system/assets/asset-paths";
 import { Button, Chip, Surface } from "@/design-system/primitives";
 import "@/design-system/primitives/primitives.css";
 import { curriculumGraph, curriculumIndex } from "@/data/curriculum";
