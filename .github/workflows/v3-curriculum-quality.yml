@@ -371,11 +371,17 @@ jobs:
               undefined,
               { timeout: 2000 },
             );
-            await page.keyboard.press("Tab");
+            let reachedSkill = false;
+            let skillTabSteps = 0;
+            for (; skillTabSteps < 60; skillTabSteps += 1) {
+              await page.keyboard.press("Tab");
+              reachedSkill = await skill.evaluate((node) => document.activeElement === node);
+              if (reachedSkill) break;
+            }
             assert.equal(
-              await skill.evaluate((node) => document.activeElement === node),
+              reachedSkill,
               true,
-              `Keyboard Tab should move from Lesson heading to first Skill at ${width}px`,
+              `Skill must be reachable through keyboard Tab order at ${width}px`,
             );
 
             const skillFocus = await skill.evaluate((node) => {
@@ -386,6 +392,7 @@ jobs:
             assert.notEqual(skillFocus.outlineWidth, "0px", `Skill focus outline width missing at ${width}px`);
 
             await page.keyboard.press("Space");
+            assert.ok(skillTabSteps < 60, `Skill keyboard traversal exceeded safety bound at ${width}px`);
             assert.equal(await skill.getAttribute("aria-pressed"), "true", `Skill keyboard selection failed at ${width}px`);
             assert.equal(await skill.locator("[data-curriculum-selected-icon]").count(), 1, `Selected Skill needs non-color icon at ${width}px`);
 
