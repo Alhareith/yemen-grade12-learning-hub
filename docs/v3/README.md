@@ -43,6 +43,8 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `21-stage5-shell-state.md` | Stage 5F one-time Curriculum ↔ Practice return-state and AppShell lifecycle integration |
 | `22-stage5-responsive-accessibility.md` | Stage 5G Curriculum responsive/accessibility hardening and eight-width browser contract |
 | `23-stage5-regression-protected-legacy.md` | Stage 5H protected Legacy/data diff guard and full regression verification |
+| `24-curriculum-contract.md` | **canonical frozen Stage 5 Curriculum Experience contract** |
+| `25-stage5-closure.md` | Stage 5 closure evidence and Stage 6 handoff |
 
 ## Stage snapshots
 
@@ -53,6 +55,6 @@ For current visual-system rules, use `11-design-system-contract.md`.
 For current application-shell, routing, navigation and shell-lifecycle rules, use `14-app-shell-contract.md`.
 
 
-For Stage 5 Curriculum work, `16-stage5-curriculum-boundary.md` is the current stage baseline. It remains subordinate to `01-architecture.md`, `02-legacy-boundary.md`, `11-design-system-contract.md`, and `14-app-shell-contract.md` until the final Stage 5 contract is frozen.
+For current Curriculum behavior after Stage 5, use `24-curriculum-contract.md`. Stage 5 files 16–23 remain implementation snapshots, audit evidence and rationale.
 
-Stage 5 implementation after 5B must consume both `16-stage5-curriculum-boundary.md` and `17-stage5-curriculum-ux-contract.md`; neither supersedes the frozen Architecture, Legacy, Design System or AppShell contracts.
+Later stages must consume the frozen Architecture, Legacy, Design System, AppShell and Curriculum contracts together rather than reviving an earlier Stage 5 snapshot.
