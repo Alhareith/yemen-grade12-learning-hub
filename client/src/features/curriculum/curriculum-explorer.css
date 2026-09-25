@@ -93,7 +93,9 @@
 }
 
 [data-v3-ui] .v3-curriculum__focus-heading:focus {
-  outline: none;
+  border-radius: var(--v3-radius-compact);
+  outline: 3px solid color-mix(in srgb, var(--v3-color-primary-bright) 34%, transparent);
+  outline-offset: 4px;
 }
 
 [data-v3-ui] .v3-curriculum__step,
@@ -134,7 +136,7 @@
   gap: var(--v3-space-1);
   min-width: 0;
   margin-block-end: var(--v3-space-3);
-  color: color-mix(in srgb, var(--v3-color-ink) 62%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
   font-size: var(--v3-type-meta-size);
   line-height: var(--v3-type-meta-line);
   font-weight: var(--v3-font-weight-medium);
@@ -205,7 +207,7 @@
 }
 
 [data-v3-ui] .v3-curriculum__nav-copy small {
-  color: color-mix(in srgb, var(--v3-color-ink) 60%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
   font-size: var(--v3-type-meta-size);
   line-height: var(--v3-type-meta-line);
   font-weight: var(--v3-font-weight-medium);
@@ -276,7 +278,7 @@
 }
 
 [data-v3-ui] .v3-curriculum__empty span {
-  color: color-mix(in srgb, var(--v3-color-ink) 62%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
   font-size: var(--v3-type-body-size);
   line-height: var(--v3-type-body-line);
 }
@@ -306,7 +308,7 @@
   gap: 2px;
   padding: var(--v3-space-2) var(--v3-space-3);
   background: var(--v3-color-search);
-  color: color-mix(in srgb, var(--v3-color-ink) 62%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
   font-size: var(--v3-type-meta-size);
   line-height: var(--v3-type-meta-line);
 }
@@ -341,7 +343,7 @@
 [data-v3-ui] .v3-curriculum__skills-heading p,
 [data-v3-ui] .v3-curriculum__actions-heading p {
   margin: var(--v3-space-1) 0 0;
-  color: color-mix(in srgb, var(--v3-color-ink) 65%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
   font-size: var(--v3-type-meta-size);
   line-height: var(--v3-type-meta-line);
 }
@@ -378,7 +380,7 @@
 }
 
 [data-v3-ui] .v3-curriculum__single-skill small {
-  color: color-mix(in srgb, var(--v3-color-ink) 62%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
   font-size: var(--v3-type-meta-size);
   line-height: var(--v3-type-meta-line);
 }
@@ -396,6 +398,12 @@
   border-radius: var(--v3-radius-medium);
   padding-block: var(--v3-space-2);
   text-align: start;
+}
+
+[data-v3-ui] .v3-curriculum__skill-list .v3-chip > svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
 }
 
 [data-v3-ui] .v3-curriculum__skill-list .v3-chip > span {
@@ -465,7 +473,7 @@
 
 [data-v3-ui] .v3-curriculum__availability-note p {
   margin: var(--v3-space-1) 0 0;
-  color: color-mix(in srgb, var(--v3-color-ink) 65%, white);
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
   font-size: var(--v3-type-meta-size);
   line-height: var(--v3-type-meta-line);
 }
@@ -540,7 +548,7 @@
 
   [data-v3-ui] .v3-curriculum__desktop-subject small,
   [data-v3-ui] .v3-curriculum__desktop-subject span {
-    color: color-mix(in srgb, var(--v3-color-ink) 60%, white);
+    color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
     font-size: var(--v3-type-meta-size);
     line-height: var(--v3-type-meta-line);
   }
@@ -629,7 +637,7 @@
   [data-v3-ui] .v3-curriculum__desktop-placeholder p {
     max-width: 460px;
     margin: var(--v3-space-1) auto 0;
-    color: color-mix(in srgb, var(--v3-color-ink) 65%, white);
+    color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
     font-size: var(--v3-type-body-size);
     line-height: var(--v3-type-body-line);
   }

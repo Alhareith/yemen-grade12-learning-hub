@@ -1,0 +1,409 @@
+name: V3 curriculum responsive accessibility
+
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/v3-curriculum-experience"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  curriculum-quality:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify typecheck tests and production build
+        run: pnpm verify
+
+      - name: Install isolated browser driver
+        run: |
+          mkdir -p /tmp/v3-curriculum-quality
+          cd /tmp/v3-curriculum-quality
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
+
+      - name: Start production preview
+        run: |
+          GITHUB_ACTIONS=false pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/v3-curriculum-quality-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/v3-curriculum-quality-preview.log
+          exit 1
+
+      - name: Verify Curriculum responsive and accessibility contract
+        run: |
+          cd /tmp/v3-curriculum-quality
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import fs from "node:fs";
+          import { chromium } from "playwright-core";
+
+          const baseUrl = "http://127.0.0.1:4173/";
+          const widths = [360, 390, 430, 768, 1024, 1280, 1440, 1536];
+
+          const browser = await chromium.launch({
+            executablePath: "/usr/bin/google-chrome",
+            headless: true,
+            args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          });
+
+          const reports = [];
+          const failures = [];
+
+          const attachFailureCollectors = (page, bucket) => {
+            page.on("requestfailed", (request) => {
+              if (request.url().startsWith(baseUrl)) {
+                bucket.requests.push(`${request.url()} :: ${request.failure()?.errorText ?? "failed"}`);
+              }
+            });
+            page.on("pageerror", (error) => bucket.pages.push(error.message));
+            page.on("console", (message) => {
+              if (message.type() === "error") bucket.console.push(message.text());
+            });
+          };
+
+          const assertNoOverflow = async (page, context) => {
+            const metrics = await page.evaluate(() => {
+              const overflowNodes = [...document.querySelectorAll("[data-curriculum-explorer] *")]
+                .map((node) => {
+                  const rect = node.getBoundingClientRect();
+                  const style = getComputedStyle(node);
+                  return {
+                    tag: node.tagName,
+                    className: typeof node.className === "string" ? node.className : "",
+                    left: Math.round(rect.left),
+                    right: Math.round(rect.right),
+                    width: Math.round(rect.width),
+                    display: style.display,
+                    position: style.position,
+                  };
+                })
+                .filter((node) =>
+                  node.display !== "none"
+                  && node.position !== "fixed"
+                  && (node.left < -1 || node.right > window.innerWidth + 1)
+                )
+                .slice(0, 12);
+
+              return {
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                overflowNodes,
+              };
+            });
+
+            assert.ok(
+              metrics.scrollWidth <= metrics.innerWidth,
+              `${context} overflow: ${JSON.stringify(metrics)}`,
+            );
+          };
+
+          const assertTouchTargets = async (page, context) => {
+            const failures = await page.locator("[data-curriculum-explorer] button:visible").evaluateAll((nodes) =>
+              nodes
+                .map((node) => {
+                  const rect = node.getBoundingClientRect();
+                  return {
+                    label: (node.getAttribute("aria-label") ?? node.textContent ?? "").trim(),
+                    width: Math.round(rect.width * 100) / 100,
+                    height: Math.round(rect.height * 100) / 100,
+                  };
+                })
+                .filter((item) => item.width < 44 || item.height < 44),
+            );
+            assert.deepEqual(failures, [], `${context} touch targets below 44px: ${JSON.stringify(failures)}`);
+          };
+
+          const assertNamesAndImages = async (page, context) => {
+            const unnamed = await page.locator("[data-curriculum-explorer] button:visible").evaluateAll((nodes) =>
+              nodes
+                .filter((node) => !(node.getAttribute("aria-label") ?? node.textContent ?? "").trim())
+                .map((node) => node.outerHTML.slice(0, 180)),
+            );
+            assert.deepEqual(unnamed, [], `${context} unnamed buttons: ${JSON.stringify(unnamed)}`);
+
+            const missingAlt = await page.locator("[data-curriculum-explorer] img").evaluateAll((nodes) =>
+              nodes.filter((node) => !node.hasAttribute("alt")).map((node) => node.outerHTML.slice(0, 180)),
+            );
+            assert.deepEqual(missingAlt, [], `${context} images missing alt: ${JSON.stringify(missingAlt)}`);
+          };
+
+          const luminance = ([r, g, b]) => {
+            const parts = [r, g, b].map((value) => {
+              const x = value / 255;
+              return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+            });
+            return parts[0] * 0.2126 + parts[1] * 0.7152 + parts[2] * 0.0722;
+          };
+
+          const contrastRatio = (a, b) => {
+            const first = luminance(a);
+            const second = luminance(b);
+            return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+          };
+
+          const parseRgb = (value) => (value.match(/\d+(?:\.\d+)?/g) ?? []).slice(0, 3).map(Number);
+
+          const assertContrast = async (locator, backgroundLocator, context) => {
+            const values = await locator.evaluate((node, backgroundSelector) => {
+              const background = node.closest(backgroundSelector);
+              if (!(node instanceof HTMLElement) || !(background instanceof HTMLElement)) return null;
+              const style = getComputedStyle(node);
+              const backgroundStyle = getComputedStyle(background);
+              return {
+                foreground: style.color,
+                background: backgroundStyle.backgroundColor,
+              };
+            }, backgroundLocator);
+            assert.ok(values, `${context} contrast nodes missing`);
+            const ratio = contrastRatio(parseRgb(values.foreground), parseRgb(values.background));
+            assert.ok(ratio >= 4.5, `${context} contrast below 4.5:1 (${ratio.toFixed(2)}) ${JSON.stringify(values)}`);
+            return ratio;
+          };
+
+          const activate = async (locator, keyboard) => {
+            if (keyboard) {
+              await locator.focus();
+              await locator.press("Enter");
+            } else {
+              await locator.click();
+            }
+          };
+
+          for (const width of widths) {
+            const height = width === 390 ? 844 : width === 1536 ? 1024 : width >= 1200 ? 1024 : 900;
+            const keyboard = width === 390 || width === 1536;
+            const page = await browser.newPage({ viewport: { width, height } });
+            const localFailures = { requests: [], pages: [], console: [] };
+            attachFailureCollectors(page, localFailures);
+
+            await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+            await page.locator("[data-curriculum-explorer]").waitFor();
+            await page.evaluate(() => document.fonts.ready);
+
+            const root = page.locator("[data-curriculum-explorer]");
+            assert.equal(await root.getAttribute("dir"), "rtl", `Curriculum dir must be RTL at ${width}px`);
+            assert.equal(await root.getAttribute("lang"), "ar", `Curriculum lang must be ar at ${width}px`);
+            assert.equal(await root.getAttribute("data-curriculum-stage"), "subjects");
+            assert.equal(await root.getByRole("heading", { level: 1 }).count(), 1, `Expected one Curriculum H1 at ${width}px`);
+
+            const subjectGridColumns = await page.locator("[data-curriculum-subject-grid]").evaluate((node) =>
+              getComputedStyle(node).gridTemplateColumns.split(" ").length
+            );
+            assert.equal(subjectGridColumns, width < 900 ? 2 : 4, `Unexpected Subject columns at ${width}px`);
+
+            await assertNoOverflow(page, `Subject index ${width}px`);
+            await assertTouchTargets(page, `Subject index ${width}px`);
+            await assertNamesAndImages(page, `Subject index ${width}px`);
+
+            await activate(page.locator('[data-curriculum-subject="رياضيات"] button'), keyboard);
+            await page.locator("[data-curriculum-unit-list]").waitFor();
+            assert.equal(await root.getAttribute("data-curriculum-stage"), "units");
+
+            const focusedUnitHeading = await page.evaluate(() => {
+              const element = document.activeElement;
+              if (!(element instanceof HTMLElement)) return null;
+              const style = getComputedStyle(element);
+              return {
+                id: element.id,
+                outlineStyle: style.outlineStyle,
+                outlineWidth: style.outlineWidth,
+              };
+            });
+            assert.equal(focusedUnitHeading?.id, "curriculum-units-heading", `Unit heading should receive focus at ${width}px`);
+            assert.notEqual(focusedUnitHeading?.outlineStyle, "none", `Unit heading focus outline missing at ${width}px`);
+            assert.notEqual(focusedUnitHeading?.outlineWidth, "0px", `Unit heading focus outline width missing at ${width}px`);
+
+            const secondaryContrast = await assertContrast(
+              page.locator("[data-curriculum-unit-list] .v3-curriculum__nav-copy small").first(),
+              ".v3-curriculum__nav-item",
+              `Unit secondary text ${width}px`,
+            );
+
+            await activate(page.locator('[data-curriculum-unit="math-algebra-geometry-probability"]'), keyboard);
+            await page.locator("[data-curriculum-lesson-list]").waitFor();
+            assert.equal(await root.getAttribute("data-curriculum-stage"), "lessons");
+            assert.equal(await page.locator('[data-curriculum-unit="math-algebra-geometry-probability"]').getAttribute("aria-pressed"), "true");
+
+            await activate(page.locator('[data-curriculum-lesson="math-algebra-geometry-probability:CPLX-NUMBER"]'), keyboard);
+            await page.locator("[data-skill-detail]").waitFor();
+            assert.equal(await root.getAttribute("data-curriculum-stage"), "detail");
+            assert.equal(await page.locator('[data-curriculum-lesson="math-algebra-geometry-probability:CPLX-NUMBER"]').getAttribute("aria-pressed"), "true");
+
+            const focusedDetailHeading = await page.evaluate(() => {
+              const element = document.activeElement;
+              if (!(element instanceof HTMLElement)) return null;
+              const style = getComputedStyle(element);
+              return {
+                id: element.id,
+                outlineStyle: style.outlineStyle,
+                outlineWidth: style.outlineWidth,
+              };
+            });
+            assert.equal(focusedDetailHeading?.id, "curriculum-detail-heading", `Lesson heading should receive focus at ${width}px`);
+            assert.notEqual(focusedDetailHeading?.outlineStyle, "none", `Lesson heading focus outline missing at ${width}px`);
+            assert.notEqual(focusedDetailHeading?.outlineWidth, "0px", `Lesson heading focus width missing at ${width}px`);
+
+            if (width < 900) {
+              assert.equal(await page.locator("[data-curriculum-panel]:visible").count(), 1, `Mobile/compact should expose one Curriculum panel at ${width}px`);
+              assert.equal(await page.locator(".v3-curriculum__back:visible").count(), 1, `Expected local hierarchy back at ${width}px`);
+            } else {
+              assert.equal(await page.locator("[data-curriculum-panel=\"units\"]").isVisible(), true);
+              assert.equal(await page.locator("[data-curriculum-panel=\"lessons\"]").isVisible(), true);
+              assert.equal(await page.locator("[data-curriculum-panel=\"detail\"]").isVisible(), true);
+              assert.equal(await page.locator(".v3-curriculum__back:visible").count(), 0, `Desktop must not duplicate hierarchy back controls at ${width}px`);
+
+              const workspaceColumns = await page.locator("[data-curriculum-desktop-workspace]").evaluate((node) =>
+                getComputedStyle(node).gridTemplateColumns.split(" ").length
+              );
+              assert.equal(workspaceColumns, width < 1200 ? 2 : 3, `Unexpected desktop workspace columns at ${width}px`);
+            }
+
+            const detailContrast = await assertContrast(
+              page.locator(".v3-curriculum__single-skill small"),
+              ".v3-curriculum__single-skill",
+              `Lesson secondary text ${width}px`,
+            );
+
+            await assertNoOverflow(page, `Lesson detail ${width}px`);
+            await assertTouchTargets(page, `Lesson detail ${width}px`);
+            await assertNamesAndImages(page, `Lesson detail ${width}px`);
+
+            if (width === 390) {
+              await page.screenshot({
+                path: `${process.env.GITHUB_WORKSPACE}/v3-curriculum-mobile-390x844.png`,
+                fullPage: false,
+              });
+            }
+            if (width === 1536) {
+              await page.screenshot({
+                path: `${process.env.GITHUB_WORKSPACE}/v3-curriculum-desktop-1536x1024.png`,
+                fullPage: false,
+              });
+            }
+
+            await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+            await page.locator("[data-curriculum-explorer]").waitFor();
+            await page.locator('[data-curriculum-subject="لغة إنجليزية"] button').click();
+            await page.locator('[data-curriculum-unit="english-grammar-review"]').click();
+            assert.equal(await root.getAttribute("data-curriculum-mapping-status"), "unit-only");
+            assert.equal(await page.locator("[data-curriculum-lesson-list]").count(), 0, `unit-only must not fabricate Lessons at ${width}px`);
+            assert.equal(await page.locator("[data-skill-detail]").count(), 0, `unit-only must not fabricate Lesson detail at ${width}px`);
+            await page.getByText("تفاصيل الدروس لم تُعتمد بعد.", { exact: true }).waitFor();
+            await assertNoOverflow(page, `unit-only ${width}px`);
+
+            if (localFailures.requests.length || localFailures.pages.length || localFailures.console.length) {
+              failures.push({ width, ...localFailures });
+            }
+
+            reports.push({
+              width,
+              height,
+              subjectColumns: subjectGridColumns,
+              workspace: width < 900 ? "progressive" : width < 1200 ? "desktop-2-region" : "desktop-3-region",
+              touchTargets: "pass",
+              keyboard: keyboard ? "pass" : "covered-canonical",
+              focusTransfer: "pass",
+              overflow: "pass",
+              unitOnly: "pass",
+              secondaryContrast: Number(secondaryContrast.toFixed(2)),
+              detailContrast: Number(detailContrast.toFixed(2)),
+            });
+
+            await page.close();
+          }
+
+          for (const width of [390, 1536]) {
+            const height = width === 390 ? 844 : 1024;
+            const page = await browser.newPage({ viewport: { width, height }, reducedMotion: "reduce" });
+            await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+            await page.locator("[data-curriculum-explorer]").waitFor();
+            await page.locator('[data-curriculum-subject="رياضيات"] button').click();
+            await page.locator('[data-curriculum-unit="math-calculus"]').click();
+            await page.locator('[data-curriculum-lesson="math-calculus:CHAIN-RULE"]').click();
+            await page.locator('[data-curriculum-skill="DER-CHAIN"]').waitFor();
+
+            const skill = page.locator('[data-curriculum-skill="DER-CHAIN"]');
+            await skill.focus();
+            await skill.press("Space");
+            assert.equal(await skill.getAttribute("aria-pressed"), "true", `Skill keyboard selection failed at ${width}px`);
+            assert.equal(await skill.locator("[data-curriculum-selected-icon]").count(), 1, `Selected Skill needs non-color icon at ${width}px`);
+
+            const skillFocus = await skill.evaluate((node) => {
+              const style = getComputedStyle(node);
+              return { outlineStyle: style.outlineStyle, outlineWidth: style.outlineWidth };
+            });
+            assert.notEqual(skillFocus.outlineStyle, "none", `Skill focus outline missing at ${width}px`);
+            assert.notEqual(skillFocus.outlineWidth, "0px", `Skill focus outline width missing at ${width}px`);
+
+            const reducedMotion = await page.locator("[data-curriculum-explorer] button:visible").evaluateAll((nodes) =>
+              nodes.map((node) => {
+                const style = getComputedStyle(node);
+                return {
+                  transition: style.transitionDuration,
+                  animation: style.animationDuration,
+                };
+              }),
+            );
+            const seconds = (value) => Math.max(...String(value || "0s").split(",").map((part) => {
+              const trimmed = part.trim();
+              if (trimmed.endsWith("ms")) return (Number.parseFloat(trimmed) || 0) / 1000;
+              return Number.parseFloat(trimmed) || 0;
+            }));
+            assert.equal(
+              reducedMotion.every((item) => seconds(item.transition) <= 0.001 && seconds(item.animation) <= 0.001),
+              true,
+              `Reduced motion must suppress Curriculum control motion at ${width}px: ${JSON.stringify(reducedMotion)}`,
+            );
+
+            await skill.press("Space");
+            assert.equal(await skill.getAttribute("aria-pressed"), "false", `Skill keyboard deselection failed at ${width}px`);
+            assert.equal(await skill.locator("[data-curriculum-selected-icon]").count(), 0, `Deselected Skill icon must clear at ${width}px`);
+
+            await page.close();
+          }
+
+          assert.deepEqual(failures, [], JSON.stringify(failures, null, 2));
+
+          fs.writeFileSync(
+            `${process.env.GITHUB_WORKSPACE}/v3-curriculum-quality-report.json`,
+            JSON.stringify({ widths: reports, canonicalKeyboardWidths: [390, 1536] }, null, 2) + "\n",
+          );
+
+          await browser.close();
+          NODE
+
+      - name: Upload Curriculum quality evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-curriculum-responsive-accessibility
+          path: |
+            v3-curriculum-mobile-390x844.png
+            v3-curriculum-desktop-1536x1024.png
+            v3-curriculum-quality-report.json
+          if-no-files-found: error
+          retention-days: 14

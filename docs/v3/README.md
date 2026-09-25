@@ -41,6 +41,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `19-stage5-desktop-curriculum.md` | Stage 5D desktop Curriculum workspace implementation and verification |
 | `20-stage5-lesson-detail-actions.md` | Stage 5E Lesson detail, optional Skill and truthful Prompt/Practice action implementation |
 | `21-stage5-shell-state.md` | Stage 5F one-time Curriculum ↔ Practice return-state and AppShell lifecycle integration |
+| `22-stage5-responsive-accessibility.md` | Stage 5G Curriculum responsive/accessibility hardening and eight-width browser contract |
 
 ## Stage snapshots
 

@@ -687,6 +687,12 @@ export default function CurriculumExplorer({
                             selected={activeSkill?.id === skill.id}
                             tone="primary"
                           >
+                            {activeSkill?.id === skill.id ? (
+                              <CheckCircle2
+                                aria-hidden="true"
+                                data-curriculum-selected-icon
+                              />
+                            ) : null}
                             <span>{skill.title}</span>
                             <small>
                               {optionSet ? "تدريب متاح" : "شرح فقط حاليًا"}
