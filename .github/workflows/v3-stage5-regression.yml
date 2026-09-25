@@ -1,0 +1,131 @@
+name: V3 Stage 5 regression boundary
+
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/v3-curriculum-experience"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stage5-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch main baseline
+        run: git fetch origin main --no-tags
+
+      - name: Verify Stage 5 protected and data boundaries
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE="origin/main"
+          REPORT="$GITHUB_WORKSPACE/v3-stage5-protected-boundary-report.json"
+          CHANGED="$RUNNER_TEMP/v3-stage5-protected-changed.txt"
+
+          protected_paths=(
+            "client/src/pages/ExamPilot.tsx"
+            "client/src/components/ExamRunner.tsx"
+            "client/src/components/ExamResultReport.tsx"
+            "client/src/components/LearningDashboard.tsx"
+            "client/src/components/ArabicExamTypography.tsx"
+            "client/src/components/ArabicRichContent.tsx"
+            "client/src/exams/session-storage.ts"
+            "client/src/lib/arabic-math.ts"
+            "client/src/arabic-math.css"
+            "shared/exams"
+            "client/src/data/curriculum.ts"
+            "client/src/data/curriculumStructure.ts"
+            "client/src/data/practiceBank.ts"
+            "client/src/data/promptCatalog.ts"
+          )
+
+          git diff --name-only "$BASE" HEAD -- "${protected_paths[@]}" > "$CHANGED"
+
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          import { execFileSync } from "node:child_process";
+
+          const changedFile = process.env.RUNNER_TEMP + "/v3-stage5-protected-changed.txt";
+          const changed = fs.existsSync(changedFile)
+            ? fs.readFileSync(changedFile, "utf8").split("\n").map((item) => item.trim()).filter(Boolean)
+            : [];
+
+          const report = {
+            base: execFileSync("git", ["rev-parse", "origin/main"], { encoding: "utf8" }).trim(),
+            head: execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim(),
+            protectedLegacy: [
+              "client/src/pages/ExamPilot.tsx",
+              "client/src/components/ExamRunner.tsx",
+              "client/src/components/ExamResultReport.tsx",
+              "client/src/components/LearningDashboard.tsx",
+              "client/src/components/ArabicExamTypography.tsx",
+              "client/src/components/ArabicRichContent.tsx",
+              "client/src/exams/session-storage.ts",
+              "client/src/lib/arabic-math.ts",
+              "client/src/arabic-math.css",
+              "shared/exams/**"
+            ],
+            preservedData: [
+              "client/src/data/curriculum.ts",
+              "client/src/data/curriculumStructure.ts",
+              "client/src/data/practiceBank.ts",
+              "client/src/data/promptCatalog.ts"
+            ],
+            changed,
+            status: changed.length === 0 ? "pass" : "fail"
+          };
+
+          fs.writeFileSync(
+            process.env.GITHUB_WORKSPACE + "/v3-stage5-protected-boundary-report.json",
+            JSON.stringify(report, null, 2) + "\n",
+          );
+          console.log(JSON.stringify(report, null, 2));
+
+          if (changed.length > 0) {
+            throw new Error("Stage 5 protected/data boundary changed: " + changed.join(", "));
+          }
+          NODE
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify typecheck tests and production build
+        run: pnpm verify
+
+      - name: Verify GitHub Pages static build mode
+        run: GITHUB_ACTIONS=true pnpm build
+
+      - name: Verify protected Arabic Math stylesheet contract
+        run: |
+          grep -q '.arabic-math-wrap math' client/src/arabic-math.css
+          grep -q '"STIX Two Math"' client/src/arabic-math.css
+          grep -q 'unicode-bidi: isolate' client/src/arabic-math.css
+
+      - name: Upload Stage 5 regression boundary evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-stage5-regression-boundary
+          path: v3-stage5-protected-boundary-report.json
+          if-no-files-found: error
+          retention-days: 14

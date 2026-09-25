@@ -42,6 +42,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `20-stage5-lesson-detail-actions.md` | Stage 5E Lesson detail, optional Skill and truthful Prompt/Practice action implementation |
 | `21-stage5-shell-state.md` | Stage 5F one-time Curriculum ↔ Practice return-state and AppShell lifecycle integration |
 | `22-stage5-responsive-accessibility.md` | Stage 5G Curriculum responsive/accessibility hardening and eight-width browser contract |
+| `23-stage5-regression-protected-legacy.md` | Stage 5H protected Legacy/data diff guard and full regression verification |
 
 ## Stage snapshots
 
