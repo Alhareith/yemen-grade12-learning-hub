@@ -210,7 +210,9 @@ jobs:
           assert.equal(await page.getByText("CPLX-NUMBER-USE", { exact: true }).count(), 0, "Technical skill id should not be student-visible");
           assert.ok((await page.locator("[data-skill-prompt-action]").innerText()).includes("اشرح هذا الدرس"));
           assert.ok((await page.locator("[data-skill-practice-action]").innerText()).includes("تدرّب على هذه المهارة"));
-          assert.ok((await page.locator("[data-curriculum-lesson-summary]").innerText()).includes("١"));
+          const lessonSummaryText = await page.locator("[data-curriculum-lesson-summary]").innerText();
+          assert.ok(lessonSummaryText.includes("مهارة موثقة"), "Expected verified Skill summary");
+          assert.ok(lessonSummaryText.includes("تدريب جاهز"), "Expected ready Practice summary");
           assert.equal(await page.getByText("مصادر مرتبطة بهذا الدرس", { exact: true }).count(), 0, "Inherited sources must not be labeled as Lesson-specific");
 
           const mobileOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
