@@ -234,6 +234,14 @@ jobs:
           await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
 
+          await page.locator("[data-arabic-exam] math").first().waitFor();
+          await page.locator("[data-arabic-exam] .arabic-math-wrap").first().waitFor();
+          const mathCount1 = await page.locator("[data-arabic-exam] math").count();
+          const enhancedMathCount1 = await page.locator("[data-arabic-exam] .arabic-math-wrap").count();
+          assert.ok(mathCount1 > 0, "Expected MathML in protected model 1 question");
+          assert.ok(enhancedMathCount1 > 0, "Expected Arabic math enhancement in model 1");
+          await page.screenshot({ path: exam1EvidencePath, fullPage: false });
+
           const model1StorageKey = "yemen-grade12:exam-session:v2:MATH-CALC-2020-ADAPTED-PILOT-01";
           await page.waitForFunction(
             (key) => window.localStorage.getItem(key) !== null,
@@ -247,12 +255,6 @@ jobs:
           assert.equal(await page.locator("[data-app-shell]").count(), 0, "Recovered ExamPilot session must remain outside AppShell");
           await page.getByRole("button", { name: "متابعة المحاولة", exact: true }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
-
-          const mathCount1 = await page.locator("[data-arabic-exam] math").count();
-          const enhancedMathCount1 = await page.locator("[data-arabic-exam] .arabic-math-wrap").count();
-          assert.ok(mathCount1 > 0, "Expected MathML in protected model 1 question");
-          assert.ok(enhancedMathCount1 > 0, "Expected Arabic math enhancement in model 1");
-          await page.screenshot({ path: exam1EvidencePath, fullPage: false });
 
           await page.getByRole("button", { name: "كل النماذج" }).click();
           await page.locator('[data-exam-model="MATH-AGP-GENERAL-MODEL-02"]').click();
