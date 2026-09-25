@@ -34,6 +34,9 @@ jobs:
       - name: Verify typecheck tests and production build
         run: pnpm verify
 
+      - name: Restore Vercel-style build for localhost browser checks
+        run: GITHUB_ACTIONS=false pnpm build
+
       - name: Install isolated browser driver
         run: |
           mkdir -p /tmp/v3-curriculum-quality
