@@ -145,14 +145,6 @@ export default function App() {
                 resetSignal={homeResetSignal}
                 onRouteNavigate={navigateHomeFeature}
               />
-              {route === "home" ? (
-                <a
-                  href={appRouteHash.curriculum}
-                  className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
-                >
-                  تصفح المنهج
-                </a>
-              ) : null}
             </>
           )}
           </ErrorBoundary>
