@@ -49,6 +49,11 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `27-stage5-5-home-visual-ux-contract.md` | Stage 5.5B frozen Home visual/UX implementation contract |
 | `28-stage5-5-mobile-home.md` | Stage 5.5C canonical mobile Home implementation record |
 | `29-stage5-5-desktop-home.md` | Stage 5.5D canonical desktop Home implementation record |
+| `30-stage5-5-route-action-wiring.md` | Stage 5.5E canonical Home route/action semantics |
+| `31-stage5-5-component-asset-fidelity.md` | Stage 5.5F approved asset/component fidelity record |
+| `32-stage5-5-responsive-accessibility-visual-regression.md` | Stage 5.5G eight-width browser/accessibility/visual-regression evidence |
+| `33-home-contract.md` | **canonical frozen Stage 5.5 Home Experience contract** |
+| `34-stage5-5-closure.md` | Stage 5.5 full regression and closure evidence |
 
 ## Stage snapshots
 
@@ -62,3 +67,6 @@ For current application-shell, routing, navigation and shell-lifecycle rules, us
 For current Curriculum behavior after Stage 5, use `24-curriculum-contract.md`. Stage 5 files 16–23 remain implementation snapshots, audit evidence and rationale.
 
 Later stages must consume the frozen Architecture, Legacy, Design System, AppShell and Curriculum contracts together rather than reviving an earlier Stage 5 snapshot.
+
+
+For current Home behavior after Stage 5.5, use `33-home-contract.md`. Stage 5.5 files 26–32 remain implementation snapshots and evidence; `34-stage5-5-closure.md` records the closure gate.
