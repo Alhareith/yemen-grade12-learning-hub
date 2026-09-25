@@ -1,6 +1,6 @@
 # V3 Stage 5E — Lesson Detail & Actions
 
-Status: **IMPLEMENTATION CANDIDATE — CI PENDING**
+Status: **PASS — 5E LESSON DETAIL & ACTIONS IMPLEMENTED**
 
 Stage 5E completes the Lesson-detail composition and action hierarchy defined by the Stage 5B contract.
 
@@ -149,5 +149,41 @@ Browser Smoke now verifies:
 - AppShell regression remains green;
 - Vercel preview is READY;
 - protected Legacy is untouched.
+
+Stage 5F is not started.
+
+
+---
+
+## 11. 5E closure evidence
+
+Final 5E runtime head before this documentation-only closure:
+
+`e26d13729eea5d8504a80427765eba737fd11213`
+
+Successful checks:
+
+- Validate student experience / push — `36114705106`;
+- Browser smoke test / push — `36114705220`;
+- Validate student experience / pull_request — `36114710977`;
+- Browser smoke test / pull_request — `36114710990`;
+- V3 design system visual validation — `36114710981`;
+- V3 accessibility performance regression — `36114710994`;
+- V3 production shell regression — `36114710992`;
+- Vercel commit status — **success**.
+
+The first 5E Browser Smoke candidate failed only because one assertion depended on the Arabic digit glyph emitted by `Intl.NumberFormat` in CI. The runtime behavior was correct. The assertion was corrected to verify semantic summary labels rather than locale-specific numeral rendering, and the final candidate passed.
+
+Diff from the completed 5D head changes only:
+
+- `client/src/features/curriculum/CurriculumExplorer.tsx`;
+- `client/src/features/curriculum/curriculum-explorer.css`;
+- `.github/workflows/browser-smoke.yml`;
+- `docs/v3/20-stage5-lesson-detail-actions.md`;
+- `docs/v3/README.md`.
+
+No protected Legacy file changed.
+
+**Stage 5E: PASS.**
 
 Stage 5F is not started.
