@@ -81,6 +81,68 @@ jobs:
           const reports = [];
           const failures = [];
 
+          const parseHex = (value) => {
+            const hex = value.replace("#", "");
+            return [0, 2, 4].map(index => Number.parseInt(hex.slice(index, index + 2), 16));
+          };
+          const mix = (foreground, amount, background = "#ffffff") => {
+            const a = parseHex(foreground);
+            const b = parseHex(background);
+            return a.map((value, index) => Math.round(value * amount + b[index] * (1 - amount)));
+          };
+          const luminance = (rgb) => {
+            const linear = rgb.map(value => {
+              const channel = value / 255;
+              return channel <= 0.03928
+                ? channel / 12.92
+                : ((channel + 0.055) / 1.055) ** 2.4;
+            });
+            return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+          };
+          const contrastRatio = (foreground, background) => {
+            const first = luminance(Array.isArray(foreground) ? foreground : parseHex(foreground));
+            const second = luminance(Array.isArray(background) ? background : parseHex(background));
+            return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+          };
+
+          const homeCss = fs.readFileSync(
+            `${process.env.GITHUB_WORKSPACE}/client/src/features/home/home-experience.css`,
+            "utf8",
+          );
+          assert.match(
+            homeCss,
+            /\.v3-home-button--primary[\s\S]*?var\(--v3-color-primary\)[\s\S]*?var\(--v3-color-primary-strong\)/,
+            "Home primary CTA must keep the accessible Primary → Primary Strong gradient",
+          );
+          assert.doesNotMatch(
+            homeCss,
+            /color-mix\(in srgb, var\(--v3-color-ink\) (?:5[0-9]|6[0-7])%/,
+            "Small Home secondary text must not use an Ink/white mix below 68%",
+          );
+
+          const ink = "#0F2A68";
+          const secondary72 = mix(ink, 0.72);
+          const secondary68 = mix(ink, 0.68);
+          const lightSurfaces = ["#E8F3FE", "#E9FAF1", "#FFF5DD", "#F0EBFD", "#FFFFFF"];
+          for (const surface of lightSurfaces) {
+            assert.ok(
+              contrastRatio(secondary72, surface) >= 4.5,
+              `72% Ink secondary text contrast failed on ${surface}`,
+            );
+          }
+          for (const surface of ["#EFF8FF", "#FFFFFF"]) {
+            assert.ok(
+              contrastRatio(secondary68, surface) >= 4.5,
+              `68% Ink curriculum text contrast failed on ${surface}`,
+            );
+          }
+          for (const buttonBackground of ["#0B4FBF", "#073EA5"]) {
+            assert.ok(
+              contrastRatio("#FFFFFF", buttonBackground) >= 4.5,
+              `Primary Home CTA contrast failed on ${buttonBackground}`,
+            );
+          }
+
           const attachFailures = (page, bucket) => {
             page.on("requestfailed", request => {
               if (request.url().startsWith(baseUrl)) {
@@ -269,6 +331,7 @@ jobs:
               touchTargets: "pass",
               images: "pass",
               routes: "pass",
+              contrast: "pass",
             });
 
             await page.close();
