@@ -1,0 +1,94 @@
+[data-v3-ui].v3-route-state {
+  min-height: 45vh;
+  padding: var(--v3-space-5) var(--v3-content-padding);
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  background: var(--v3-color-page);
+  color: var(--v3-color-ink);
+}
+
+[data-v3-ui].v3-route-state--standalone {
+  min-height: 100vh;
+}
+
+[data-v3-ui] .v3-route-loading__content {
+  display: grid;
+  justify-items: center;
+  gap: var(--v3-space-3);
+  text-align: center;
+}
+
+[data-v3-ui] .v3-route-loading__spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid var(--v3-color-border);
+  border-top-color: var(--v3-color-primary);
+  border-radius: 999px;
+  animation: v3-route-loading-spin 700ms linear infinite;
+}
+
+[data-v3-ui] .v3-route-loading__content p {
+  margin: 0;
+  color: color-mix(in srgb, var(--v3-color-ink) 68%, white);
+  font-size: var(--v3-type-meta-size);
+  line-height: var(--v3-type-meta-line);
+  font-weight: var(--v3-font-weight-semibold);
+}
+
+[data-v3-ui] .v3-route-error {
+  width: min(100%, 560px);
+  text-align: center;
+}
+
+[data-v3-ui] .v3-route-error__icon {
+  width: 48px;
+  height: 48px;
+  margin-inline: auto;
+  border-radius: var(--v3-radius-medium);
+  display: grid;
+  place-items: center;
+  background: var(--v3-color-warning-surface);
+  color: var(--v3-color-warning);
+}
+
+[data-v3-ui] .v3-route-error__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+[data-v3-ui] .v3-route-error h1 {
+  margin: var(--v3-space-4) 0 0;
+  color: var(--v3-color-navy);
+  font-size: var(--v3-type-h2-size);
+  line-height: var(--v3-type-h2-line);
+  font-weight: var(--v3-type-h2-weight);
+}
+
+[data-v3-ui] .v3-route-error p {
+  margin: var(--v3-space-2) auto 0;
+  max-width: 46ch;
+  color: color-mix(in srgb, var(--v3-color-ink) 72%, white);
+  font-size: var(--v3-type-body-size);
+  line-height: var(--v3-type-body-line);
+}
+
+[data-v3-ui] .v3-route-error__actions {
+  margin-top: var(--v3-space-5);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--v3-space-2);
+}
+
+@keyframes v3-route-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-v3-ui] .v3-route-loading__spinner {
+    animation: none;
+  }
+}

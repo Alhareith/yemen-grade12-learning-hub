@@ -1,0 +1,327 @@
+name: V3 production shell regression
+
+on:
+  push:
+    branches:
+      - "main"
+      - "feature/v3-app-shell"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  shell-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build production static output
+        run: GITHUB_ACTIONS=false pnpm build
+
+      - name: Install isolated browser driver
+        run: |
+          mkdir -p /tmp/v3-shell-regression
+          cd /tmp/v3-shell-regression
+          npm init -y >/dev/null 2>&1
+          npm install --no-save playwright-core
+
+      - name: Start production preview
+        run: |
+          GITHUB_ACTIONS=false pnpm exec vite preview --host 127.0.0.1 --port 4173 > /tmp/v3-shell-preview.log 2>&1 &
+          for attempt in {1..30}; do
+            if curl -fsS http://127.0.0.1:4173/ >/dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/v3-shell-preview.log
+          exit 1
+
+      - name: Verify production shell responsive and accessibility contract
+        run: |
+          cd /tmp/v3-shell-regression
+          node --input-type=module <<'NODE'
+          import assert from "node:assert/strict";
+          import fs from "node:fs";
+          import { chromium } from "playwright-core";
+
+          const baseUrl = "http://127.0.0.1:4173/";
+          const widths = [360, 390, 430, 768, 1024, 1280, 1440, 1536];
+          const mobileLabels = ["الرئيسية", "المنهج", "التدريب", "مولد الأوامر", "المزيد"];
+          const routeChecks = [
+            { hash: "", activeLabel: "الرئيسية", ready: async (page) => page.locator("[data-app-shell]").waitFor() },
+            { hash: "#curriculum", activeLabel: "المنهج", ready: async (page) => page.locator("[data-curriculum-explorer]").waitFor() },
+            { hash: "#prompts", activeLabel: "مولد الأوامر", ready: async (page) => page.getByRole("heading", { name: "أوامر اسأل بها أي ذكاء اصطناعي متوفر لديك" }).waitFor() },
+            { hash: "#resources", activeLabel: "المزيد", ready: async (page) => page.getByRole("heading", { name: "مصادر رياضيات" }).waitFor() },
+            { hash: "#practice/CPLX-NUMBER-USE", activeLabel: "التدريب", ready: async (page) => page.locator("[data-practice-page]").waitFor() },
+          ];
+
+          const browser = await chromium.launch({
+            executablePath: "/usr/bin/google-chrome",
+            headless: true,
+            args: ["--no-sandbox", "--disable-dev-shm-usage"],
+          });
+
+          const report = [];
+          const failures = [];
+
+          const attachFailureCollectors = (page, bucket) => {
+            page.on("requestfailed", (request) => {
+              if (request.url().startsWith(baseUrl)) {
+                bucket.requests.push(`${request.url()} :: ${request.failure()?.errorText ?? "failed"}`);
+              }
+            });
+            page.on("pageerror", (error) => bucket.pages.push(error.message));
+            page.on("console", (message) => {
+              if (message.type() === "error") bucket.console.push(message.text());
+            });
+          };
+
+          const assertTouchTargets = async (locator, context) => {
+            const tooSmall = await locator.evaluateAll((nodes) =>
+              nodes
+                .filter((node) => {
+                  const style = getComputedStyle(node);
+                  const rect = node.getBoundingClientRect();
+                  return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+                })
+                .map((node) => {
+                  const rect = node.getBoundingClientRect();
+                  return {
+                    label: (node.textContent ?? node.getAttribute("aria-label") ?? "").trim(),
+                    width: Math.round(rect.width * 100) / 100,
+                    height: Math.round(rect.height * 100) / 100,
+                  };
+                })
+                .filter((item) => item.width < 44 || item.height < 44),
+            );
+            assert.deepEqual(tooSmall, [], `${context} touch targets below 44px: ${JSON.stringify(tooSmall)}`);
+          };
+
+          for (const width of widths) {
+            const height = width === 390 ? 844 : width === 1536 ? 1024 : width >= 1200 ? 1024 : 900;
+            const page = await browser.newPage({ viewport: { width, height } });
+            const localFailures = { requests: [], pages: [], console: [] };
+            attachFailureCollectors(page, localFailures);
+
+            await page.goto(baseUrl, { waitUntil: "domcontentloaded" });
+            await page.locator("[data-app-shell]").waitFor();
+            await page.locator("[data-app-header]").waitFor();
+            await page.evaluate(() => document.fonts.ready);
+
+            assert.equal(await page.locator("[data-app-shell]").count(), 1, `Expected one AppShell at ${width}px`);
+            assert.equal(await page.locator("[data-app-header]").count(), 1, `Expected one AppHeader at ${width}px`);
+            assert.equal(await page.locator("[data-app-shell-content]").count(), 1, `Expected one shell content outlet at ${width}px`);
+            assert.equal(await page.locator("[data-app-shell]").getAttribute("dir"), "rtl");
+            assert.equal(await page.locator("[data-app-shell]").getAttribute("lang"), "ar");
+            assert.equal(await page.locator("main:visible").count(), 1, `Expected one visible main landmark at ${width}px`);
+            assert.equal(await page.locator('nav[aria-label="التنقل الرئيسي"]:visible').count(), 1, `Expected one visible primary navigation landmark at ${width}px`);
+
+            const brand = page.locator("[data-app-header] [data-v3-brand]");
+            assert.equal(await brand.count(), 1, `Expected one brand asset at ${width}px`);
+            assert.equal(await brand.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0), true, `Brand asset failed at ${width}px`);
+
+            const metrics = await page.evaluate(() => {
+              const header = document.querySelector("[data-app-header]");
+              const desktopNav = document.querySelector(".v3-app-header__desktop-nav");
+              const mobileNav = document.querySelector(".v3-mobile-bottom-nav");
+              const mobileSlot = document.querySelector("[data-app-shell-mobile]");
+              const mobileSpacer = document.querySelector("[data-app-shell-mobile-spacer]");
+              const overflowNodes = [...document.querySelectorAll("body *")]
+                .map((node) => {
+                  const rect = node.getBoundingClientRect();
+                  const style = getComputedStyle(node);
+                  return {
+                    tag: node.tagName,
+                    className: typeof node.className === "string" ? node.className : "",
+                    left: Math.round(rect.left),
+                    right: Math.round(rect.right),
+                    width: Math.round(rect.width),
+                    position: style.position,
+                    display: style.display,
+                  };
+                })
+                .filter((node) =>
+                  node.display !== "none"
+                  && node.position !== "fixed"
+                  && (node.left < -1 || node.right > window.innerWidth + 1)
+                )
+                .slice(0, 12);
+
+              return {
+                innerWidth: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                headerHeight: header?.getBoundingClientRect().height ?? 0,
+                desktopNavDisplay: desktopNav ? getComputedStyle(desktopNav).display : "missing",
+                mobileNavDisplay: mobileNav ? getComputedStyle(mobileNav).display : "missing",
+                mobileSlotDisplay: mobileSlot ? getComputedStyle(mobileSlot).display : "missing",
+                mobileSpacerDisplay: mobileSpacer ? getComputedStyle(mobileSpacer).display : "missing",
+                mobileSlotRect: mobileSlot?.getBoundingClientRect() ?? null,
+                mobileSpacerRect: mobileSpacer?.getBoundingClientRect() ?? null,
+                overflowNodes,
+              };
+            });
+
+            assert.ok(
+              metrics.scrollWidth <= metrics.innerWidth,
+              `Horizontal overflow at ${width}px: scrollWidth=${metrics.scrollWidth}, innerWidth=${metrics.innerWidth}, nodes=${JSON.stringify(metrics.overflowNodes)}`,
+            );
+
+            const desktopNav = page.locator(".v3-app-header__desktop-nav");
+            const mobileNav = page.locator(".v3-mobile-bottom-nav");
+            const mobileSlot = page.locator("[data-app-shell-mobile]");
+            const mobileSpacer = page.locator("[data-app-shell-mobile-spacer]");
+
+            if (width < 900) {
+              assert.ok(metrics.headerHeight >= 58, `Mobile header shorter than 58px at ${width}px: ${metrics.headerHeight}`);
+              assert.equal(await desktopNav.isVisible(), false, `Desktop nav should be hidden at ${width}px`);
+              assert.equal(await mobileNav.isVisible(), true, `Mobile nav should be visible at ${width}px`);
+              assert.equal(await mobileNav.getByRole("button").count(), 5, `Expected five mobile nav items at ${width}px`);
+              for (const label of mobileLabels) {
+                assert.equal(await mobileNav.getByRole("button", { name: label, exact: true }).count(), 1, `Missing mobile label ${label} at ${width}px`);
+              }
+              assert.equal(await mobileNav.locator('[aria-current="page"]').count(), 1, `Expected one active mobile destination at ${width}px`);
+              assert.equal(await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).getAttribute("aria-current"), "page");
+              assert.equal(await mobileSlot.isVisible(), true);
+              assert.equal(await mobileSpacer.isVisible(), true);
+
+              const slotBox = await mobileSlot.boundingBox();
+              const spacerBox = await mobileSpacer.boundingBox();
+              assert.ok(slotBox && spacerBox, `Expected mobile shell geometry at ${width}px`);
+              assert.ok(slotBox.height >= 64, `Mobile slot shorter than 64px at ${width}px`);
+              assert.ok(spacerBox.height >= slotBox.height, `Mobile spacer must reserve nav height at ${width}px`);
+              assert.ok(Math.abs(slotBox.y + slotBox.height - height) <= 1, `Mobile nav must be fixed to viewport bottom at ${width}px`);
+
+              await assertTouchTargets(page.locator("[data-app-header] button:visible, .v3-mobile-bottom-nav button:visible"), `Mobile shell ${width}px`);
+            } else {
+              assert.ok(metrics.headerHeight >= 72, `Desktop header shorter than 72px at ${width}px: ${metrics.headerHeight}`);
+              assert.equal(await desktopNav.isVisible(), true, `Desktop nav should be visible at ${width}px`);
+              assert.equal(await desktopNav.getByRole("button").count(), 5, `Expected five desktop nav items at ${width}px`);
+              assert.equal(await desktopNav.locator('[aria-current="page"]').count(), 1, `Expected one active desktop destination at ${width}px`);
+              assert.equal(await desktopNav.getByRole("button", { name: "الرئيسية", exact: true }).getAttribute("aria-current"), "page");
+              assert.equal(await mobileNav.isVisible(), false, `Mobile nav should be hidden at ${width}px`);
+              assert.equal(await mobileSlot.isVisible(), false, `Mobile slot should be hidden at ${width}px`);
+              assert.equal(await mobileSpacer.isVisible(), false, `Mobile spacer should be hidden at ${width}px`);
+
+              await assertTouchTargets(page.locator("[data-app-header] button:visible"), `Desktop shell ${width}px`);
+            }
+
+            if (width === 390 || width === 1536) {
+              const initialHash = new URL(page.url()).hash;
+              await page.keyboard.press("Tab");
+              const focusedSkip = await page.evaluate(() => {
+                const element = document.activeElement;
+                if (!(element instanceof HTMLElement)) return null;
+                const style = getComputedStyle(element);
+                return {
+                  text: element.textContent?.trim() ?? "",
+                  outlineStyle: style.outlineStyle,
+                  outlineWidth: style.outlineWidth,
+                };
+              });
+              assert.equal(focusedSkip?.text, "تجاوز إلى المحتوى", `First keyboard focus should be the skip link at ${width}px`);
+              assert.notEqual(focusedSkip?.outlineStyle, "none", `Skip-link focus outline missing at ${width}px`);
+              assert.notEqual(focusedSkip?.outlineWidth, "0px", `Skip-link focus width missing at ${width}px`);
+              await page.keyboard.press("Enter");
+              assert.equal(new URL(page.url()).hash, initialHash, `Skip link must not mutate route hash at ${width}px`);
+              assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", `Skip link must focus app content at ${width}px`);
+
+              const screenshotPath = width === 390
+                ? `${process.env.GITHUB_WORKSPACE}/v3-shell-mobile-390x844.png`
+                : `${process.env.GITHUB_WORKSPACE}/v3-shell-desktop-1536x1024.png`;
+              await page.screenshot({ path: screenshotPath, fullPage: false });
+            }
+
+            if (localFailures.requests.length || localFailures.pages.length || localFailures.console.length) {
+              failures.push({ width, ...localFailures });
+            }
+
+            report.push({
+              width,
+              height,
+              headerHeight: metrics.headerHeight,
+              navigation: width < 900 ? "mobile" : "desktop",
+              horizontalOverflow: false,
+              touchTargets: "pass",
+              primaryLandmarks: "pass",
+            });
+
+            await page.close();
+          }
+
+          for (const width of [390, 1536]) {
+            const height = width === 390 ? 844 : 1024;
+            const page = await browser.newPage({ viewport: { width, height } });
+            const localFailures = { requests: [], pages: [], console: [] };
+            attachFailureCollectors(page, localFailures);
+
+            for (const check of routeChecks) {
+              await page.goto(`${baseUrl}${check.hash}`, { waitUntil: "domcontentloaded" });
+              await check.ready(page);
+              await page.locator("[data-app-shell]").waitFor();
+
+              assert.equal(await page.locator("[data-app-shell]").count(), 1, `Expected AppShell for ${check.hash || "home"} at ${width}px`);
+              assert.equal(await page.locator("[data-app-header]").count(), 1, `Expected AppHeader for ${check.hash || "home"} at ${width}px`);
+
+              const nav = width < 900
+                ? page.locator(".v3-mobile-bottom-nav")
+                : page.locator(".v3-app-header__desktop-nav");
+              assert.equal(await nav.locator('[aria-current="page"]').count(), 1, `Expected one active route for ${check.hash || "home"} at ${width}px`);
+              assert.equal(
+                await nav.getByRole("button", { name: check.activeLabel, exact: true }).getAttribute("aria-current"),
+                "page",
+                `Wrong active destination for ${check.hash || "home"} at ${width}px`,
+              );
+
+              const overflow = await page.evaluate(() => ({
+                scrollWidth: document.documentElement.scrollWidth,
+                innerWidth: window.innerWidth,
+              }));
+              assert.ok(
+                overflow.scrollWidth <= overflow.innerWidth,
+                `Route ${check.hash || "home"} overflow at ${width}px: ${JSON.stringify(overflow)}`,
+              );
+            }
+
+            if (localFailures.requests.length || localFailures.pages.length || localFailures.console.length) {
+              failures.push({ width, routeMatrix: true, ...localFailures });
+            }
+            await page.close();
+          }
+
+          assert.deepEqual(failures, [], JSON.stringify(failures, null, 2));
+          fs.writeFileSync(
+            `${process.env.GITHUB_WORKSPACE}/v3-shell-regression-report.json`,
+            JSON.stringify({ widths: report, canonicalRoutes: routeChecks.map((item) => item.hash || "home") }, null, 2) + "\n",
+          );
+
+          await browser.close();
+          NODE
+
+      - name: Upload shell regression evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v3-production-shell-regression
+          path: |
+            v3-shell-mobile-390x844.png
+            v3-shell-desktop-1536x1024.png
+            v3-shell-regression-report.json
+          if-no-files-found: error
+          retention-days: 14

@@ -87,8 +87,45 @@ jobs:
           assert.equal(await page.getByText("GitHub", { exact: true }).count(), 0, "GitHub footer link should be removed");
           assert.equal(await page.getByText("Hugging Face", { exact: true }).count(), 0, "Hugging Face footer link should be removed");
 
-          await page.getByRole("button", { name: "أوامر", exact: true }).click();
+          assert.equal(await page.locator("[data-app-header]").count(), 1, "Expected exactly one application header");
+          assert.equal(await page.getByRole("button", { name: "أوامر", exact: true }).count(), 0, "Legacy mobile tabs should be removed from the shell");
+
+          const mobileNav = page.locator(".v3-mobile-bottom-nav");
+          await mobileNav.waitFor();
+          assert.equal(await mobileNav.getByRole("button").count(), 5, "Expected five frozen mobile destinations");
+          for (const label of ["الرئيسية", "المنهج", "التدريب", "مولد الأوامر", "المزيد"]) {
+            assert.equal(await mobileNav.getByRole("button", { name: label, exact: true }).count(), 1, `Expected mobile destination: ${label}`);
+          }
+          assert.equal(await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).getAttribute("aria-current"), "page");
+
+          await page.getByRole("button", { name: /تغيير/ }).first().click();
+          await page.getByRole("heading", { name: "اختر المادة" }).waitFor();
+          await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).click();
+          await page.getByRole("heading", { name: "افهم ما تعثرت فيه، ثم اختبر نفسك بوضوح." }).waitFor();
+          assert.equal(await page.getByRole("heading", { name: "اختر المادة" }).count(), 0, "Home navigation should reset the local subjects subview");
+          assert.equal(new URL(page.url()).hash, "", "Resetting a Home-local subview should keep the canonical Home route");
+
+          await page.getByRole("button", { name: /اختبارات ومراجعة إضافية/ }).click();
+          await page.getByRole("heading", { name: "المحاكاة" }).waitFor();
+          await mobileNav.getByRole("button", { name: "الرئيسية", exact: true }).click();
+          await page.getByRole("heading", { name: "افهم ما تعثرت فيه، ثم اختبر نفسك بوضوح." }).waitFor();
+          assert.equal(await page.getByRole("heading", { name: "المحاكاة" }).count(), 0, "Home navigation should reset the local exams subview");
+
+          const mobileSlot = page.locator("[data-app-shell-mobile]");
+          const mobileSpacer = page.locator("[data-app-shell-mobile-spacer]");
+          const navBox = await mobileNav.boundingBox();
+          const slotBox = await mobileSlot.boundingBox();
+          const spacerBox = await mobileSpacer.boundingBox();
+          assert.ok(navBox && slotBox && spacerBox, "Expected measurable mobile navigation geometry");
+          assert.ok(navBox.height >= 64, `Expected mobile nav height >= 64px, got ${navBox.height}`);
+          assert.ok(spacerBox.height >= slotBox.height, "Expected flow spacer to reserve the fixed navigation height");
+          assert.ok(Math.abs((slotBox.y + slotBox.height) - 844) <= 1, "Expected mobile navigation to be fixed to viewport bottom");
+
+          await mobileNav.getByRole("button", { name: "مولد الأوامر", exact: true }).click();
           await page.getByRole("heading", { name: "أوامر اسأل بها أي ذكاء اصطناعي متوفر لديك" }).waitFor();
+          assert.equal(new URL(page.url()).hash, "#prompts");
+          assert.equal(await mobileNav.getByRole("button", { name: "مولد الأوامر", exact: true }).getAttribute("aria-current"), "page");
+          assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", "Route transition should focus the application content");
           assert.equal(await page.getByText("لا تحتاج كتابة اسم الدرس.", { exact: true }).count(), 0, "Old lesson-name notice should be removed");
           assert.equal(await page.getByText("الرياضيات مضبوطة بالعربي.", { exact: true }).count(), 0, "Old math notice should be removed");
 
@@ -104,7 +141,46 @@ jobs:
           assert.ok(generatedPrompt.includes("إذا كان المطلوب صغيرًا أو مباشرًا"), "Expected direct response rule for small topics");
           await page.screenshot({ path: promptEvidencePath, fullPage: false });
 
-          await page.goto(`${baseUrl}#curriculum`, { waitUntil: "domcontentloaded" });
+          await page.evaluate(() => window.scrollTo(0, 500));
+          await page.emulateMedia({ reducedMotion: "reduce" });
+          await page.evaluate(() => {
+            window.__routeScrollBehavior = null;
+            const originalScrollTo = window.scrollTo.bind(window);
+            window.scrollTo = (...args) => {
+              const first = args[0];
+              if (first && typeof first === "object") {
+                window.__routeScrollBehavior = first.behavior ?? null;
+              }
+              return originalScrollTo(...args);
+            };
+          });
+
+          await mobileNav.getByRole("button", { name: "المزيد", exact: true }).click();
+          await page.getByRole("heading", { name: "مصادر رياضيات" }).waitFor();
+          assert.equal(new URL(page.url()).hash, "#resources");
+          assert.equal(await mobileNav.getByRole("button", { name: "المزيد", exact: true }).getAttribute("aria-current"), "page");
+          assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", "Reduced-motion route transition should keep focus lifecycle");
+          assert.equal(await page.evaluate(() => window.__routeScrollBehavior), "auto", "Reduced motion should disable smooth route scrolling");
+          assert.ok(Math.abs(await page.evaluate(() => window.scrollY)) <= 1, "Route lifecycle should reset scroll to top");
+          await page.emulateMedia({ reducedMotion: "no-preference" });
+
+          await page.setViewportSize({ width: 900, height: 900 });
+          assert.equal(await mobileNav.isVisible(), false, "Mobile navigation must be hidden at 900px");
+          assert.equal(await mobileSpacer.isVisible(), false, "Mobile navigation spacer must be hidden at 900px");
+          await page.setViewportSize({ width: 390, height: 844 });
+
+          await mobileNav.getByRole("button", { name: "التدريب", exact: true }).click();
+          await page.locator("[data-curriculum-explorer]").waitFor();
+          assert.equal(new URL(page.url()).hash, "#curriculum", "Training without practice context should resolve to curriculum");
+          assert.equal(await mobileNav.getByRole("button", { name: "المنهج", exact: true }).getAttribute("aria-current"), "page");
+
+          const curriculumHashBeforeSkip = new URL(page.url()).hash;
+          const skipLink = page.getByRole("link", { name: "تجاوز إلى المحتوى" });
+          await skipLink.focus();
+          await skipLink.press("Enter");
+          assert.equal(new URL(page.url()).hash, curriculumHashBeforeSkip, "Skip link must not mutate the Hash Router");
+          assert.equal(await page.evaluate(() => document.activeElement?.id), "app-content", "Skip link should focus app content");
+
           await page.locator("[data-curriculum-explorer]").waitFor();
           const skillCount = await page.locator("[data-curriculum-skill]").count();
           assert.ok(skillCount > 0, "Expected visible curriculum skills");
@@ -120,6 +196,7 @@ jobs:
 
           await page.locator("[data-skill-practice-action]").click();
           await page.locator("[data-practice-page]").waitFor();
+          assert.equal(await mobileNav.getByRole("button", { name: "التدريب", exact: true }).getAttribute("aria-current"), "page");
           await page.getByText("فهم وتمثيل العدد المركب", { exact: false }).first().waitFor();
           await page.locator("[data-practice-start]").click();
 
@@ -157,6 +234,9 @@ jobs:
           await page.goto(`${baseUrl}#exam-pilot`, { waitUntil: "domcontentloaded" });
           await page.locator("[data-arabic-exam]").waitFor();
           await page.locator("[data-exam-model-selector]").waitFor();
+          assert.equal(await page.locator("[data-app-shell]").count(), 0, "ExamPilot must bypass the production AppShell");
+          assert.equal(await page.locator("[data-app-header]").count(), 0, "ExamPilot must not inherit the product header");
+          assert.equal(await page.locator(".v3-mobile-bottom-nav").count(), 0, "ExamPilot must not inherit the product mobile navigation");
           const modelCards = page.locator("[data-exam-model]");
           assert.equal(await modelCards.count(), 2, "Expected exactly two math model cards");
           await page.getByText("النموذج العام ١", { exact: false }).waitFor();
@@ -166,11 +246,28 @@ jobs:
           await page.getByRole("button", { name: "بدون مؤقت" }).click();
           await page.getByRole("button", { name: "ابدأ المحاكاة" }).click();
           await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
+
+          await page.locator("[data-arabic-exam] math").first().waitFor();
+          await page.locator("[data-arabic-exam] .arabic-math-wrap").first().waitFor();
           const mathCount1 = await page.locator("[data-arabic-exam] math").count();
           const enhancedMathCount1 = await page.locator("[data-arabic-exam] .arabic-math-wrap").count();
           assert.ok(mathCount1 > 0, "Expected MathML in protected model 1 question");
           assert.ok(enhancedMathCount1 > 0, "Expected Arabic math enhancement in model 1");
           await page.screenshot({ path: exam1EvidencePath, fullPage: false });
+
+          const model1StorageKey = "yemen-grade12:exam-session:v2:MATH-CALC-2020-ADAPTED-PILOT-01";
+          await page.waitForFunction(
+            (key) => window.localStorage.getItem(key) !== null,
+            model1StorageKey,
+          );
+          await page.reload({ waitUntil: "domcontentloaded" });
+          await page.locator("[data-exam-model-selector]").waitFor();
+          assert.equal(await page.locator("[data-app-shell]").count(), 0, "Reloaded ExamPilot must remain outside AppShell");
+          await page.locator('[data-exam-model="MATH-CALC-2020-ADAPTED-PILOT-01"]').click();
+          await page.getByText("محاولة محفوظة على هذا الجهاز", { exact: true }).waitFor();
+          assert.equal(await page.locator("[data-app-shell]").count(), 0, "Recovered ExamPilot session must remain outside AppShell");
+          await page.getByRole("button", { name: "متابعة المحاولة", exact: true }).click();
+          await page.getByText(/السؤال\s+[١1]\s+من\s+[٥5][٠0]/).waitFor();
 
           await page.getByRole("button", { name: "كل النماذج" }).click();
           await page.locator('[data-exam-model="MATH-AGP-GENERAL-MODEL-02"]').click();
@@ -188,7 +285,7 @@ jobs:
           assert.deepEqual(pageErrors, [], `Page errors: ${pageErrors.join(" | ")}`);
           assert.deepEqual(consoleErrors, [], `Console errors: ${consoleErrors.join(" | ")}`);
 
-          console.log(JSON.stringify({ home: true, promptRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
+          console.log(JSON.stringify({ home: true, singleAppHeader: true, legacyMobileTabsRemoved: true, homeLocalSubviewReset: true, mobileNavFiveItems: true, mobileNavSafeSpacing: true, mobileNavHiddenAt900: true, trainingResolver: true, mobileNavRouteActiveStates: true, routeFocusLifecycle: true, reducedMotionRouteScroll: true, skipLinkRouterSafe: true, promptRoute: true, resourcesRoute: true, promptPolicy: true, footerClean: true, curriculumRoute: true, skillCount, practiceRoute: true, practiceDiagnostics: true, practiceDeepeningPrompt: true, practiceRound1: firstRoundIds, practiceRound2: secondRoundIds, noPracticeRepeat: true, modelCards: 2, examShellBypass: true, examSessionRecovery: true, model1FirstQuestion: true, model2FirstQuestion: true, mathCount1, enhancedMathCount1, model2OptionCount, rtl: true }, null, 2));
           await browser.close();
           NODE
 

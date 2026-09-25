@@ -2,8 +2,20 @@
  * Product shell — prompts, curriculum navigation, skill practice and simulations are loaded on demand.
  */
 import { lazy, Suspense, useEffect, useState } from "react";
+import AppHeader from "@/app/AppHeader";
+import AppMobileNavigation from "@/app/AppMobileNavigation";
+import { type PrimaryNavigationTarget } from "@/app/navigation";
+import AppShell from "@/app/AppShell";
+import { AppErrorState, AppRouteLoading } from "@/app/AppRouteState";
 import ErrorBoundary from "@/app/ErrorBoundary";
-import Home from "@/features/home/Home";
+import { useRouteLifecycle } from "@/app/route-lifecycle";
+import {
+  appRouteHash,
+  parseAppHash,
+  readPracticeSkillIdFromHash,
+  type AppRoute,
+} from "@/app/routing";
+import Home, { type HomeRouteView } from "@/features/home/Home";
 import "./v2.css";
 import "./polish.css";
 
@@ -22,99 +34,105 @@ const PrimitivesPreview = lazy(() =>
   })),
 );
 
-type AppRoute =
-  | "home"
-  | "curriculum"
-  | "practice"
-  | "exam-pilot"
-  | "design-system-preview"
-  | "design-system-primitives";
-
-function readRoute(): AppRoute {
-  if (window.location.hash === "#design-system-primitives") return "design-system-primitives";
-  if (window.location.hash === "#design-system-preview") return "design-system-preview";
-  if (window.location.hash === "#exam-pilot") return "exam-pilot";
-  if (window.location.hash.startsWith("#practice/")) return "practice";
-  if (window.location.hash === "#curriculum") return "curriculum";
-  return "home";
-}
-
-function readPracticeSkillId() {
-  if (!window.location.hash.startsWith("#practice/")) return "";
-  try {
-    return decodeURIComponent(window.location.hash.slice("#practice/".length));
-  } catch {
-    return "";
-  }
-}
-
-function RouteLoading() {
-  return (
-    <div dir="rtl" className="flex min-h-[45vh] items-center justify-center px-4 text-center">
-      <div>
-        <span className="mx-auto block h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-violet-700" />
-        <p className="mt-3 text-xs font-bold text-slate-500">جاري فتح المسار…</p>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
-  const [route, setRoute] = useState<AppRoute>(() => readRoute());
+  const [route, setRoute] = useState<AppRoute>(() => parseAppHash(window.location.hash));
+  const [homeResetSignal, setHomeResetSignal] = useState(0);
+  const { resetCurrentRouteView } = useRouteLifecycle(route);
 
   useEffect(() => {
-    const onHashChange = () => setRoute(readRoute());
+    const onHashChange = () => setRoute(parseAppHash(window.location.hash));
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
-  const goHome = () => {
-    window.location.hash = "";
-    setRoute("home");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  const navigatePrimary = (target: PrimaryNavigationTarget) => {
+    const resolvedTarget =
+      target === "practice" && route !== "practice"
+        ? "curriculum"
+        : target;
+
+    if (resolvedTarget === route || resolvedTarget === "practice") {
+      if (resolvedTarget === "home") {
+        setHomeResetSignal((value) => value + 1);
+      }
+      resetCurrentRouteView();
+      return;
+    }
+
+    window.location.hash = appRouteHash[resolvedTarget];
+    setRoute(resolvedTarget);
   };
 
-  const goCurriculum = () => {
-    window.location.hash = "#curriculum";
-    setRoute("curriculum");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const goHome = () => navigatePrimary("home");
+  const goCurriculum = () => navigatePrimary("curriculum");
+  const navigateHomeFeature = (target: HomeRouteView) => navigatePrimary(target);
 
   return (
     <ErrorBoundary>
       {route === "design-system-primitives" ? (
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<AppRouteLoading standalone />}>
           <PrimitivesPreview />
         </Suspense>
       ) : route === "design-system-preview" ? (
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<AppRouteLoading standalone />}>
           <CompositePreview />
         </Suspense>
       ) : route === "exam-pilot" ? (
-        <Suspense fallback={<RouteLoading />}>
+        <Suspense fallback={<AppRouteLoading standalone />}>
           <div data-arabic-exam dir="rtl" lang="ar">
             <ArabicExamTypography />
             <ExamPilot onBack={goHome} />
           </div>
         </Suspense>
-      ) : route === "practice" ? (
-        <Suspense fallback={<RouteLoading />}>
-          <SkillPractice skillId={readPracticeSkillId()} onBack={goCurriculum} />
-        </Suspense>
-      ) : route === "curriculum" ? (
-        <Suspense fallback={<RouteLoading />}>
-          <CurriculumExplorer onBack={goHome} />
-        </Suspense>
       ) : (
-        <>
-          <Home />
-          <a
-            href="#curriculum"
-            className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
+        <AppShell
+          header={<AppHeader route={route} onNavigate={navigatePrimary} />}
+          mobileNavigation={
+            <AppMobileNavigation route={route} onNavigate={navigatePrimary} />
+          }
+        >
+          <ErrorBoundary
+            resetKey={route}
+            fallback={({ reset }) => (
+              <AppErrorState
+                onHome={() => {
+                  reset();
+                  goHome();
+                }}
+                onRetry={() => window.location.reload()}
+              />
+            )}
           >
-            تصفح المنهج
-          </a>
-        </>
+          {route === "practice" ? (
+            <Suspense fallback={<AppRouteLoading />}>
+              <SkillPractice
+                skillId={readPracticeSkillIdFromHash(window.location.hash)}
+                onBack={goCurriculum}
+              />
+            </Suspense>
+          ) : route === "curriculum" ? (
+            <Suspense fallback={<AppRouteLoading />}>
+              <CurriculumExplorer onBack={goHome} />
+            </Suspense>
+          ) : (
+            <>
+              <Home
+                routeView={route === "prompts" || route === "resources" ? route : "home"}
+                resetSignal={homeResetSignal}
+                onRouteNavigate={navigateHomeFeature}
+              />
+              {route === "home" ? (
+                <a
+                  href={appRouteHash.curriculum}
+                  className="fixed bottom-[148px] left-4 z-40 inline-flex min-h-11 items-center gap-2 rounded-2xl bg-violet-700 px-4 text-xs font-black text-white shadow-[0_14px_35px_rgba(109,40,217,.28)] md:bottom-5 md:left-5"
+                >
+                  تصفح المنهج
+                </a>
+              ) : null}
+            </>
+          )}
+          </ErrorBoundary>
+        </AppShell>
       )}
     </ErrorBoundary>
   );

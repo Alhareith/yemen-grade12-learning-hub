@@ -1,8 +1,7 @@
-import { useMemo, useState, type ComponentType } from "react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import {
   Atom,
   BookMarked,
-  BookOpen,
   BookOpenCheck,
   BookOpenText,
   BrainCircuit,
@@ -17,7 +16,6 @@ import {
   FlaskConical,
   Globe2,
   HeartHandshake,
-  Home,
   Languages,
   Leaf,
   Library,
@@ -29,7 +27,6 @@ import {
   ScrollText,
   Send,
   Sigma,
-  Sparkles,
   Target,
   Type,
 } from "lucide-react";
@@ -44,7 +41,8 @@ import {
 import { unitExpansions, type UnitLink } from "@/data/unitExpansions";
 
 type IconType = ComponentType<{ className?: string; strokeWidth?: number }>;
-type View = "home" | "prompts" | "exams" | "resources" | "subjects";
+export type HomeRouteView = "home" | "prompts" | "resources";
+type View = HomeRouteView | "exams" | "subjects";
 type ResourceMode = "sources" | "units";
 
 const PROFILE_IMAGE_URL = "https://alharethprofilo.netlify.app/assets/alhareth-profile.webp";
@@ -84,14 +82,6 @@ const categoryIcons: Record<string, IconType> = {
   reviews: FileText,
 };
 
-const viewTitles: Record<View, string> = {
-  home: "الرئيسية",
-  prompts: "أوامر للذكاء الاصطناعي",
-  exams: "المحاكاة",
-  resources: "المصادر",
-  subjects: "المواد",
-};
-
 const socialLinks = [
   { label: "الموقع الشخصي", href: "https://alharethprofilo.netlify.app/", icon: Globe2 },
   { label: "LinkedIn", href: "https://www.linkedin.com/in/%D8%A7%D9%84%D8%AD%D8%A7%D8%B1%D8%AB-%D8%A7%D9%84%D8%AF%D8%A7%D9%87%D9%8A%D8%A9-95b4a831a", icon: Linkedin },
@@ -100,11 +90,25 @@ const socialLinks = [
   { label: "البريد", href: "mailto:alhareithaldahia@gmail.com", icon: Mail },
 ];
 
-export default function HomeV4() {
-  const [view, setView] = useState<View>("home");
+type HomeV4Props = {
+  routeView?: HomeRouteView;
+  resetSignal?: number;
+  onRouteNavigate?: (view: HomeRouteView) => void;
+};
+
+export default function HomeV4({
+  routeView = "home",
+  resetSignal = 0,
+  onRouteNavigate,
+}: HomeV4Props) {
+  const [view, setView] = useState<View>(() => routeView);
   const [selectedId, setSelectedId] = useState("رياضيات");
   const [filter, setFilter] = useState("all");
   const [resourceMode, setResourceMode] = useState<ResourceMode>("sources");
+
+  useEffect(() => {
+    setView(routeView);
+  }, [routeView, resetSignal]);
 
   const selected = materials.find((material) => material.id === selectedId) ?? materials[0];
   const selectedUnits = useMemo(() => unitExpansions.filter((unit) => unit.subjectId === selected.id), [selected.id]);
@@ -116,7 +120,18 @@ export default function HomeV4() {
 
   const go = (next: View) => {
     setView(next);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    if (onRouteNavigate && (next === "home" || next === "prompts" || next === "resources")) {
+      onRouteNavigate(next);
+      return;
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    });
   };
 
   const chooseSubject = (material: MaterialCatalog) => {
@@ -127,8 +142,7 @@ export default function HomeV4() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#f5f6fa] pb-24 font-sans text-slate-950 md:pb-0">
-      <AppHeader view={view} onNavigate={go} />
+    <div dir="rtl" className="min-h-screen bg-[#f5f6fa] font-sans text-slate-950">
       <main className="min-h-[70vh]">
         {view === "home" && <HomeView selected={selected} onNavigate={go} onChangeSubject={() => go("subjects")} />}
         {view === "prompts" && <PromptLibrary subject={selected.title} units={selectedUnitTitles} />}
@@ -148,43 +162,8 @@ export default function HomeV4() {
         {view === "subjects" && <SubjectsView selectedId={selected.id} onSelect={chooseSubject} />}
       </main>
       {view !== "prompts" && <DeveloperFooter />}
-      <MobileTabs view={view} onNavigate={go} />
     </div>
   );
-}
-
-function AppHeader({ view, onNavigate }: { view: View; onNavigate: (view: View) => void }) {
-  return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-xl">
-      <div className="mx-auto flex h-[64px] max-w-6xl items-center justify-between px-4 sm:px-6">
-        <button type="button" onClick={() => onNavigate("home")} className="flex items-center gap-2.5 text-right">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-950 text-white"><BookOpen className="h-4.5 w-4.5" /></span>
-          <span>
-            <strong className="block text-sm font-black text-slate-950">دليل الثالث</strong>
-            <small className="block max-w-[165px] text-[10px] font-bold leading-4 text-slate-400">{viewTitles[view]}</small>
-          </span>
-        </button>
-
-        <nav className="hidden items-center gap-1 rounded-2xl bg-slate-100 p-1 md:flex" aria-label="أقسام الموقع">
-          <DesktopTab active={view === "home"} onClick={() => onNavigate("home")} label="الرئيسية" />
-          <DesktopTab active={view === "prompts"} onClick={() => onNavigate("prompts")} label="أوامر للذكاء الاصطناعي" />
-          <DesktopTab active={view === "exams"} onClick={() => onNavigate("exams")} label="المحاكاة" />
-          <DesktopTab active={view === "resources"} onClick={() => onNavigate("resources")} label="المصادر" />
-          <DesktopTab active={view === "subjects"} onClick={() => onNavigate("subjects")} label="المواد" />
-        </nav>
-
-        <div className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-3 text-[10px] font-extrabold text-emerald-800 md:text-xs">
-          <Leaf className="h-4 w-4" />
-          <span className="hidden sm:inline">خذها خطوة خطوة</span>
-          <span className="sm:hidden">بهدوء</span>
-        </div>
-      </div>
-    </header>
-  );
-}
-
-function DesktopTab({ active, onClick, label }: { active: boolean; onClick: () => void; label: string }) {
-  return <button type="button" onClick={onClick} className={`rounded-xl px-3 py-2 text-xs font-extrabold ${active ? "bg-white text-slate-950 shadow-sm" : "text-slate-500 hover:text-slate-900"}`}>{label}</button>;
 }
 
 function HomeView({ selected, onNavigate, onChangeSubject }: {
@@ -340,12 +319,4 @@ function DeveloperFooter() {
       </div>
     </footer>
   );
-}
-
-function MobileTabs({ view, onNavigate }: { view: View; onNavigate: (view: View) => void }) {
-  return <nav className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-5 border-t border-slate-200 bg-white/98 px-1 pb-[max(6px,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-8px_30px_rgba(15,23,42,.08)] backdrop-blur-xl md:hidden" aria-label="أقسام الموقع"><MobileTab icon={Home} label="الرئيسية" active={view === "home"} onClick={() => onNavigate("home")} /><MobileTab icon={Sparkles} label="أوامر" active={view === "prompts"} onClick={() => onNavigate("prompts")} /><MobileTab icon={Target} label="المحاكاة" active={view === "exams"} onClick={() => onNavigate("exams")} /><MobileTab icon={BookOpenCheck} label="المصادر" active={view === "resources"} onClick={() => onNavigate("resources")} /><MobileTab icon={Library} label="المواد" active={view === "subjects"} onClick={() => onNavigate("subjects")} /></nav>;
-}
-
-function MobileTab({ icon: Icon, label, active, onClick }: { icon: IconType; label: string; active: boolean; onClick: () => void }) {
-  return <button type="button" onClick={onClick} className={`flex min-h-[54px] flex-col items-center justify-center gap-1 rounded-xl text-[9px] font-extrabold ${active ? "text-violet-700" : "text-slate-400"}`}><Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.4 : 2} />{label}</button>;
 }

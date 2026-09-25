@@ -1,0 +1,46 @@
+name: V3 Stage 4 final CI gate
+
+on:
+  push:
+    branches:
+      - "feature/v3-app-shell"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stage4-gate:
+    if: ${{ github.event_name != 'pull_request' || github.head_ref == 'feature/v3-app-shell' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify Stage 4 protected boundaries and routing contract
+        run: node scripts/verify-stage4-gate.mjs
+
+      - name: Run full TypeScript test and production build gate
+        run: pnpm verify
+
+      - name: Verify GitHub Pages static build mode
+        run: |
+          rm -rf dist
+          GITHUB_ACTIONS=true pnpm build
+          test -f dist/public/index.html

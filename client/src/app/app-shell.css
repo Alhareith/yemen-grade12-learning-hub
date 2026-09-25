@@ -1,0 +1,74 @@
+/**
+ * Stage 4 App Shell foundation.
+ *
+ * V3 visual rules remain under [data-v3-ui]. The current feature outlet is
+ * deliberately unscoped until feature-by-feature migration removes its legacy
+ * shell ownership.
+ */
+[data-v3-ui].v3-app-shell__scope {
+  position: relative;
+  box-sizing: border-box;
+}
+
+[data-v3-ui] .v3-app-shell__container {
+  width: 100%;
+  max-width: calc(var(--v3-container-max) + (var(--v3-content-padding) * 2));
+  margin-inline: auto;
+  padding-inline: var(--v3-content-padding);
+  box-sizing: border-box;
+}
+
+[data-v3-ui] .v3-app-shell__header-slot {
+  width: 100%;
+}
+
+[data-v3-ui] .v3-app-shell__skip-link {
+  position: fixed;
+  inset-block-start: var(--v3-space-2);
+  inset-inline-start: var(--v3-space-2);
+  z-index: 1000;
+  min-height: var(--v3-touch-target);
+  padding-inline: var(--v3-space-3);
+  border-radius: var(--v3-radius-button);
+  display: inline-flex;
+  align-items: center;
+  background: var(--v3-color-primary-strong);
+  color: #ffffff;
+  font-size: var(--v3-type-button-size);
+  font-weight: var(--v3-type-button-weight);
+  line-height: var(--v3-type-button-line);
+  text-decoration: none;
+  transform: translateY(calc(-100% - var(--v3-space-4)));
+}
+
+[data-v3-ui] .v3-app-shell__skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 3px solid color-mix(in srgb, var(--v3-color-primary-bright) 32%, transparent);
+  outline-offset: 2px;
+}
+
+[data-v3-ui].v3-app-shell__mobile-spacer {
+  height: calc(var(--v3-bottom-nav-height) + env(safe-area-inset-bottom));
+}
+
+[data-v3-ui].v3-app-shell__mobile-slot {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 60;
+  width: 100%;
+  padding-block-end: env(safe-area-inset-bottom);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+[data-v3-ui].v3-app-shell__mobile-slot .v3-mobile-bottom-nav {
+  height: var(--v3-bottom-nav-height);
+  min-height: var(--v3-bottom-nav-height);
+}
+
+@media (min-width: 900px) {
+  [data-v3-ui].v3-app-shell__mobile-spacer,
+  [data-v3-ui].v3-app-shell__mobile-slot {
+    display: none;
+  }
+}
