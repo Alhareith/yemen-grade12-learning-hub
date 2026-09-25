@@ -1,6 +1,6 @@
 # V3 Stage 5A — Curriculum Baseline & UX Boundary Lock
 
-Status: **BOUNDARY CANDIDATE — CI PENDING**
+Status: **PASS — 5A BOUNDARY LOCKED**
 
 Stage 5 owns the Curriculum experience beneath the frozen Stage 4 AppShell. Stage 5A is intentionally documentation/boundary-only: it records the current data truth, UX debt, stable identity contract, visual isolation rule, and regression risks before any Curriculum redesign begins.
 
@@ -611,4 +611,61 @@ The Stage 4 final gate is intentionally scoped to the Stage 4 branch and must no
 - this document and the V3 documentation map are committed;
 - required CI is green.
 
-Until those checks are green, Stage 5B remains blocked.
+All 5A checks recorded below are green. Stage 5B remains blocked until explicit human approval.
+
+
+---
+
+## 17. 5A closure evidence
+
+Stage 5A candidate commit:
+
+`3622884f0cfee3195ca02815a822e2dd003ade32`
+
+Draft PR:
+
+`#42 — V3-05: Build curriculum experience`
+
+The PR remains Draft and is not merged.
+
+### Candidate branch diff
+
+Comparison against the Stage 4 merge base contains only:
+
+- added `docs/v3/16-stage5-curriculum-boundary.md`;
+- modified `docs/v3/README.md`.
+
+No runtime source, Curriculum/question data, Design System source, workflow, deployment configuration, or protected Legacy file changed.
+
+### Candidate CI
+
+Successful candidate checks:
+
+- Validate student experience / push — `36080755117`;
+- Browser smoke test / push — `36080755113`;
+- Validate student experience / pull_request — `36080874430`;
+- Browser smoke test / pull_request — `36080874321`;
+- V3 design system visual validation / pull_request — `36080874348`;
+- V3 accessibility performance regression / pull_request — `36080874397`;
+- V3 production shell regression / pull_request — `36080874376`;
+- Vercel commit status — **success**.
+
+The Stage 4 final CI gate is **skipped by design** on this PR because that workflow is explicitly scoped to `feature/v3-app-shell`; this is not a Stage 5 failure.
+
+### Static deployment evidence
+
+The exact Stage 5 base commit `72f0fe12...` passed the GitHub Pages deployment workflow on `main` in run `36079643833`.
+
+Stage 5A changes documentation only, while the branch validation continues to run the production build through `pnpm verify`. No deployment/runtime configuration changed.
+
+### Protected boundary result
+
+**PASS.**
+
+The 5A diff contains no protected Legacy file and no runtime source file.
+
+### Stage transition
+
+**Stage 5A: PASS.**
+
+Do not begin Stage 5B until explicit human approval.
