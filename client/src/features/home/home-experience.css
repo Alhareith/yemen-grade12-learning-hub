@@ -1137,3 +1137,266 @@
     grid-template-columns: minmax(0, 35%) minmax(0, 39%) minmax(0, 26%);
   }
 }
+
+
+/* Stage 5.5G canonical mobile calibration against the 390px visual reference. */
+@media (max-width: 639px) {
+  [data-v3-ui] .v3-home__container {
+    padding-block-start: 6px;
+    padding-block-end: 12px;
+    gap: 10px;
+  }
+
+  [data-v3-ui] .v3-home-hero {
+    min-height: 234px;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  [data-v3-ui] .v3-home-hero__visual {
+    min-height: 138px;
+  }
+
+  [data-v3-ui] .v3-home-hero__copy p {
+    margin-block-start: 6px;
+    font-size: 11px;
+    line-height: 1.58;
+  }
+
+  [data-v3-ui] .v3-home-hero__eyebrow {
+    font-size: 9px;
+    margin-block-end: 3px;
+  }
+
+  [data-v3-ui] .v3-home-hero h1 {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  [data-v3-ui] .v3-home-hero__actions {
+    gap: 8px;
+  }
+
+  [data-v3-ui] .v3-home-button {
+    min-height: 44px;
+    padding-inline: 9px;
+    font-size: 12px;
+  }
+
+  [data-v3-ui] .v3-home-approved-art {
+    width: min(68%, 118px);
+    inset-block-end: 7px;
+    gap: 4px;
+  }
+
+  [data-v3-ui] .v3-home-hero__study-card {
+    width: 62px;
+    height: 53px;
+    inset-block-end: 9px;
+  }
+
+  [data-v3-ui] .v3-home-curriculum {
+    min-height: 126px;
+  }
+
+  [data-v3-ui] .v3-home-curriculum__art {
+    min-height: 126px;
+  }
+
+  [data-v3-ui] .v3-home-curriculum__art > img {
+    inset-block-start: 22px;
+    width: 60px;
+    height: 60px;
+  }
+
+  [data-v3-ui] .v3-home-curriculum__copy {
+    padding: 9px 10px;
+  }
+
+  [data-v3-ui] .v3-home-curriculum h2 {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  [data-v3-ui] .v3-home-curriculum p {
+    margin-block-start: 4px;
+    font-size: 10px;
+    line-height: 1.45;
+  }
+
+  [data-v3-ui] .v3-home-curriculum__cta {
+    margin-block-start: 6px;
+  }
+
+  [data-v3-ui] .v3-home-section-heading {
+    display: none;
+  }
+
+  [data-v3-ui] .v3-home-quick-card {
+    min-height: 132px;
+    padding: 8px;
+    display: block;
+  }
+
+  [data-v3-ui] .v3-home-quick-card__visual {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+  }
+
+  [data-v3-ui] .v3-home-quick-card__visual img,
+  [data-v3-ui] .v3-home-quick-card__visual svg {
+    width: 26px;
+    height: 26px;
+  }
+
+  [data-v3-ui] .v3-home-quick-card__copy {
+    padding-block-start: 5px;
+    padding-block-end: 25px;
+  }
+
+  [data-v3-ui] .v3-home-quick-card__copy strong {
+    font-size: 13px;
+    line-height: 1.25;
+  }
+
+  [data-v3-ui] .v3-home-quick-card__copy small {
+    margin-block-start: 2px;
+    font-size: 9px;
+    line-height: 1.4;
+  }
+
+  [data-v3-ui] .v3-home-quick-card__arrow {
+    position: absolute;
+    inset-inline-start: 8px;
+    inset-block-end: 8px;
+    width: 24px;
+    height: 24px;
+    margin: 0;
+  }
+
+  [data-v3-ui] .v3-home-quick-card__arrow svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  [data-v3-ui] .v3-home-simulation {
+    min-height: 148px;
+    grid-template-columns: minmax(0, 31%) minmax(0, 44%) minmax(0, 25%);
+    grid-template-areas: "art copy checks";
+    align-items: stretch;
+  }
+
+  [data-v3-ui] .v3-home-simulation__art {
+    min-height: 148px;
+  }
+
+  [data-v3-ui] .v3-home-simulation__copy {
+    padding: 10px 8px;
+    align-self: center;
+  }
+
+  [data-v3-ui] .v3-home-simulation__title-line {
+    gap: 4px;
+  }
+
+  [data-v3-ui] .v3-home-simulation__title-line > svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  [data-v3-ui] .v3-home-simulation h2 {
+    font-size: 20px;
+    line-height: 1.2;
+  }
+
+  [data-v3-ui] .v3-home-simulation__copy > p {
+    margin-block-start: 4px;
+    font-size: 9px;
+    line-height: 1.45;
+  }
+
+  [data-v3-ui] .v3-home-simulation__cta {
+    min-height: 44px;
+    margin-block-start: 6px;
+    padding-inline: 9px;
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  [data-v3-ui] .v3-home-simulation__checks {
+    padding: 9px 7px;
+    grid-template-columns: 1fr;
+    align-content: center;
+    gap: 7px;
+    background: rgba(255,255,255,.055);
+  }
+
+  [data-v3-ui] .v3-home-simulation__checks span {
+    justify-content: flex-start;
+    gap: 4px;
+    font-size: 8px;
+    line-height: 1.35;
+    text-align: right;
+  }
+
+  [data-v3-ui] .v3-home-simulation__checks svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  [data-v3-ui] .v3-home-resources {
+    min-height: 58px;
+    padding: 7px 9px;
+  }
+
+  [data-v3-ui] .v3-home-resources__icon {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+
+  [data-v3-ui] .v3-home-resources h2 {
+    font-size: 13px;
+  }
+
+  [data-v3-ui] .v3-home-resources p {
+    font-size: 8px;
+    line-height: 1.35;
+  }
+
+  [data-v3-ui] .v3-home-resources__cta {
+    min-height: 44px;
+    font-size: 9px;
+    padding-inline: 8px;
+  }
+}
+
+@media (min-width: 380px) and (max-width: 639px) {
+  [data-v3-ui] .v3-home-quick-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+}
+
+@media (max-width: 379px) {
+  [data-v3-ui] .v3-home-quick-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  [data-v3-ui] .v3-home-quick-card {
+    min-height: 112px;
+  }
+
+  [data-v3-ui] .v3-home-simulation {
+    grid-template-columns: minmax(0, 36%) minmax(0, 64%);
+    grid-template-areas:
+      "art copy"
+      "checks checks";
+  }
+
+  [data-v3-ui] .v3-home-simulation__checks {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
