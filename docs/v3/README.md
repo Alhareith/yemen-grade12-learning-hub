@@ -55,6 +55,7 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `33-home-contract.md` | **canonical frozen Stage 5.5 Home Experience contract** |
 | `34-stage5-5-closure.md` | Stage 5.5 full regression and closure evidence |
 | `35-stage5-5-premerge-review.md` | Stage 5.5 pre-merge code/CI/accessibility review and resolved findings |
+| `36-post-merge-curriculum-ui-adjustment.md` | Post-merge Curriculum subject catalogue/search/filter/banner/sticky-header patch record |
 
 ## Stage snapshots
 
@@ -65,7 +66,7 @@ For current visual-system rules, use `11-design-system-contract.md`.
 For current application-shell, routing, navigation and shell-lifecycle rules, use `14-app-shell-contract.md`.
 
 
-For current Curriculum behavior after Stage 5, use `24-curriculum-contract.md`. Stage 5 files 16–23 remain implementation snapshots, audit evidence and rationale.
+For current Curriculum behavior after Stage 5, use `24-curriculum-contract.md`. Stage 5 files 16–23 remain implementation snapshots, audit evidence and rationale. The post-merge UI adjustment is recorded in `36-post-merge-curriculum-ui-adjustment.md` without rewriting Stage 5 closure history.
 
 Later stages must consume the frozen Architecture, Legacy, Design System, AppShell and Curriculum contracts together rather than reviving an earlier Stage 5 snapshot.
 

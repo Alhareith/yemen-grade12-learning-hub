@@ -213,6 +213,65 @@ jobs:
             assert.equal(await root.getAttribute("data-curriculum-stage"), "subjects");
             assert.equal(await root.getByRole("heading", { level: 1 }).count(), 1, `Expected one Curriculum H1 at ${width}px`);
 
+            const shellChrome = page.locator("[data-app-shell-chrome]");
+            assert.equal(
+              await shellChrome.evaluate((node) => getComputedStyle(node).position),
+              "sticky",
+              `AppHeader shell must remain sticky at ${width}px`,
+            );
+
+            const headerBox = await page.locator("[data-app-header]").boundingBox();
+            const curriculumBox = await root.boundingBox();
+            assert.ok(
+              headerBox && curriculumBox && curriculumBox.y >= headerBox.y + headerBox.height - 1,
+              `Sticky AppHeader must not cover Curriculum entry content at ${width}px`,
+            );
+
+            const banner = page.locator("[data-curriculum-simulation-banner]");
+            assert.equal(await banner.count(), 1, `Expected one Curriculum simulation banner at ${width}px`);
+            assert.equal(
+              await banner.getByText("جرّب محاكاة لنماذج الاختبارات الوزارية", { exact: true }).count(),
+              1,
+              `Simulation banner copy mismatch at ${width}px`,
+            );
+            assert.match(
+              await banner.locator("img").getAttribute("src"),
+              /curriculum-exam-banner.*\.webp/,
+              `Simulation banner must use the packaged WebP at ${width}px`,
+            );
+            assert.ok(
+              await banner.locator("img").evaluate((image) => image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0),
+              `Simulation banner image failed to load at ${width}px`,
+            );
+
+            assert.equal(await page.locator("[data-curriculum-subject]").count(), 13, `Expected all 13 subjects at ${width}px`);
+            assert.equal(await page.locator('[data-curriculum-subject-status="available"]').count(), 5, `Expected five available subjects at ${width}px`);
+            assert.equal(await page.locator('[data-curriculum-subject-status="pending"]').count(), 8, `Expected eight pending subjects at ${width}px`);
+            assert.equal(
+              await page.locator('[data-curriculum-subject="نحو وصرف"] button').count(),
+              0,
+              `Pending subject must not expose hierarchy action at ${width}px`,
+            );
+            assert.equal(
+              await page.locator('[data-curriculum-subject="نحو وصرف"]').getByText("الوحدات قيد الإضافة", { exact: true }).count(),
+              1,
+              `Pending subject truthfulness copy missing at ${width}px`,
+            );
+
+            const subjectSearch = page.locator("[data-curriculum-subject-search]");
+            assert.equal(await subjectSearch.getAttribute("placeholder"), "ابحث عن مادة دراسية...");
+            await subjectSearch.fill("فيزياء");
+            assert.equal(await page.locator("[data-curriculum-subject]:visible").count(), 1, `Subject search should narrow to one item at ${width}px`);
+            assert.equal(await page.locator('[data-curriculum-subject="فيزياء"]:visible').count(), 1, `Physics search result missing at ${width}px`);
+            await subjectSearch.fill("");
+
+            await page.locator("[data-curriculum-filter-toggle]").click();
+            await page.locator('[data-curriculum-filter="pending"]').click();
+            assert.equal(await page.locator('[data-curriculum-subject-status="pending"]:visible').count(), 8, `Pending filter mismatch at ${width}px`);
+            assert.equal(await page.locator('[data-curriculum-subject-status="available"]:visible').count(), 0, `Pending filter leaked available subjects at ${width}px`);
+            await page.locator("[data-curriculum-filter-toggle]").click();
+            await page.locator('[data-curriculum-filter="all"]').click();
+
             const subjectGridColumns = await page.locator("[data-curriculum-subject-grid]").evaluate((node) =>
               getComputedStyle(node).gridTemplateColumns.split(" ").length
             );

@@ -1,4 +1,5 @@
 import simulation from "./simulation/exam.webp";
+import examSimulationBanner from "./simulation/curriculum-exam-banner.webp";
 import prompts from "./actions/prompts.webp";
 import practice from "./actions/practice.webp";
 import curriculum from "./actions/curriculum.webp";
@@ -15,6 +16,7 @@ import social from "./subjects/social.webp";
 export const v3AssetPaths = {
   brand,
   simulation,
+  curriculum: { examSimulationBanner },
   actions: { prompts, practice, curriculum },
   subjects: { math, physics, chemistry, biology, arabic, english, islamic, social },
 } as const;

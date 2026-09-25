@@ -6,6 +6,8 @@ import {
   ChevronLeft,
   Dumbbell,
   Layers3,
+  Search,
+  SlidersHorizontal,
 } from "lucide-react";
 import { buildPracticeHash } from "@/app/routing";
 import {
@@ -33,6 +35,7 @@ const explainPrompt =
 const numberFormatter = new Intl.NumberFormat("ar");
 
 type CurriculumStage = "subjects" | "units" | "lessons" | "detail";
+type SubjectFilter = "all" | "available" | "pending";
 
 type LessonGroup = {
   id: string;
@@ -45,12 +48,16 @@ export default function CurriculumExplorer({
 }: {
   onBack: () => void;
 }) {
-  const subjectsWithUnits = useMemo(
+  const subjectEntries = useMemo(
     () =>
-      curriculumGraph.subjects.filter(
-        (subject) =>
-          curriculumIndex.getUnitsForSubject(subject.id).length > 0,
-      ),
+      curriculumGraph.subjects.map((subject) => {
+        const units = curriculumIndex.getUnitsForSubject(subject.id);
+        return {
+          subject,
+          units,
+          status: units.length > 0 ? ("available" as const) : ("pending" as const),
+        };
+      }),
     [],
   );
 
@@ -65,6 +72,23 @@ export default function CurriculumExplorer({
   const [skillId, setSkillId] = useState(returnContext?.skillId ?? "");
   const [copied, setCopied] = useState(false);
   const [focusVersion, setFocusVersion] = useState(0);
+  const [subjectSearch, setSubjectSearch] = useState("");
+  const [subjectFilter, setSubjectFilter] = useState<SubjectFilter>("all");
+  const [filterOpen, setFilterOpen] = useState(false);
+
+  const filteredSubjectEntries = useMemo(() => {
+    const query = subjectSearch.trim().toLocaleLowerCase("ar");
+
+    return subjectEntries.filter(({ subject, status }) => {
+      const matchesSearch =
+        query.length === 0 ||
+        subject.title.toLocaleLowerCase("ar").includes(query);
+      const matchesFilter =
+        subjectFilter === "all" || subjectFilter === status;
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [subjectEntries, subjectFilter, subjectSearch]);
 
   const subject = subjectId
     ? curriculumIndex.subjects.get(subjectId)
@@ -131,6 +155,8 @@ export default function CurriculumExplorer({
   const advanceFocus = () => setFocusVersion((value) => value + 1);
 
   const chooseSubject = (nextSubjectId: string) => {
+    if (curriculumIndex.getUnitsForSubject(nextSubjectId).length === 0) return;
+
     setSubjectId(nextSubjectId);
     setUnitId("");
     setLessonId("");
@@ -232,12 +258,29 @@ export default function CurriculumExplorer({
               المسار الدراسي
             </span>
             <h1>المنهج</h1>
-            <p>
-              اختر المادة، ثم الوحدة، ثم الدرس. تظهر المهارات داخل الدرس
-              عندما تكون موثقة.
-            </p>
           </div>
         </header>
+
+        {!subject ? (
+          <aside
+            aria-label="محاكاة نماذج الاختبارات الوزارية"
+            className="v3-curriculum__simulation-banner"
+            data-curriculum-simulation-banner
+          >
+            <div className="v3-curriculum__simulation-copy">
+              <span>تدريب قبل الاختبار</span>
+              <strong>جرّب محاكاة لنماذج الاختبارات الوزارية</strong>
+            </div>
+            <img
+              alt=""
+              aria-hidden="true"
+              decoding="async"
+              fetchPriority="high"
+              loading="eager"
+              src={v3AssetPaths.curriculum.examSimulationBanner}
+            />
+          </aside>
+        ) : null}
 
         {subject ? (
           <div
@@ -281,64 +324,155 @@ export default function CurriculumExplorer({
             data-active={stage === "subjects"}
             data-curriculum-panel="subjects"
           >
-            <div className="v3-curriculum__panel-heading">
-              <div>
-                <p className="v3-curriculum__step">١ · المادة</p>
-                <h2
-                  className="v3-curriculum__focus-heading"
-                  data-curriculum-focus-heading
-                  id="curriculum-subjects-heading"
-                  tabIndex={-1}
+            <h2
+              className="v3-curriculum__visually-hidden"
+              id="curriculum-subjects-heading"
+            >
+              المواد الدراسية
+            </h2>
+
+            <div className="v3-curriculum__subject-tools">
+              <label className="v3-curriculum__search">
+                <Search aria-hidden="true" />
+                <span className="v3-curriculum__visually-hidden">
+                  البحث في المواد
+                </span>
+                <input
+                  data-curriculum-subject-search
+                  onChange={(event) => setSubjectSearch(event.target.value)}
+                  placeholder="ابحث عن مادة دراسية..."
+                  type="search"
+                  value={subjectSearch}
+                />
+              </label>
+
+              <div className="v3-curriculum__filter">
+                <button
+                  aria-expanded={filterOpen}
+                  aria-haspopup="true"
+                  className="v3-curriculum__filter-toggle"
+                  data-curriculum-filter-toggle
+                  onClick={() => setFilterOpen((current) => !current)}
+                  type="button"
                 >
-                  اختر المادة
-                </h2>
-                <p>نعرض هنا المواد التي لديها وحدات فعلية في المنهج الحالي.</p>
+                  <SlidersHorizontal aria-hidden="true" />
+                  <span>تصفية</span>
+                </button>
+
+                {filterOpen ? (
+                  <div
+                    aria-label="تصفية المواد"
+                    className="v3-curriculum__filter-menu"
+                    data-curriculum-filter-menu
+                    role="group"
+                  >
+                    {([
+                      ["all", "الكل"],
+                      ["available", "متاح الآن"],
+                      ["pending", "قيد الإضافة"],
+                    ] as const).map(([value, label]) => (
+                      <button
+                        aria-pressed={subjectFilter === value}
+                        data-curriculum-filter={value}
+                        key={value}
+                        onClick={() => {
+                          setSubjectFilter(value);
+                          setFilterOpen(false);
+                        }}
+                        type="button"
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
             </div>
 
-            {subjectsWithUnits.length > 0 ? (
+            {filteredSubjectEntries.length > 0 ? (
               <div
                 className="v3-curriculum__subject-grid"
                 data-curriculum-subject-grid
               >
-                {subjectsWithUnits.map((item) => {
-                  const visual = curriculumSubjectVisuals[item.id];
-                  const itemUnits = curriculumIndex.getUnitsForSubject(item.id);
-                  const lessonCount = itemUnits.reduce(
-                    (total, unit) =>
-                      total +
-                      curriculumIndex.getLessonsForUnit(unit.id).length,
-                    0,
-                  );
-                  const meta =
-                    lessonCount > 0
-                      ? `${formatCount(itemUnits.length, "وحدة", "وحدتان", "وحدات")} · ${numberFormatter.format(lessonCount)} درسًا موثقًا`
-                      : `${formatCount(itemUnits.length, "وحدة", "وحدتان", "وحدات")} · تفاصيل الدروس قيد التوثيق`;
+                {filteredSubjectEntries.map(
+                  ({ subject: item, units: itemUnits, status }) => {
+                    const visual = curriculumSubjectVisuals[item.id];
 
-                  if (!visual) return null;
+                    if (!visual) return null;
 
-                  return (
-                    <div data-curriculum-subject={item.id} key={item.id}>
-                      <SubjectCard
-                        actionLabel={`عرض وحدات ${item.title}`}
-                        illustrationAlt=""
-                        illustrationSrc={visual.illustrationSrc}
-                        meta={meta}
-                        onAction={() => chooseSubject(item.id)}
-                        title={item.title}
-                        tone={visual.tone}
-                        variant="actionable"
-                      />
-                    </div>
-                  );
-                })}
+                    if (status === "pending") {
+                      return (
+                        <div
+                          data-curriculum-subject={item.id}
+                          data-curriculum-subject-status="pending"
+                          key={item.id}
+                        >
+                          <SubjectCard
+                            badge={
+                              <span className="v3-curriculum__pending-badge">
+                                قيد الإضافة
+                              </span>
+                            }
+                            illustrationAlt=""
+                            illustrationSrc={visual.illustrationSrc}
+                            meta="الوحدات قيد الإضافة"
+                            title={item.title}
+                            tone={visual.tone}
+                          />
+                        </div>
+                      );
+                    }
+
+                    const lessonCount = itemUnits.reduce(
+                      (total, unit) =>
+                        total +
+                        curriculumIndex.getLessonsForUnit(unit.id).length,
+                      0,
+                    );
+                    const meta =
+                      lessonCount > 0
+                        ? `${formatCount(
+                            itemUnits.length,
+                            "وحدة",
+                            "وحدتان",
+                            "وحدات",
+                          )} · ${numberFormatter.format(
+                            lessonCount,
+                          )} درسًا موثقًا`
+                        : `${formatCount(
+                            itemUnits.length,
+                            "وحدة",
+                            "وحدتان",
+                            "وحدات",
+                          )} · تفاصيل الدروس قيد التوثيق`;
+
+                    return (
+                      <div
+                        data-curriculum-subject={item.id}
+                        data-curriculum-subject-status="available"
+                        key={item.id}
+                      >
+                        <SubjectCard
+                          actionLabel={`عرض وحدات ${item.title}`}
+                          illustrationAlt=""
+                          illustrationSrc={visual.illustrationSrc}
+                          meta={meta}
+                          onAction={() => chooseSubject(item.id)}
+                          title={item.title}
+                          tone={visual.tone}
+                          variant="actionable"
+                        />
+                      </div>
+                    );
+                  },
+                )}
               </div>
             ) : (
               <Surface padding="lg" variant="subtle">
                 <div className="v3-curriculum__empty" role="status">
                   <AlertTriangle aria-hidden="true" />
-                  <strong>المنهج غير متاح حاليًا.</strong>
-                  <span>لم نجد مواد تحتوي وحدات قابلة للتصفح.</span>
+                  <strong>لا توجد مواد مطابقة.</strong>
+                  <span>غيّر عبارة البحث أو اختر تصفية أخرى.</span>
                 </div>
               </Surface>
             )}

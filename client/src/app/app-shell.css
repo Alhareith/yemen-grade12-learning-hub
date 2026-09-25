@@ -10,6 +10,16 @@
   box-sizing: border-box;
 }
 
+[data-v3-ui].v3-app-shell__scope[data-app-shell-chrome] {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 70;
+  background: rgba(255, 255, 255, 0.96);
+  border-block-end: var(--v3-border-width) solid var(--v3-color-border);
+  box-shadow: 0 6px 18px rgba(15, 42, 104, 0.06);
+  backdrop-filter: blur(10px);
+}
+
 [data-v3-ui] .v3-app-shell__container {
   width: 100%;
   max-width: calc(var(--v3-container-max) + (var(--v3-content-padding) * 2));
