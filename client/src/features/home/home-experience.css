@@ -81,8 +81,8 @@
   position: absolute;
   width: 120px;
   height: 120px;
-  inset-inline-start: -30px;
-  inset-block-start: -20px;
+  inset-inline-start: 0;
+  inset-block-start: -12px;
   border-radius: 999px;
   background: rgba(255,255,255,.72);
   filter: blur(2px);
