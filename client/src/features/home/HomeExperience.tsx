@@ -65,15 +65,35 @@ const resourceGuides = [
   },
 ] as const;
 
-function BookStack({ compact = false }: { compact?: boolean }) {
+const heroSubjectArtwork = [
+  v3AssetPaths.subjects.math,
+  v3AssetPaths.subjects.physics,
+  v3AssetPaths.subjects.chemistry,
+  v3AssetPaths.subjects.biology,
+  v3AssetPaths.subjects.arabic,
+  v3AssetPaths.subjects.english,
+] as const;
+
+function ApprovedSubjectArtwork({ compact = false }: { compact?: boolean }) {
+  const artwork = compact ? heroSubjectArtwork.slice(0, 4) : heroSubjectArtwork;
+
   return (
-    <div className={compact ? "v3-home-book-stack is-compact" : "v3-home-book-stack"} aria-hidden="true">
-      <span className="is-math">الرياضيات</span>
-      <span className="is-physics">الفيزياء</span>
-      <span className="is-chemistry">الكيمياء</span>
-      <span className="is-biology">الأحياء</span>
-      <span className="is-arabic">اللغة العربية</span>
-      <span className="is-english">اللغة الإنجليزية</span>
+    <div
+      className={compact ? "v3-home-approved-art is-compact" : "v3-home-approved-art"}
+      aria-hidden="true"
+    >
+      {artwork.map((src, index) => (
+        <span className="v3-home-approved-art__item" key={src}>
+          <img
+            src={src}
+            alt=""
+            width={compact ? 58 : 74}
+            height={compact ? 58 : 74}
+            decoding="async"
+            loading={index > 1 ? "lazy" : undefined}
+          />
+        </span>
+      ))}
     </div>
   );
 }
@@ -92,7 +112,7 @@ export default function HomeExperience() {
         <section className="v3-home-hero" aria-labelledby="v3-home-title">
           <div className="v3-home-hero__visual" aria-hidden="true">
             <div className="v3-home-hero__glow" />
-            <BookStack />
+            <ApprovedSubjectArtwork />
             <div className="v3-home-hero__study-card">
               <img src={v3AssetPaths.actions.curriculum} alt="" width="112" height="112" decoding="async" />
             </div>
@@ -126,7 +146,7 @@ export default function HomeExperience() {
         <div className="v3-home-middle">
           <section className="v3-home-curriculum" aria-labelledby="v3-home-curriculum-title">
             <div className="v3-home-curriculum__art" aria-hidden="true">
-              <BookStack compact />
+              <ApprovedSubjectArtwork compact />
               <img src={v3AssetPaths.actions.curriculum} alt="" width="112" height="112" decoding="async" loading="lazy" />
             </div>
             <div className="v3-home-curriculum__copy">
