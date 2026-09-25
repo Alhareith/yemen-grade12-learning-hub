@@ -45,6 +45,10 @@ Do not treat an older stage snapshot as authority over a later frozen contract.
 | `23-stage5-regression-protected-legacy.md` | Stage 5H protected Legacy/data diff guard and full regression verification |
 | `24-curriculum-contract.md` | **canonical frozen Stage 5 Curriculum Experience contract** |
 | `25-stage5-closure.md` | Stage 5 closure evidence and Stage 6 handoff |
+| `26-stage5-5-home-boundary.md` | Stage 5.5A Home ownership/boundary lock against the exact-reference pack |
+| `27-stage5-5-home-visual-ux-contract.md` | Stage 5.5B frozen Home visual/UX implementation contract |
+| `28-stage5-5-mobile-home.md` | Stage 5.5C canonical mobile Home implementation record |
+| `29-stage5-5-desktop-home.md` | Stage 5.5D canonical desktop Home implementation record |
 
 ## Stage snapshots
 
